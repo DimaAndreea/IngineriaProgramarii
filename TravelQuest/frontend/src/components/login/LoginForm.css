@@ -1,0 +1,103 @@
+/* Layout general */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Selector user */
+.user-type-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.user-type-btn {
+  flex: 1;
+  padding: 8px 0;
+  background: #d0dae8;
+  border: 1px solid #b5c3d6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #3a4660;
+  transition: 0.2s;
+}
+
+.user-type-btn:hover {
+  background: #c2cee0;
+}
+
+.user-type-btn.active {
+  background: #3a7dff;
+  color: white;
+  border-color: #3a7dff;
+}
+
+/* Input */
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3a3a3a;
+}
+
+.input {
+  height: 38px;
+  border-radius: 4px;
+  border: 1px solid #bfc9d9;
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #3a7dff;
+  box-shadow: 0 0 0 2px rgba(58, 125, 255, 0.2);
+}
+
+.error-input {
+  border-color: #e53935 !important;
+}
+
+.error {
+  font-size: 13px;
+  color: #e53935;
+  margin-top: -10px;
+}
+
+.general-error {
+  text-align: center;
+}
+
+/* Login button */
+.login-btn {
+  height: 42px;
+  background: #3a7dff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-btn:hover {
+  background: #265bcc;
+}
+
+.login-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .user-type-selector {
+    gap: 4px;
+  }
+
+  .user-type-btn {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+}
