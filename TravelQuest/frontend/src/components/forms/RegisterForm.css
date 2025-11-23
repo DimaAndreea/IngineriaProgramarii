@@ -1,0 +1,82 @@
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 430px;
+
+  background: white;
+  padding: 40px 35px;
+  border-radius: 14px;
+  box-shadow: 0px 6px 26px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+  text-align: center;
+  font-size: 26px;
+  margin-bottom: 4px;
+  color: #1f2937;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 15px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+/* Success message */
+.success-msg {
+  text-align: center;
+  color: #16a34a;
+  font-size: 14px;
+}
+
+/* Keep this the same as login for consistency */
+.login-link {
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* PASSWORD FIELD WITH ICON */
+.password-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-field .input {
+  width: 100%;
+  padding-right: 42px !important; /* space for icon */
+}
+
+/* TOGGLE PASSWORD BUTTON INSIDE INPUT */
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-password-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #6b7280;
+  transition: 0.2s;
+}
+
+.toggle-password-btn:hover svg {
+  color: #374151;
+}
+
+.icon-eye,
+.icon-eye-off {
+  pointer-events: none;
+}
