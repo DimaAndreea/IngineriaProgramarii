@@ -1,11 +1,10 @@
-/* Layout general */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Selector user */
+/* user selector */
 .user-type-selector {
   display: flex;
   gap: 8px;
@@ -33,7 +32,7 @@
   border-color: #3a7dff;
 }
 
-/* Input */
+/* input */
 label {
   font-size: 14px;
   font-weight: 600;
@@ -68,7 +67,6 @@ label {
   text-align: center;
 }
 
-/* Login button */
 .login-btn {
   height: 42px;
   background: #3a7dff;
@@ -90,7 +88,6 @@ label {
   cursor: not-allowed;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .user-type-selector {
     gap: 4px;

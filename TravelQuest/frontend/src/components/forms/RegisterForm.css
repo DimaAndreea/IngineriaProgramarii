@@ -24,20 +24,17 @@
   margin-bottom: 10px;
 }
 
-/* Success message */
 .success-msg {
   text-align: center;
   color: #16a34a;
   font-size: 14px;
 }
 
-/* Keep this the same as login for consistency */
 .login-link {
   text-align: center;
   margin-top: 4px;
 }
 
-/* PASSWORD FIELD WITH ICON */
 .password-field {
   position: relative;
   display: flex;
@@ -47,10 +44,9 @@
 
 .password-field .input {
   width: 100%;
-  padding-right: 42px !important; /* space for icon */
+  padding-right: 42px !important; 
 }
 
-/* TOGGLE PASSWORD BUTTON INSIDE INPUT */
 .toggle-password-btn {
   position: absolute;
   right: 12px;

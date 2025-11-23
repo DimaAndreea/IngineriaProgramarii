@@ -1,5 +1,7 @@
 import { useState } from "react";
 import "./LoginForm.css";
+import { useAuth } from "../../context/AuthContext";  
+import { useNavigate } from "react-router-dom";      
 
 export default function LoginForm() {
   const [userType, setUserType] = useState("tourist");
@@ -7,6 +9,9 @@ export default function LoginForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const { login } = useAuth();  
+  const navigate = useNavigate(); 
 
   const validate = () => {
     const err = {};
@@ -33,19 +38,26 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
+      // login request
       const response = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: form.email,   
+          email: form.email,
           password: form.password,
           userType,
         }),
       });
 
-      if (!response.ok) throw new Error("Invalid credentials.");
+      if (!response.ok) {
+        throw new Error("Invalid credentials.");
+      }
 
-      alert("Logged in!");
+      const data = await response.json();
+
+      // expect backend to return: 
+      login(data.token);
+
     } catch (err) {
       setErrors({ general: err.message });
     }
