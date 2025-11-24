@@ -1,14 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import HomePage from "./pages/HomePage";
 import Navbar from "./components/layouts/Navbar";
 
-function ProtectedLayout({ children }) {
-  const { token } = useAuth();
-  if (!token) return <LoginPage />;
+import ItinerariesPage from "./pages/ItinerariesPage"; 
+import ActivePage from "./pages/ActiveItineraryPage";
+import MissionsPage from "./pages/MissionsPage";
+import AdminPanelPage from "./pages/AdminPanelPage";
 
+function ProtectedLayout({ children }) {
   return (
     <>
       <Navbar />
@@ -26,17 +30,67 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* pages only visible to logged in users*/}
+          {/* Home – visible to anyone logged in */}
           <Route
             path="/home"
             element={
-              <ProtectedLayout>
-                <HomePage />
-              </ProtectedLayout>
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <HomePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
             }
           />
 
-          {/* Default redirect */}
+          {/* Itineraries – visible to anyone logged in */}
+          <Route
+            path="/itineraries"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <ItinerariesPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Active Itinerary – visible to anyone logged in */}
+          <Route
+            path="/active"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <ActivePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Missions & Rewards – visible to anyone logged in */}
+          <Route
+            path="/missions"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <MissionsPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Panel – visible only to admin */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ProtectedLayout>
+                  <AdminPanelPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Catch-all */}
           <Route path="*" element={<LoginPage />} />
         </Routes>
       </AuthProvider>

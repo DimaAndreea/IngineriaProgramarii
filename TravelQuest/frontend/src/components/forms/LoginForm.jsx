@@ -38,25 +38,28 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      // login request
+      // request login to backend
       const response = await fetch("http://localhost:8080/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
           password: form.password,
-          userType,
+          role: userType,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Invalid credentials.");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Invalid credentials.");
       }
 
+      // backend should return token + role 
       const data = await response.json();
 
-      // expect backend to return: 
-      login(data.token);
+      login(data.token, data.role);
+
+      navigate("/home");
 
     } catch (err) {
       setErrors({ general: err.message });
