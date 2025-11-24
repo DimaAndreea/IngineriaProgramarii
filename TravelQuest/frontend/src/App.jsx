@@ -54,11 +54,11 @@ export default function App() {
             }
           />
 
-          {/* Active Itinerary – visible to anyone logged in */}
+          {/* Active Itinerary – visible to tourist/guide */}
           <Route
             path="/active"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["guide", "tourist"]}>
                 <ProtectedLayout>
                   <ActivePage />
                 </ProtectedLayout>
