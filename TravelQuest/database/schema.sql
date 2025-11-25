@@ -2,9 +2,9 @@
 CREATE TYPE user_role AS ENUM ('TOURIST', 'GUIDE', 'ADMIN');
 
 --- USER ---
-CREATE TABLE users (
+CREATE TABLE USERS (
                        user_id       BIGSERIAL PRIMARY KEY,
-                       role          user_role NOT NULL,
+                       role          VARCHAR(20) NOT NULL,
                        username      VARCHAR(20) NOT NULL UNIQUE,
                        password_hash VARCHAR(100) NOT NULL,
                        phone_number  VARCHAR(20) NOT NULL UNIQUE,
