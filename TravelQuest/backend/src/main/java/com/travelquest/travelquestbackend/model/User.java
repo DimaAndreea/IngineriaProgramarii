@@ -1,38 +1,126 @@
 package com.travelquest.travelquestbackend.model;
 
 import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
-    @Column(nullable = false)
-    private String password;
+    ///@Enumerated(EnumType.STRING)
+    @Convert(converter = UserRoleConverter.class)
+    @Column(name = "role", nullable = false)
+    private UserRole role;
 
     @Column(nullable = false, unique = true)
     private String username;
 
-    /// getters and setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    @Column(name = "phone_number", nullable = false, unique = true)
+    private String phoneNumber;
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    @Column(nullable = false, unique = true)
+    private String email;
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    private int level;
+    private int xp;
+
+    @Column(name = "travel_coins")
+    private int travelCoins;
+
+    public User() {
+    }
+
+    public User(Long id, UserRole role, String username, String passwordHash,
+                String phoneNumber, String email, int level, int xp, int travelCoins) {
+        this.id = id;
+        this.role = role;
+        this.username = username;
+        this.passwordHash = passwordHash;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.level = level;
+        this.xp = xp;
+        this.travelCoins = travelCoins;
+    }
+
+    // GETTERS & SETTERS
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public int getTravelCoins() {
+        return travelCoins;
+    }
+
+    public void setTravelCoins(int travelCoins) {
+        this.travelCoins = travelCoins;
+    }
 }
