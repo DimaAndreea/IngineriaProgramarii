@@ -23,24 +23,38 @@ public class AuthService {
         System.out.println("=== LOGIN DEBUG INFO ===");
         System.out.println("Email: " + request.getEmail());
         System.out.println("Password: " + request.getPassword());
+        System.out.println("Role from frontend: " + request.getRole());
         System.out.println("========================");
 
-        if (request.getEmail() == null || request.getPassword() == null) {
+        if (request.getEmail() == null || request.getPassword() == null || request.getRole() == null) {
             return new LoginResponse(false, "Missing credentials");
         }
 
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
 
         if (userOpt.isEmpty()) {
-            return new LoginResponse(false, "Credentials invalid");
+            return new LoginResponse(false, "Invalid credentials");
         }
 
         User user = userOpt.get();
 
+        // check password
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            return new LoginResponse(false, "Credentials invalid");
+            return new LoginResponse(false, "Invalid credentials");
         }
+
+        // check role
+        if (!user.getRole().name().equalsIgnoreCase(request.getRole())) {
+            System.out.println("Role mismatch! User has: " + user.getRole() +
+                    ", frontend sent: " + request.getRole());
+
+            return new LoginResponse(false, "Incorrect role selected");
+        }
+
+        System.out.println("Login SUCCESS for user: " + user.getUsername() +
+                " with role " + user.getRole());
 
         return new LoginResponse(true, "Login successful");
     }
+
 }
