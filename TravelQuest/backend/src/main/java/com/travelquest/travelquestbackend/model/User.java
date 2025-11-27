@@ -50,7 +50,7 @@ public class User {
         this.travelCoins = travelCoins;
     }
 
-    // GETTERS & SETTERS
+    /// GETTERS & SETTERS
 
     public Long getId() {
         return id;
