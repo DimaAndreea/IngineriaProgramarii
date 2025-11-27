@@ -7,7 +7,6 @@ export default function LoginPage() {
             <div className="login-card">
                 <h2 className="login-title">Welcome to TravelQuest!</h2>
                 <p className="login-subtitle">Choose your role and enter your credentials.</p>
-
                 <LoginForm />
             </div>
         </div>

@@ -6,29 +6,35 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 public class SecurityConfig {
 
-    // Bean pentru criptarea parolelor cu BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configurarea filtrelor de securitate
+    // IMPORTANT: dezactivezi user-ul default
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public UserDetailsService userDetailsService() {
+        return new InMemoryUserDetailsManager(); // fara user implicit
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // dezactivare CSRF
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // permitere register/login
-                        .anyRequest().authenticated()               // restul necesită autentificare
+                        .requestMatchers("/", "/index.html", "/static/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().permitAll()   // TEST – lasă totul liber
                 )
-                .formLogin(form -> form.disable())   // dezactivare form login
-                .httpBasic(httpBasic -> httpBasic.disable()); // dezactivare Basic Auth
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
-
 }

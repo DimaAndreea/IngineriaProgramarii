@@ -37,12 +37,10 @@ public class AuthService {
 
         User user = userOpt.get();
 
-        // verificăm parola cu bcrypt
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
             return new LoginResponse(false, "Credentials invalid");
         }
 
-        // succes: returnăm rolul și mesajul
         return new LoginResponse(true, "Login successful");
     }
 }
