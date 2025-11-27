@@ -8,12 +8,13 @@ export async function registerUser(data) {
             username: data.username,
             email: data.email,
             password: data.password,
-            phone_number: data.phone_number,
-            role: data.role
+            phoneNumber: data.phone_number,
+            role: data.role,
+            adminCode: data.adminCode,
         }),
     });
 
-    const result = await response.json();  
+    const result = await response.json();
 
     if (!response.ok || !result.success) {
         throw new Error(result.message || "Register failed");

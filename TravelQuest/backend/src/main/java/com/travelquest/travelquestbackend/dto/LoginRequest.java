@@ -12,7 +12,6 @@ public class LoginRequest {
         this.role = role;
     }
 
-    // GETTERS & SETTERS
     public String getEmail() {
         return email;
     }

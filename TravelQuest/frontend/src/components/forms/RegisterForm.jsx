@@ -48,7 +48,7 @@ export default function RegisterForm() {
         if (role === "admin") {
             if (!form.adminCode.trim())
                 err.adminCode = "Verification code is required for admin accounts.";
-            else if (form.adminCode.length < 4)
+            else if (form.adminCode != "codAdmin")
                 err.adminCode = "Invalid admin code.";
         }
 
@@ -72,10 +72,11 @@ export default function RegisterForm() {
 
             setSuccess("Account created successfully!");
             setErrors({});
-        } catch (err){
-            console.error(err);
-            setErrors({ general: "Registration failed." });
+        } catch (err) {
+            console.error("Registration error:", err);
+            setErrors({ general: err.message || "Registration failed." });
         }
+
     };
 
     return (

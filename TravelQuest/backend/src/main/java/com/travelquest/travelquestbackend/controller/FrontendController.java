@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class FrontendController {
 
-    // Orice cerere care NU conține un "." (adică nu este fișier static)
+    /// Orice cerere care NU conține un "." (adică nu este fișier static)
     @RequestMapping(value = {"/{path:[^\\.]*}", "/"})
     public String forward() {
         return "forward:/index.html";

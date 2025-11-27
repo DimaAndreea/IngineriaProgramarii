@@ -7,8 +7,17 @@ import com.travelquest.travelquestbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
+
+/************************************************************
+ * AuthService
+ *
+ * - Autentifica un user la login.
+ * - Verifica daca email-ul exista in baza de date.
+ * - Verifica parola folosind PasswordEncoder.
+ * - Verifica daca rolul trimis de frontend corespunde rolului userului.
+ * - Returneaza LoginResponse cu succes sau mesaj de eroare.
+ ************************************************************/
 
 @Service
 public class AuthService {

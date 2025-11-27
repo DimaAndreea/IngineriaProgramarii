@@ -5,11 +5,12 @@ public class RegisterRequest {
     private String username;
     private String email;
 
-    @JsonProperty("phone_number")
     private String phoneNumber;
 
     private String password;
-    private String role; // "ADMIN", "GUIDE", "TOURIST"
+    private String role; /// "ADMIN", "GUIDE", "TOURIST"
+
+    private String adminCode; /// Optional field for admin registration
 
     public RegisterRequest() {
     }
@@ -52,5 +53,12 @@ public class RegisterRequest {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getAdminCode() {
+        return adminCode;
+    }
+    public void setAdminCode(String adminCode) {
+        this.adminCode = adminCode;
     }
 }
