@@ -1,7 +1,6 @@
 import { useState } from "react";
 import "./LoginForm.css";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
     const [userType, setUserType] = useState("tourist");
@@ -12,7 +11,6 @@ export default function LoginForm() {
     const [showPassword, setShowPassword] = useState(false);
 
     const { login } = useAuth();
-    const navigate = useNavigate();
 
     const validate = () => {
         const err = {};
@@ -21,9 +19,11 @@ export default function LoginForm() {
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
             err.email = "Invalid email format.";
         }
+
         if (!form.password.trim()) {
             err.password = "Password is required.";
         }
+
         setErrors(err);
         return Object.keys(err).length === 0;
     };
@@ -43,26 +43,26 @@ export default function LoginForm() {
                 body: JSON.stringify({
                     email: form.email,
                     password: form.password,
-                    role: userType,
+                    role: userType.toUpperCase(),  // backend expects uppercase
                 }),
             });
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData.message || "Invalid credentials.");
+            const data = await response.json(); // parsed only once
+
+            if (!data.success) {
+                setErrors({ general: data.message || "Invalid credentials." });
+                setLoading(false);
+                return;
             }
 
-            const data = await response.json();
-            login(data.token, data.role);
+            // login & redirect handled by AuthContext
+            login(userType);
 
-            // Mesaj de succes
+            // show success briefly (optional)
             setSuccess(data.message || "Login successful!");
 
-            // Redirect după 1.5 secunde (opțional)
-            setTimeout(() => navigate("/home"), 1500);
-
         } catch (err) {
-            setErrors({ general: err.message });
+            setErrors({ general: "Server error. Please try again." });
         }
 
         setLoading(false);

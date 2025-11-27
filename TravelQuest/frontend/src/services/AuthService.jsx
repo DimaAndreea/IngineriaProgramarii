@@ -9,13 +9,15 @@ export async function registerUser(data) {
             email: data.email,
             password: data.password,
             phone_number: data.phone_number,
-            role: data.role,
+            role: data.role
         }),
     });
 
-    if (!response.ok) {
-        throw new Error("Register failed");
+    const result = await response.json();  
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || "Register failed");
     }
 
-    return await response.json();
+    return result;
 }

@@ -6,35 +6,32 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
     const navigate = useNavigate();
 
-    // token from localStorage
-    const [token, setToken] = useState(localStorage.getItem("authToken") || null);
-
-    // role from localStorage
+    // role from localStorage (persisted login)
     const [role, setRole] = useState(localStorage.getItem("role") || null);
 
-    // login
-    const login = (newToken, newRole) => {
-        localStorage.setItem("authToken", newToken);
-        localStorage.setItem("role", newRole);
+    // LOGIN (backend does not send token → only role is stored)
+    const login = (newRole) => {
+        const normalizedRole = newRole.toLowerCase();
 
-        setToken(newToken);
-        setRole(newRole);
+        // save role in localStorage
+        localStorage.setItem("role", normalizedRole);
 
+        // update state
+        setRole(normalizedRole);
+
+        // redirect to homepage
         navigate("/home");
     };
 
-    // logout
+    // LOGOUT
     const logout = () => {
-        localStorage.removeItem("authToken");
         localStorage.removeItem("role");
-
-        setToken(null);
         setRole(null);
 
         navigate("/login");
     };
 
-    const value = { token, role, login, logout };
+    const value = { role, login, logout };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
