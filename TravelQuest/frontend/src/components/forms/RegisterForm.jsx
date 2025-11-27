@@ -1,8 +1,11 @@
 import { useState } from "react";
 import "./RegisterForm.css";
 import { registerUser } from "../../services/authService";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterForm() {
+    const navigate = useNavigate(); 
+    
     const [role, setRole] = useState("tourist");
 
     const [form, setForm] = useState({
@@ -72,6 +75,11 @@ export default function RegisterForm() {
 
             setSuccess("Account created successfully!");
             setErrors({});
+
+            setTimeout(() => {
+                navigate("/login");
+            }, 1500);
+
         } catch (err){
             console.error(err);
             setErrors({ general: "Registration failed." });
