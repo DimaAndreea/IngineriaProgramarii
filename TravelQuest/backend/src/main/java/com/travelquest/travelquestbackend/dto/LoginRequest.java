@@ -6,9 +6,6 @@ public class LoginRequest {
     private String password;
     private String role;
 
-    public LoginRequest() {
-    }
-
     public LoginRequest(String email, String password, String role) {
         this.email = email;
         this.password = password;

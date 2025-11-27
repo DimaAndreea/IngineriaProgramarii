@@ -29,9 +29,8 @@ export default function RegisterForm() {
 
         if (!form.phone_number.trim())
             err.phone_number = "Phone number is required.";
-        else if (!/^\+[1-9]\d{6,14}$/.test(form.phone_number))
-            err.phone_number =
-                "Phone number must be in international format. Example: +1234567890";
+        else if (!/^0\d{9}$/.test(form.phone_number))
+            err.phone_number = "Invalid phone number. Example: 0722334455";
 
         if (!form.password.trim()) err.password = "Password is required.";
         else if (
@@ -130,6 +129,7 @@ export default function RegisterForm() {
                 }
             />
             {errors.phone_number && <p className="error">{errors.phone_number}</p>}
+
 
             {/* ADMIN CODE — ONLY WHEN ROLE IS ADMIN */}
             {role === "admin" && (

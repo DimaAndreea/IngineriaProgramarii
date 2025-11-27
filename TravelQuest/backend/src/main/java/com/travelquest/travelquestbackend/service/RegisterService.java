@@ -54,19 +54,16 @@ public class RegisterService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setPasswordHash(hashedPassword);
 
-        // Conversie string → enum
         try {
             user.setRole(UserRole.valueOf(request.getRole().toUpperCase()));
         } catch (IllegalArgumentException e) {
             return new LoginResponse(false, "Invalid role: " + request.getRole());
         }
 
-        // Setări inițiale
         user.setLevel(1);
         user.setXp(0);
         user.setTravelCoins(0);
 
-        // Salvare în baza de date
         userRepository.save(user);
 
         return new LoginResponse(true, "User registered successfully!");
