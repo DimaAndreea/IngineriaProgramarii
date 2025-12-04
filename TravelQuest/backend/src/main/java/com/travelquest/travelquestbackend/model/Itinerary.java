@@ -28,8 +28,8 @@ public class Itinerary {
     @Column(length = 20)
     private String category;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
+    @Column(name = "image", nullable = false, columnDefinition = "TEXT")
+    private String image;
 
     @Column(nullable = false)
     private Integer price = 0;
@@ -82,8 +82,8 @@ public class Itinerary {
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
 
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
 
     public Integer getPrice() { return price; }
     public void setPrice(Integer price) { this.price = price; }

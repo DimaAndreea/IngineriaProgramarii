@@ -21,9 +21,9 @@ public class ItineraryRequest {
 
     private String category;
 
-    @NotBlank(message = "Image URL is required")
-    @JsonProperty("image_url")
-    private String imageUrl;
+    @NotBlank(message = "Image is required")
+    @JsonProperty("image")
+    private String image;
 
     @Min(value = 0, message = "Price cannot be negative")
     private Integer price;

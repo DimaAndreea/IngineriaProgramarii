@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS itinerary (
                            title        VARCHAR(20)      NOT NULL,
                            description  VARCHAR(100),
                            category     VARCHAR(20),
-                           image_url VARCHAR(255) NOT NULL,
+                           image        TEXT NOT NULL,
                            price        INT              NOT NULL DEFAULT 0,
                            status       itinerary_status NOT NULL DEFAULT 'DRAFT',
                            created_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS itinerary_location (
                                     itinerary_id  BIGINT NOT NULL,
                                     country       VARCHAR(50) NOT NULL,
                                     city          VARCHAR(50) NOT NULL,
-                                    objective_name    VARCHAR(100) NOT NULL,
                                     order_index   INT NOT NULL DEFAULT 1,
 
                                     CONSTRAINT fk_itinerary_location_itinerary

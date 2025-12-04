@@ -47,7 +47,7 @@ public class ItineraryService {
         itinerary.setTitle(request.getTitle());
         itinerary.setDescription(request.getDescription());
         itinerary.setCategory(request.getCategory());
-        itinerary.setImageUrl(request.getImageUrl());
+        itinerary.setImage(request.getImage());
         itinerary.setPrice(request.getPrice());
         itinerary.setItineraryStartDate(request.getItineraryStartDate());
         itinerary.setItineraryEndDate(request.getItineraryEndDate());
@@ -115,7 +115,7 @@ public class ItineraryService {
         itinerary.setTitle(request.getTitle());
         itinerary.setDescription(request.getDescription());
         itinerary.setCategory(request.getCategory());
-        itinerary.setImageUrl(request.getImageUrl());
+        itinerary.setImage(request.getImage());
         itinerary.setPrice(request.getPrice());
         itinerary.setItineraryStartDate(request.getItineraryStartDate());
         itinerary.setItineraryEndDate(request.getItineraryEndDate());
