@@ -56,7 +56,12 @@ export default function LoginForm() {
             }
 
             // login & redirect handled by AuthContext
-            login(userType);
+            login({
+                role: data.role,
+                userId: data.userId,
+                username: data.username,
+            });
+
 
             // show success briefly (optional)
             setSuccess(data.message || "Login successful!");

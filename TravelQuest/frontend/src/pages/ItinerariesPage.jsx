@@ -3,7 +3,7 @@ import ItineraryCard from "../components/itineraries/ItineraryCard";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import { useAuth } from "../context/AuthContext";
 import {
-  getItinerariesForGuide,
+  getGuideItineraries,
   createItinerary,
   updateItinerary,
   deleteItinerary,
@@ -12,32 +12,25 @@ import {
 import "./ItinerariesPage.css";
 
 export default function ItinerariesPage() {
-  const { role } = useAuth();
+  const { role, userId } = useAuth();
   const isGuide = role === "guide";
 
-  const userId = localStorage.getItem("userId");   // 🔥 important
   const [itineraries, setItineraries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // ============================
-  //    FETCH FROM BACKEND
-  // ============================
   useEffect(() => {
     if (!userId) return;
 
-    getItinerariesForGuide(userId)
-      .then(data => setItineraries(data))
-      .catch(err => console.error("Failed to load itineraries:", err));
+    getGuideItineraries(userId)
+      .then((data) => {
+        console.log("BACKEND → FRONTEND DATA:", data);
+        setItineraries(data);
+      })
+      .catch((err) => console.error("Failed to load itineraries:", err));
   }, [userId]);
 
-
-  // ============================
-  //       CREATE
-  // ============================
   async function handleCreate(values) {
-    if (!isGuide) return;
-
     const payload = {
       ...values,
       guideId: Number(userId),
@@ -46,7 +39,7 @@ export default function ItinerariesPage() {
 
     try {
       const created = await createItinerary(payload);
-      setItineraries(prev => [...prev, created]);
+      setItineraries((prev) => [...prev, created]);
       setShowModal(false);
     } catch (err) {
       console.error(err);
@@ -54,14 +47,11 @@ export default function ItinerariesPage() {
     }
   }
 
-  // UPDATE
   async function handleUpdate(values) {
-    if (!isGuide) return;
-
     try {
       const updated = await updateItinerary(values.id, values);
-      setItineraries(prev =>
-        prev.map(it => (it.id === values.id ? updated : it))
+      setItineraries((prev) =>
+        prev.map((it) => (it.id === values.id ? updated : it))
       );
       setSelected(null);
       setShowModal(false);
@@ -71,14 +61,12 @@ export default function ItinerariesPage() {
     }
   }
 
-  // DELETE
   async function handleDelete(id) {
-    if (!isGuide) return;
     if (!confirm("Are you sure you want to delete this itinerary?")) return;
 
     try {
       await deleteItinerary(id);
-      setItineraries(prev => prev.filter(it => it.id !== id));
+      setItineraries((prev) => prev.filter((it) => it.id !== id));
     } catch (err) {
       console.error(err);
       alert("Failed to delete.");
@@ -88,7 +76,6 @@ export default function ItinerariesPage() {
   return (
     <div className="itineraries-page-container">
 
-      {/* CREATE BUTTON */}
       {isGuide && (
         <div className="mini-create-box" onClick={() => setShowModal(true)}>
           <span className="mini-create-text">Start planning a new itinerary...</span>
@@ -96,17 +83,16 @@ export default function ItinerariesPage() {
         </div>
       )}
 
-      {/* CARDS */}
       <div className="cards-grid">
         {itineraries.length === 0 && (
           <p className="empty-text">No itineraries available.</p>
         )}
 
-        {itineraries.map(it => (
+        {itineraries.map((it) => (
           <ItineraryCard
             key={it.id}
             itinerary={it}
-            canEdit={isGuide && it.guideId == userId}
+            canEdit={isGuide && it.creator?.id === Number(userId)}
             onEdit={() => {
               setSelected(it);
               setShowModal(true);
@@ -116,7 +102,6 @@ export default function ItinerariesPage() {
         ))}
       </div>
 
-      {/* MODAL */}
       {isGuide && (
         <ItineraryForm
           visible={showModal}

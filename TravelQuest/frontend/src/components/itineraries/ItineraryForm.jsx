@@ -8,10 +8,9 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         description: "",
         category: "",
         price: "",
-        start_date: "",
-        end_date: "",
-        image_base64: "",
-        status: "PENDING", // 🔥 important!
+        startDate: "",
+        endDate: "",
+        imageBase64: "",
         locations: [
             {
                 country: "",
@@ -26,21 +25,38 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // load initial values for edit mode
+    // ================================
+    //     LOAD INITIAL VALUES (EDIT)
+    // ================================
     useEffect(() => {
         if (initialValues) {
+            // ⚠️ NORMALIZARE OBIECTIVE
+            const normalizedLocations = initialValues.locations?.map(loc => ({
+                country: loc.country || "",
+                city: loc.city || "",
+                objectives: Array.isArray(loc.objectives)
+                    ? loc.objectives.map(obj => obj.name ?? obj) // <<<< cheia!
+                    : [""]
+            })) || [];
+
             setForm({
+                ...EMPTY_FORM,
                 ...initialValues,
-                status: initialValues.status || "PENDING"  // ensure status is set
+                startDate: initialValues.startDate || "",
+                endDate: initialValues.endDate || "",
+                imageBase64: initialValues.imageBase64 || "",
+                locations: normalizedLocations
             });
         } else {
             setForm(EMPTY_FORM);
         }
+
         setErrors({});
         setSuccess("");
     }, [initialValues]);
 
-    // make modal clean when reopening
+
+    // RESET FORM WHEN MODAL REOPENS (CREATE)
     useEffect(() => {
         if (visible && !initialValues) {
             setForm(EMPTY_FORM);
@@ -51,7 +67,9 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
 
     if (!visible) return null;
 
-    // VALIDATE
+    // ================================
+    //           VALIDATION
+    // ================================
     const validate = () => {
         const err = {};
 
@@ -62,12 +80,11 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         if (!form.price || Number(form.price) <= 0)
             err.price = "Price must be greater than 0.";
 
-        if (!form.start_date) err.start_date = "Start date is required.";
-        if (!form.end_date) err.end_date = "End date is required.";
-        if (form.end_date < form.start_date)
-            err.end_date = "End date cannot be before start date.";
+        if (!form.startDate) err.startDate = "Start date is required.";
+        if (!form.endDate) err.endDate = "End date is required.";
+        if (form.endDate < form.startDate)
+            err.endDate = "End date cannot be before start date.";
 
-        // validate locations
         form.locations.forEach((loc, index) => {
             if (!loc.country.trim()) err[`loc_${index}_country`] = "Country required.";
             if (!loc.city.trim()) err[`loc_${index}_city`] = "City required.";
@@ -77,14 +94,38 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
             });
         });
 
-        if (!initialValues && !form.image_base64)
-            err.image_base64 = "Image is required.";
+        if (!initialValues && !form.imageBase64)
+            err.imageBase64 = "Image is required.";
 
         setErrors(err);
         return Object.keys(err).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    // ================================
+    //    TRANSFORM TO BACKEND DTO
+    // ================================
+    const toBackendPayload = (form) => {
+        return {
+            guideId: Number(localStorage.getItem("userId")),
+            title: form.title,
+            description: form.description,
+            category: form.category,
+            price: Number(form.price),
+            imageBase64: form.imageBase64,
+            startDate: form.startDate,
+            endDate: form.endDate,
+            locations: form.locations.map(loc => ({
+                country: loc.country,
+                city: loc.city,
+                objectives: loc.objectives
+            }))
+        };
+    };
+
+    // ================================
+    //          SUBMIT HANDLER
+    // ================================
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
 
@@ -93,27 +134,34 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setSuccess("");
 
         try {
-            onSubmit(form);
+            const payload = toBackendPayload(form);
+            await onSubmit(payload);
 
             setSuccess("Itinerary saved successfully!");
             if (!initialValues) setForm(EMPTY_FORM);
 
         } catch (err) {
+            console.error(err);
             setErrors({ general: "Unexpected error. Try again." });
         }
 
         setLoading(false);
     };
 
+    // ================================
+    //       IMAGE UPLOAD HANDLER
+    // ================================
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = () => setForm({ ...form, image_base64: reader.result });
+        reader.onload = () => setForm({ ...form, imageBase64: reader.result });
         reader.readAsDataURL(file);
     };
 
-    // LOCATION HANDLERS 
+    // ================================
+    //      LOCATION HANDLERS
+    // ================================
     const addLocation = () => {
         setForm({
             ...form,
@@ -152,7 +200,9 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setForm({ ...form, locations: updated });
     };
 
-    // UI / RETURN
+    // ================================
+    //           RENDER FORM
+    // ================================
     return (
         <div className="modal-overlay">
             <div className="modal-container">
@@ -164,14 +214,12 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
 
                 <form className="itinerary-form" onSubmit={handleSubmit}>
 
-                    {/* GENERAL MESSAGE */}
                     {errors.general && <p className="error general-error">{errors.general}</p>}
                     {success && <p className="success-msg">{success}</p>}
 
                     {/* TITLE */}
                     <label>Title</label>
                     <input
-                        name="title"
                         className={errors.title ? "input error-input" : "input"}
                         value={form.title}
                         onChange={(e) => setForm({ ...form, title: e.target.value })}
@@ -182,7 +230,6 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     {/* DESCRIPTION */}
                     <label>Description</label>
                     <textarea
-                        name="description"
                         className={errors.description ? "input error-input" : "input"}
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -193,7 +240,6 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     {/* CATEGORY */}
                     <label>Category</label>
                     <input
-                        name="category"
                         className={errors.category ? "input error-input" : "input"}
                         value={form.category}
                         onChange={(e) => setForm({ ...form, category: e.target.value })}
@@ -205,7 +251,6 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     <label>Price (RON)</label>
                     <input
                         type="number"
-                        name="price"
                         className={errors.price ? "input error-input" : "input"}
                         value={form.price}
                         onChange={(e) => setForm({ ...form, price: e.target.value })}
@@ -218,14 +263,14 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     <input
                         type="file"
                         accept="image/*"
-                        className={errors.image_base64 ? "input error-input" : "input"}
+                        className={errors.imageBase64 ? "input error-input" : "input"}
                         onChange={handleImageUpload}
                     />
-                    {errors.image_base64 && <p className="error">{errors.image_base64}</p>}
+                    {errors.imageBase64 && <p className="error">{errors.imageBase64}</p>}
 
-                    {form.image_base64 && (
+                    {form.imageBase64 && (
                         <div className="image-preview">
-                            <img src={form.image_base64} alt="Preview" />
+                            <img src={form.imageBase64} alt="Preview" />
                         </div>
                     )}
 
@@ -235,27 +280,25 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                             <label>Start date</label>
                             <input
                                 type="date"
-                                name="start_date"
-                                className={errors.start_date ? "input error-input" : "input"}
-                                value={form.start_date}
-                                onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                                className={errors.startDate ? "input error-input" : "input"}
+                                value={form.startDate}
+                                onChange={(e) => setForm({ ...form, startDate: e.target.value })}
                             />
-                            {errors.start_date && <p className="error">{errors.start_date}</p>}
+                            {errors.startDate && <p className="error">{errors.startDate}</p>}
                         </div>
                         <div>
                             <label>End date</label>
                             <input
                                 type="date"
-                                name="end_date"
-                                className={errors.end_date ? "input error-input" : "input"}
-                                value={form.end_date}
-                                onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                                className={errors.endDate ? "input error-input" : "input"}
+                                value={form.endDate}
+                                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                             />
-                            {errors.end_date && <p className="error">{errors.end_date}</p>}
+                            {errors.endDate && <p className="error">{errors.endDate}</p>}
                         </div>
                     </div>
 
-                    {/* LOCATIONS SECTION */}
+                    {/* LOCATIONS */}
                     <h3 className="section-title">Locations</h3>
 
                     {form.locations.map((loc, i) => (
@@ -353,7 +396,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                         + Add location
                     </button>
 
-                    {/* BUTTONS */}
+                    {/* ACTION BUTTONS */}
                     <button className="login-btn" disabled={loading}>
                         {loading ? "Saving..." : initialValues ? "Save" : "Create"}
                     </button>
@@ -361,6 +404,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     <button type="button" className="cancel-btn" onClick={onClose}>
                         Cancel
                     </button>
+
                 </form>
             </div>
         </div>

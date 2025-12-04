@@ -35,16 +35,23 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
 
-        /// afișează datele primite în consola backend-ului
         System.out.println("Login attempt:");
         System.out.println("Email: " + request.getEmail());
         System.out.println("Password: " + request.getPassword());
         System.out.println("Role: " + request.getRole());
 
         LoginResponse response = authService.authenticate(request);
+
         System.out.println("Login success: " + response.isSuccess());
-        return ResponseEntity.status(response.isSuccess() ? 200 : 401).body(response);
+        System.out.println("User ID: " + response.getUserId());
+        System.out.println("Username: " + response.getUsername());
+        System.out.println("Role returned: " + response.getRole());
+
+        return ResponseEntity
+                .status(response.isSuccess() ? 200 : 401)
+                .body(response);
     }
+
 
 
     @PostMapping("/register")

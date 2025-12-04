@@ -2,7 +2,7 @@ import React from "react";
 import "./ItineraryCard.css";
 
 function getStatusInfo(statusFromBackend) {
-    const raw = (statusFromBackend || "pending").toLowerCase();
+    const raw = (statusFromBackend || "PENDING").toLowerCase();
 
     switch (raw) {
         case "approved":
@@ -16,7 +16,6 @@ function getStatusInfo(statusFromBackend) {
 }
 
 function getLocationLabel(itinerary) {
-    // locations: [{ city, country, objectives: [] }]
     if (Array.isArray(itinerary.locations) && itinerary.locations.length > 0) {
         const first = itinerary.locations[0];
         const city = first.city || "";
@@ -33,16 +32,17 @@ function getLocationLabel(itinerary) {
         return base || "Multiple locations";
     }
 
-    if (itinerary.location) {
-        return itinerary.location;
-    }
-
     return "No location";
 }
 
 export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) {
-    const img = itinerary.image_base64;
+
+    // ❗ backend trimite imageBase64, nu image_base64
+    const img = itinerary.imageBase64;
+
+    // ❗ status vine din enum-ul backend (APPROVED / PENDING / REJECTED)
     const { cssClass, label } = getStatusInfo(itinerary.status);
+
     const locationLabel = getLocationLabel(itinerary);
 
     return (
@@ -70,10 +70,11 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
                 </div>
 
                 <div className="info-row date">
-                    {itinerary.start_date} → {itinerary.end_date}
+                    {/* ❗ numele corecte venite din backend */}
+                    {itinerary.startDate} → {itinerary.endDate}
                 </div>
 
-                {/* STATUS – doar din backend (admin approval) */}
+                {/* STATUS */}
                 <div className={`status-badge ${cssClass}`}>
                     {label}
                 </div>
