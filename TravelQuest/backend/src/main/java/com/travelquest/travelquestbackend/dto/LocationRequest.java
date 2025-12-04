@@ -1,20 +1,19 @@
 package com.travelquest.travelquestbackend.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import java.util.List;
 
 @Data
 public class LocationRequest {
-    @NotBlank(message = "Country is required")
+    @JsonProperty("country")
     private String country;
 
-    @NotBlank(message = "City is required")
+    @JsonProperty("city")
     private String city;
 
-    @NotBlank(message = "Objective name is required")
-    private String objectiveName;
+    @JsonProperty("objectives") 
+    private List<MissionRequest> objectives; 
 
-    @NotNull(message = "Order index is required")
-    private Integer orderIndex;
+    private Integer orderIndex = 1;
 }

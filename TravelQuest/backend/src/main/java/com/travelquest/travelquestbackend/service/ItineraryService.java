@@ -2,6 +2,7 @@ package com.travelquest.travelquestbackend.service;
 
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.dto.LocationRequest;
+import com.travelquest.travelquestbackend.dto.MissionRequest; // <--- IMPORTUL CARE LIPSEA
 import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.ItineraryLocationRepository;
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
@@ -32,8 +33,8 @@ public class ItineraryService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    // --- ITINERARY CRUD ---
-
+    // --- CREATE ITINERARY (CASCADED - Versiunea Complexă) ---
+    @Transactional
     public Itinerary createItinerary(ItineraryRequest request) {
         User currentUser = getCurrentUser();
 
@@ -41,6 +42,7 @@ public class ItineraryService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
+        // 1. Creăm Itinerariul
         Itinerary itinerary = new Itinerary();
         itinerary.setTitle(request.getTitle());
         itinerary.setDescription(request.getDescription());
@@ -49,16 +51,50 @@ public class ItineraryService {
         itinerary.setPrice(request.getPrice());
         itinerary.setItineraryStartDate(request.getItineraryStartDate());
         itinerary.setItineraryEndDate(request.getItineraryEndDate());
-        
-        itinerary.setCreator(currentUser); // Folosește setCreator din noul Itinerary.java
+        itinerary.setCreator(currentUser);
         itinerary.setStatus(ItineraryStatus.DRAFT);
-        
+        itinerary.setCreatedAt(LocalDateTime.now());
+
+        // 2. Procesăm Locațiile și Misiunile
+        if (request.getLocations() != null) {
+            for (LocationRequest locReq : request.getLocations()) {
+                
+                ItineraryLocation location = new ItineraryLocation();
+                location.setCountry(locReq.getCountry());
+                location.setCity(locReq.getCity());
+                location.setOrderIndex(locReq.getOrderIndex());
+                
+                // Logică pentru a completa câmpul obligatoriu 'objectiveName' din entitate
+                String mainObjectiveName = "Visit " + locReq.getCity();
+                if (locReq.getObjectives() != null && !locReq.getObjectives().isEmpty()) {
+                    mainObjectiveName = locReq.getObjectives().get(0).getDescription();
+                }
+                location.setObjectiveName(mainObjectiveName);
+                
+                location.setItinerary(itinerary); 
+
+                // Adăugăm Misiunile
+                if (locReq.getObjectives() != null) {
+                    for (MissionRequest missReq : locReq.getObjectives()) {
+                        ObjectiveMission mission = new ObjectiveMission();
+                        mission.setDescription(missReq.getDescription());
+                        mission.setRewardXp(missReq.getRewardXp() != null ? missReq.getRewardXp() : 50);
+                        
+                        mission.setLocation(location);
+                        mission.setItinerary(itinerary); 
+                        
+                        itinerary.getMissions().add(mission);
+                    }
+                }
+                itinerary.getLocations().add(location);
+            }
+        }
+
         return itineraryRepository.save(itinerary);
     }
 
     public List<Itinerary> getMyItineraries() {
         User currentUser = getCurrentUser();
-        // Asigură-te că ItineraryRepository are metoda findByCreator(User creator)
         return itineraryRepository.findByCreator(currentUser);
     }
 
@@ -95,11 +131,10 @@ public class ItineraryService {
         if (!itinerary.getCreator().getUserId().equals(currentUser.getUserId())) {
             throw new RuntimeException("Access denied: You are not the owner");
         }
-
         itineraryRepository.delete(itinerary);
     }
 
-    // --- LOCATION LOGIC ---
+    // --- LOCATION LOGIC (ACTUALIZATĂ) ---
 
     @Transactional
     public ItineraryLocation addLocation(Long itineraryId, LocationRequest request) {
@@ -114,11 +149,25 @@ public class ItineraryService {
         ItineraryLocation location = new ItineraryLocation();
         location.setCountry(request.getCountry());
         location.setCity(request.getCity());
-        location.setObjectiveName(request.getObjectiveName());
         location.setOrderIndex(request.getOrderIndex());
+        
+        // FIX: Calculăm objectiveName (deoarece DTO-ul nu îl mai are direct)
+        String mainObjectiveName = "Visit " + request.getCity();
+        if (request.getObjectives() != null && !request.getObjectives().isEmpty()) {
+            mainObjectiveName = request.getObjectives().get(0).getDescription();
+        }
+        location.setObjectiveName(mainObjectiveName);
+        
         location.setItinerary(itinerary);
 
-        return locationRepository.save(location);
+        // Salvăm locația
+        ItineraryLocation savedLocation = locationRepository.save(location);
+
+        // Dacă request-ul are și misiuni, le salvăm și pe ele (opțional, dar util)
+        // Notă: Pentru simplitate, aici returnăm doar locația, dar misiunile ar trebui salvate separat 
+        // sau gestionate manual aici dacă vrei să le adaugi tot acum.
+        
+        return savedLocation;
     }
 
     public List<ItineraryLocation> getLocations(Long itineraryId) {

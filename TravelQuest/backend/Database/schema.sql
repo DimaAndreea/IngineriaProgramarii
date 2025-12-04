@@ -58,7 +58,6 @@ CREATE TABLE IF NOT EXISTS itinerary_location (
                                     itinerary_id  BIGINT NOT NULL,
                                     country       VARCHAR(50) NOT NULL,
                                     city          VARCHAR(50) NOT NULL,
-                                    objective_name    VARCHAR(100) NOT NULL,
                                     order_index   INT NOT NULL DEFAULT 1,
 
                                     CONSTRAINT fk_itinerary_location_itinerary
