@@ -1,7 +1,7 @@
 package com.travelquest.travelquestbackend.model;
 
 public enum ItineraryStatus {
-    //DRAFT,
+    DRAFT,
     PENDING,
     PUBLISHED,
     REJECTED

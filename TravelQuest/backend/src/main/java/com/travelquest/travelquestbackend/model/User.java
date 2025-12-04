@@ -9,37 +9,44 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long id;
+    private Long userId; // Am redenumit din 'id' in 'userId' ca sa se potriveasca cu Service-urile
 
-    ///@Enumerated(EnumType.STRING)
+    // Asigura-te ca ai clasa UserRoleConverter in pachetul model sau sterge linia @Convert daca folosesti string simplu
+    // Daca ai eroare aici, comenteaza @Convert si foloseste @Enumerated(EnumType.STRING)
     @Convert(converter = UserRoleConverter.class)
     @Column(name = "role", nullable = false)
     private UserRole role;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 20)
     private String username;
 
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
 
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    private int level;
-    private int xp;
+    @Column(nullable = false)
+    private int level = 1; // Default 1
 
-    @Column(name = "travel_coins")
-    private int travelCoins;
+    @Column(nullable = false)
+    private int xp = 0; // Default 0
+
+    @Column(name = "travel_coins", nullable = false)
+    private int travelCoins = 0; // Default 0
+
+    @Column(name = "created_at")
+    private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
 
     public User() {
     }
 
-    public User(Long id, UserRole role, String username, String passwordHash,
+    public User(Long userId, UserRole role, String username, String passwordHash,
                 String phoneNumber, String email, int level, int xp, int travelCoins) {
-        this.id = id;
+        this.userId = userId;
         this.role = role;
         this.username = username;
         this.passwordHash = passwordHash;
@@ -50,14 +57,15 @@ public class User {
         this.travelCoins = travelCoins;
     }
 
-    /// GETTERS & SETTERS
+    // --- GETTERS & SETTERS ACTUALIZATE ---
 
-    public Long getId() {
-        return id;
+    // Aici era problema: Service-ul cauta getUserId(), dar tu aveai getId()
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public UserRole getRole() {

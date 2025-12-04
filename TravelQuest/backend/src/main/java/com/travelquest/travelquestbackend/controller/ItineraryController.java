@@ -24,12 +24,13 @@ public class ItineraryController {
     @PreAuthorize("hasRole('GUIDE')") 
     public ResponseEntity<?> createItinerary(@Valid @RequestBody ItineraryRequest request) {
         try {
+            // Apelează metoda care acceptă DTO (ItineraryRequest)
             Itinerary created = itineraryService.createItinerary(request);
             return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating itinerary");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating itinerary: " + e.getMessage());
         }
     }
 

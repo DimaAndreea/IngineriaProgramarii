@@ -1,90 +1,140 @@
 package com.travelquest.travelquestbackend.service;
 
-import com.travelquest.travelquestbackend.model.Itinerary;
-import com.travelquest.travelquestbackend.model.ItineraryLocation;
-import com.travelquest.travelquestbackend.model.User;
-import com.travelquest.travelquestbackend.repository.ItineraryRepository;
+import com.travelquest.travelquestbackend.dto.ItineraryRequest;
+import com.travelquest.travelquestbackend.dto.LocationRequest;
+import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.ItineraryLocationRepository;
+import com.travelquest.travelquestbackend.repository.ItineraryRepository;
 import com.travelquest.travelquestbackend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ItineraryService {
 
-    private final ItineraryRepository itineraryRepository;
-    private final ItineraryLocationRepository itineraryLocationRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private ItineraryRepository itineraryRepository;
 
-    public ItineraryService(ItineraryRepository itineraryRepository,
-                            ItineraryLocationRepository itineraryLocationRepository,
-                            UserRepository userRepository) {
-        this.itineraryRepository = itineraryRepository;
-        this.itineraryLocationRepository = itineraryLocationRepository;
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
-    // -------------------------------------------
-    // GET ALL ITINERARIES
-    // -------------------------------------------
-    public List<Itinerary> getAllItineraries() {
-        return itineraryRepository.findAll();
-    }
+    @Autowired
+    private ItineraryLocationRepository locationRepository;
 
-    // -------------------------------------------
-    // GET ITINERARY BY ID
-    // -------------------------------------------
-    public Optional<Itinerary> getItineraryById(Long id) {
-        return itineraryRepository.findById(id);
-    }
-
-    // -------------------------------------------
-    // CREATE A NEW ITINERARY
-    // -------------------------------------------
-    public Itinerary createItinerary(Itinerary itinerary, Long userId) {
-
-        User user = userRepository.findById(userId)
+    private User getCurrentUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
-        itinerary.setUser(user); // assign creator
+    // --- ITINERARY CRUD ---
+
+    public Itinerary createItinerary(ItineraryRequest request) {
+        User currentUser = getCurrentUser();
+
+        if (request.getItineraryStartDate().isAfter(request.getItineraryEndDate())) {
+            throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        Itinerary itinerary = new Itinerary();
+        itinerary.setTitle(request.getTitle());
+        itinerary.setDescription(request.getDescription());
+        itinerary.setCategory(request.getCategory());
+        itinerary.setImageUrl(request.getImageUrl());
+        itinerary.setPrice(request.getPrice());
+        itinerary.setItineraryStartDate(request.getItineraryStartDate());
+        itinerary.setItineraryEndDate(request.getItineraryEndDate());
+        
+        itinerary.setCreator(currentUser); // Folosește setCreator din noul Itinerary.java
+        itinerary.setStatus(ItineraryStatus.DRAFT);
+        
         return itineraryRepository.save(itinerary);
     }
 
-    // -------------------------------------------
-    // ADD LOCATION TO ITINERARY
-    // -------------------------------------------
-    public ItineraryLocation addLocation(Long itineraryId, ItineraryLocation location) {
-
-        Itinerary itinerary = itineraryRepository.findById(itineraryId)
-                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
-
-        location.setItinerary(itinerary);
-        return itineraryLocationRepository.save(location);
+    public List<Itinerary> getMyItineraries() {
+        User currentUser = getCurrentUser();
+        // Asigură-te că ItineraryRepository are metoda findByCreator(User creator)
+        return itineraryRepository.findByCreator(currentUser);
     }
 
-    // -------------------------------------------
-    // GET LOCATIONS FOR ITINERARY
-    // -------------------------------------------
-    public List<ItineraryLocation> getLocationsByItinerary(Long itineraryId) {
-        return itineraryLocationRepository.findByItineraryId(itineraryId);
-    }
-
-    // -------------------------------------------
-    // DELETE ITINERARY
-    // -------------------------------------------
-    public void deleteItinerary(Long id, Long userId) {
-
+    @Transactional
+    public Itinerary updateItinerary(Long id, ItineraryRequest request) {
+        User currentUser = getCurrentUser();
         Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Itinerary not found"));
 
-        // Only the owner or an admin can delete
-        if (!itinerary.getUser().getId().equals(userId)
-                && !itinerary.getUser().getRole().equals(UserRole.ADMIN)) {
-            throw new RuntimeException("Not authorized to delete this itinerary");
+        if (!itinerary.getCreator().getUserId().equals(currentUser.getUserId())) {
+            throw new RuntimeException("Access denied: You are not the owner of this itinerary");
+        }
+
+        if (request.getItineraryStartDate().isAfter(request.getItineraryEndDate())) {
+             throw new IllegalArgumentException("Start date cannot be after end date");
+        }
+
+        itinerary.setTitle(request.getTitle());
+        itinerary.setDescription(request.getDescription());
+        itinerary.setCategory(request.getCategory());
+        itinerary.setImageUrl(request.getImageUrl());
+        itinerary.setPrice(request.getPrice());
+        itinerary.setItineraryStartDate(request.getItineraryStartDate());
+        itinerary.setItineraryEndDate(request.getItineraryEndDate());
+
+        return itineraryRepository.save(itinerary);
+    }
+
+    public void deleteItinerary(Long id) {
+        User currentUser = getCurrentUser();
+        Itinerary itinerary = itineraryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+
+        if (!itinerary.getCreator().getUserId().equals(currentUser.getUserId())) {
+            throw new RuntimeException("Access denied: You are not the owner");
         }
 
         itineraryRepository.delete(itinerary);
+    }
+
+    // --- LOCATION LOGIC ---
+
+    @Transactional
+    public ItineraryLocation addLocation(Long itineraryId, LocationRequest request) {
+        User currentUser = getCurrentUser();
+        Itinerary itinerary = itineraryRepository.findById(itineraryId)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+
+        if (!itinerary.getCreator().getUserId().equals(currentUser.getUserId())) {
+            throw new RuntimeException("Access denied: You do not own this itinerary");
+        }
+
+        ItineraryLocation location = new ItineraryLocation();
+        location.setCountry(request.getCountry());
+        location.setCity(request.getCity());
+        location.setObjectiveName(request.getObjectiveName());
+        location.setOrderIndex(request.getOrderIndex());
+        location.setItinerary(itinerary);
+
+        return locationRepository.save(location);
+    }
+
+    public List<ItineraryLocation> getLocations(Long itineraryId) {
+        Itinerary itinerary = itineraryRepository.findById(itineraryId)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+        return locationRepository.findByItineraryOrderByOrderIndexAsc(itinerary);
+    }
+
+    public void deleteLocation(Long locationId) {
+        User currentUser = getCurrentUser();
+        ItineraryLocation location = locationRepository.findById(locationId)
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        if (!location.getItinerary().getCreator().getUserId().equals(currentUser.getUserId())) {
+             throw new RuntimeException("Access denied: You do not own this itinerary");
+        }
+        locationRepository.delete(location);
     }
 }
