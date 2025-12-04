@@ -1,0 +1,104 @@
+.missions-container {
+    margin-top: 40px;
+}
+
+.section-title {
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.mission-item {
+    background: #fff;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    border: 1px solid #eee;
+}
+
+.mission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-text {
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.toggle-submissions-btn {
+    background: #4b7cff;
+    color: white;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.toggle-submissions-btn:hover {
+    background: #3a66dd;
+}
+
+.submissions-panel {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.submission-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    gap: 12px;
+}
+
+.submission-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.submission-name {
+    flex: 1;
+    font-size: 16px;
+}
+
+.submission-view-btn {
+    background: #eee;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.submission-view-btn:hover {
+    background: #ddd;
+}
+
+.submission-status {
+    margin-left: auto;
+    margin-right: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.submission-status.approved {
+    background: #e6f6ec;
+    color: #15803d;
+}
+
+.submission-status.rejected {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.submission-status.pending {
+    background: #e5e7eb;
+    color: #4b5563;
+}

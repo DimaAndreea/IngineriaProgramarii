@@ -1,0 +1,134 @@
+/* LAYOUT */
+.feedback-layout {
+    display: flex;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+/* SIDEBAR / FILTERS */
+.feedback-filters {
+    width: 260px;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+    height: fit-content;
+}
+
+.feedback-filters h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.filter-group {
+    margin-bottom: 18px;
+}
+
+.filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: white;
+    font-size: 14px;
+}
+
+.filter-checkbox {
+    font-size: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.filter-reset-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 10px;
+    background: #d9534f;
+    border: none;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-reset-btn:hover {
+    background: #c9302c;
+}
+
+/* FEEDBACK LIST */
+.feedback-container {
+    flex: 1;
+}
+
+.feedback-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.feedback-card {
+    background: #fff;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+    transition: 0.2s ease;
+}
+
+.feedback-card:hover {
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.08);
+}
+
+.feedback-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.feedback-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.feedback-name {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.feedback-stars {
+    color: #f4c150;
+    font-size: 16px;
+}
+
+.feedback-text {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #333;
+}
+
+/* pending state */
+.pending .feedback-name {
+    opacity: 0.7;
+}
+
+.feedback-pending-label {
+    font-size: 14px;
+    color: #999;
+}
+
+.pending-text {
+    font-style: italic;
+    color: #777;
+}
