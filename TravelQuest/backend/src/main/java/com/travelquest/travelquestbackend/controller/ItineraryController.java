@@ -2,6 +2,7 @@ package com.travelquest.travelquestbackend.controller;
 
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.Itinerary;
+import com.travelquest.travelquestbackend.model.ItineraryStatus;
 import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.service.ItineraryService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,7 +63,7 @@ public class ItineraryController {
     }
 
     // ======================
-    // ADMIN — GET ALL PENDING (IMPORTANT!)
+    // ADMIN — GET ALL PENDING
     // ======================
     @GetMapping("/pending")
     public List<Itinerary> pending() {
@@ -70,12 +71,37 @@ public class ItineraryController {
     }
 
     // ======================
-    // GET ONE (id must be LAST!)
+    // GET ONE (VISIBILITY RULE APPLIED)
     // ======================
     @GetMapping("/{id}")
-    public Itinerary getById(@PathVariable Long id) {
-        return service.getById(id);
+    public Itinerary getById(@PathVariable Long id, HttpServletRequest request) {
+
+        Itinerary it = service.getById(id);
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        boolean isCreator = (user != null && it.getCreator().getId().equals(user.getId()));
+        boolean isAdmin = (user != null && user.getRole().name().equals("ADMIN"));
+
+        // ADMIN poate vedea orice
+        if (isAdmin) {
+            return it;
+        }
+
+        // Oricine poate vedea itinerarii APPROVED
+        if (it.getStatus() == ItineraryStatus.APPROVED) {
+            return it;
+        }
+
+        // Creatorul poate vedea propriile itinerarii neaprobate
+        if (isCreator) {
+            return it;
+        }
+
+        // Altfel → acces interzis
+        throw new RuntimeException("You are not allowed to view this itinerary.");
     }
+
 
     // ======================
     // OTHER GETTERS

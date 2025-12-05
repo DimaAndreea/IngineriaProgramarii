@@ -196,3 +196,11 @@
   background: #ffcccc;
   transform: translateY(-2px);
 }
+
+.author-tag {
+  background: #eef2ff;
+  padding: 6px 14px;
+  border-radius: 12px;
+  color: #444;
+  font-weight: 600;
+}

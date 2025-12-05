@@ -75,6 +75,10 @@ public class ItineraryService {
             throw new RuntimeException("You cannot edit someone else's itinerary");
         }
 
+        if (itinerary.getStatus() != ItineraryStatus.PENDING) {
+            throw new RuntimeException("You cannot edit an itinerary that has been approved or rejected");
+        }
+
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
         itinerary.setCategory(req.getCategory());

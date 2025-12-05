@@ -129,3 +129,9 @@
 .soft-btn.delete:hover {
     background: #fecaca;
 }
+
+.author {
+  font-size: 14px;
+  color: #777;
+  margin-bottom: 4px;
+}

@@ -12,6 +12,15 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
     itinerary.itineraryId ||
     itinerary.itinerary_id;
 
+  const status = itinerary.status?.toUpperCase();
+
+  // RULES:
+  const canEditThis =
+    canEdit && status === "PENDING";
+
+  const canDeleteThis =
+    canEdit && (status === "PENDING" || status === "REJECTED");
+
   // When clicking the card → go to full page details
   const openDetails = () => {
     navigate(`/itineraries/${id}`);
@@ -43,29 +52,35 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
         {/* PRICE */}
         <p className="price">{itinerary.price} RON</p>
 
-        {/* BUTTONS ONLY FOR CREATOR */}
-        {canEdit && (
+        {/* ACTION BUTTONS BASED ON STATUS */}
+        {(canEditThis || canDeleteThis) && (
           <div className="actions">
 
-            <button
-              className="soft-btn edit"
-              onClick={(e) => {
-                e.stopPropagation(); // prevent opening details page
-                onEdit();
-              }}
-            >
-              Edit
-            </button>
+            {/* EDIT only if PENDING */}
+            {canEditThis && (
+              <button
+                className="soft-btn edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                Edit
+              </button>
+            )}
 
-            <button
-              className="soft-btn delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(id);
-              }}
-            >
-              Delete
-            </button>
+            {/* DELETE if PENDING or REJECTED */}
+            {canDeleteThis && (
+              <button
+                className="soft-btn delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(id);
+                }}
+              >
+                Delete
+              </button>
+            )}
 
           </div>
         )}

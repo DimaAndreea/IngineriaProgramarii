@@ -9,16 +9,27 @@ import "./ItineraryDetailsPage.css";
 export default function ItineraryDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userId, role } = useAuth();
+  const { userId } = useAuth();
 
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // Check if logged-in user is the creator
   const isCreator =
     itinerary?.creator?.id &&
     Number(itinerary.creator.id) === Number(userId);
 
+  const status = itinerary?.status?.toUpperCase();
+
+  // ========== NEW RULES ==========
+  const canEditThis =
+    isCreator && status === "PENDING";
+
+  const canDeleteThis =
+    isCreator && (status === "PENDING" || status === "REJECTED");
+
+  // LOAD ITINERARY
   useEffect(() => {
     async function load() {
       try {
@@ -33,23 +44,23 @@ export default function ItineraryDetailsPage() {
     load();
   }, [id]);
 
-  // ===== DELETE =====
+  // DELETE
   async function handleDelete() {
     if (!confirm("Are you sure you want to delete this itinerary?")) return;
 
     try {
-      await deleteItinerary(itinerary.itineraryId || itinerary.id);
-      navigate("/itineraries"); // redirect după ștergere
+      const realId = itinerary.itineraryId || itinerary.id;
+      await deleteItinerary(realId);
+      navigate("/itineraries");
     } catch (err) {
       console.error(err);
       alert("Delete failed.");
     }
   }
 
-  // ===== UPDATE =====
+  // UPDATE
   async function handleUpdate(values) {
-    const realId =
-      itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
+    const realId = itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
 
     try {
       const updated = await updateItinerary(realId, values);
@@ -67,15 +78,15 @@ export default function ItineraryDetailsPage() {
   return (
     <div className="details-wrapper">
 
-      {/* === IMAGE FULL WIDTH === */}
+      {/* IMAGE */}
       <div className="details-gallery">
         <img className="gallery-main" src={itinerary.imageBase64} alt="Itinerary" />
       </div>
 
-      {/* === TITLE === */}
+      {/* TITLE */}
       <h1 className="details-title">{itinerary.title}</h1>
 
-      {/* === META === */}
+      {/* META INFO */}
       <div className="details-meta-header">
         <span className="category-tag">{itinerary.category}</span>
 
@@ -88,7 +99,7 @@ export default function ItineraryDetailsPage() {
         </span>
       </div>
 
-      {/* === ABOUT CARD === */}
+      {/* ABOUT CARD */}
       <div className="details-card big">
         <h2>About this activity</h2>
 
@@ -100,21 +111,33 @@ export default function ItineraryDetailsPage() {
           <p><strong>Status:</strong> {itinerary.status}</p>
         </div>
 
-        {/* === EDIT / DELETE for CREATOR === */}
-        {isCreator && (
+        {/* ACTIONS — EDIT & DELETE */}
+        {(canEditThis || canDeleteThis) && (
           <div className="creator-action-row">
-            <button className="soft-btn edit" onClick={() => setShowEditModal(true)}>
-              Edit
-            </button>
 
-            <button className="soft-btn delete" onClick={handleDelete}>
-              Delete
-            </button>
+            {canEditThis && (
+              <button
+                className="soft-btn edit"
+                onClick={() => setShowEditModal(true)}
+              >
+                Edit
+              </button>
+            )}
+
+            {canDeleteThis && (
+              <button
+                className="soft-btn delete"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            )}
+
           </div>
         )}
       </div>
 
-      {/* === LOCATIONS GRID === */}
+      {/* LOCATIONS GRID */}
       <h2 className="section-title">Locations</h2>
 
       <div className="locations-grid">
@@ -135,17 +158,12 @@ export default function ItineraryDetailsPage() {
         ))}
       </div>
 
-      {/* REMOVE "COMING SOON" BOX IF YOU WANT */}
-      {/* <div className="bottom-price-box">
-        <h3 className="price-label">{itinerary.price} RON</h3>
-        <button className="primary-btn disabled">Coming soon</button>
-      </div> */}
-
+      {/* BACK BUTTON */}
       <button className="back-btn" onClick={() => navigate(-1)}>
         ← Back
       </button>
 
-      {/* === EDIT MODAL === */}
+      {/* EDIT MODAL */}
       <ItineraryForm
         visible={showEditModal}
         initialValues={itinerary}

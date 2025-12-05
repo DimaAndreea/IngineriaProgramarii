@@ -26,11 +26,17 @@ export function getPendingItineraries() {
 }
 
 export function approveItinerary(id) {
-  return request(`${BASE}/${id}/approve`, { method: "PATCH" });
+  return request(`${BASE}/${id}/approve`, {
+    method: "PATCH",
+    credentials: "include"
+  });
 }
 
 export function rejectItinerary(id) {
-  return request(`${BASE}/${id}/reject`, { method: "PATCH" });
+  return request(`${BASE}/${id}/reject`, {
+    method: "PATCH",
+    credentials: "include"
+  });
 }
 
 export function createItinerary(data) {
