@@ -11,89 +11,103 @@ import ItinerariesPage from "./pages/ItinerariesPage";
 import ActivePage from "./pages/ActiveItineraryPage";
 import MissionsPage from "./pages/MissionsPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage";
+import ItineraryDetailsPage from "./pages/ItineraryDetailsPage";
 
 function ProtectedLayout({ children }) {
   return (
-      <>
-        <Navbar />
-        {children}
-      </>
+    <>
+      <Navbar />
+      {children}
+    </>
   );
 }
 
 export default function App() {
   return (
-      <Router>
-        <AuthProvider>
-          <Routes>
-            {/* pages visible to everyone */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+    <Router>
+      <AuthProvider>
+        <Routes>
 
-            {/* Home – visible to anyone logged in */}
-            <Route
-                path="/home"
-                element={
-                  <ProtectedRoute>
-                    <ProtectedLayout>
-                      <HomePage />
-                    </ProtectedLayout>
-                  </ProtectedRoute>
-                }
-            />
+          {/* PUBLIC ROUTES */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-            {/* Itineraries – visible to anyone logged in */}
-            <Route
-                path="/itineraries"
-                element={
-                  <ProtectedRoute>
-                    <ProtectedLayout>
-                      <ItinerariesPage />
-                    </ProtectedLayout>
-                  </ProtectedRoute>
-                }
-            />
+          {/* DETAILS PAGE */}
+          <Route
+            path="/itineraries/:id"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <ItineraryDetailsPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Active Itinerary – visible to tourist/guide */}
-            <Route
-                path="/active"
-                element={
-                  <ProtectedRoute allowedRoles={["guide", "tourist"]}>
-                    <ProtectedLayout>
-                      <ActivePage />
-                    </ProtectedLayout>
-                  </ProtectedRoute>
-                }
-            />
+          {/* HOME */}
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <HomePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Missions & Rewards – visible to anyone logged in */}
-            <Route
-                path="/missions"
-                element={
-                  <ProtectedRoute>
-                    <ProtectedLayout>
-                      <MissionsPage />
-                    </ProtectedLayout>
-                  </ProtectedRoute>
-                }
-            />
+          {/* ITINERARIES LIST */}
+          <Route
+            path="/itineraries"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <ItinerariesPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Admin Panel – visible only to admin */}
-            <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    <ProtectedLayout>
-                      <AdminPanelPage />
-                    </ProtectedLayout>
-                  </ProtectedRoute>
-                }
-            />
+          {/* ACTIVE */}
+          <Route
+            path="/active"
+            element={
+              <ProtectedRoute allowedRoles={["guide", "tourist"]}>
+                <ProtectedLayout>
+                  <ActivePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Catch-all */}
-            <Route path="*" element={<LoginPage />} />
-          </Routes>
-        </AuthProvider>
-      </Router>
+          {/* MISSIONS */}
+          <Route
+            path="/missions"
+            element={
+              <ProtectedRoute>
+                <ProtectedLayout>
+                  <MissionsPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ADMIN */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <ProtectedLayout>
+                  <AdminPanelPage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* CATCH-ALL → LOGIN */}
+          <Route path="*" element={<LoginPage />} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }

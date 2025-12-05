@@ -1,0 +1,61 @@
+.participants-card {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin: 40px auto;
+}
+
+.participants-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.participant-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    transition: 0.25s ease;
+}
+
+.participant-item:hover {
+    background: #f6f8ff;
+}
+
+.participant-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.participant-role {
+    font-size: 13px;
+    color: #777;
+}
+
+.participant-level {
+    font-size: 13px;
+    color: #4b7cff;   
+    font-weight: 600;
+    margin-top: 2px;
+}
