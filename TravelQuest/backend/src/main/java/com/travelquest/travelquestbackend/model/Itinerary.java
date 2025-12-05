@@ -30,9 +30,10 @@ public class Itinerary {
     @Column(nullable = false)
     private Integer price = 0;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "itinerary_status", nullable = false)
+    @Convert(converter = ItineraryStatusConverter.class)
+    @Column(name = "status", nullable = false)
     private ItineraryStatus status;
+
 
     @Column(name = "itinerary_start_date", nullable = false)
     private LocalDate startDate;

@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS itinerary (
     category     VARCHAR(50),
     image_base64 TEXT,  -- stores base64 image from frontend
     price        INT NOT NULL DEFAULT 0,
-    status       itinerary_status NOT NULL DEFAULT 'PENDING',
+    status       VARCHAR(20) NOT NULL DEFAULT 'PENDING',
     created_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     itinerary_start_date DATE NOT NULL,
     itinerary_end_date   DATE NOT NULL,

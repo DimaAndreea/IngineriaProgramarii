@@ -2,7 +2,9 @@ package com.travelquest.travelquestbackend.controller;
 
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.Itinerary;
+import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.service.ItineraryService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,8 +20,14 @@ public class ItineraryController {
     }
 
     @PostMapping
-    public Itinerary create(@RequestBody ItineraryRequest req) {
-        return service.create(req);
+    public Itinerary create(@RequestBody ItineraryRequest req, HttpServletRequest request) {
+
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            throw new RuntimeException("Not logged in");
+        }
+
+        return service.create(req, user);
     }
 
     @PutMapping("/{id}")

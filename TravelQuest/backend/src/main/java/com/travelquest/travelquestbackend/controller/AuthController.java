@@ -14,8 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -44,35 +44,30 @@ public class AuthController {
         LoginResponse response = authService.authenticate(request);
 
         if (!response.isSuccess()) {
-            System.out.println("❌ Login failed");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        System.out.println("✅ Login successful. Creating session...");
-
-        // 1️⃣ Load user entity
+        // Load user
         User user = userRepository.findById(response.getUserId()).orElse(null);
         if (user == null) {
-            System.out.println("❌ User not found after login!");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
 
-        // 2️⃣ Create authentication token
+        // Spring Security authentication
         UsernamePasswordAuthenticationToken authToken =
-            new UsernamePasswordAuthenticationToken(
-                    user,
-                    null,
-                    List.of(() -> "ROLE_" + user.getRole().name())
-            );
+                new UsernamePasswordAuthenticationToken(
+                        user,
+                        null,
+                        List.of(() -> "ROLE_" + user.getRole().name())
+                );
 
-
-        // 3️⃣ Register authentication into Spring Security
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // 4️⃣ Create HTTP session → THIS GENERATES JSESSIONID COOKIE
-        httpRequest.getSession(true);
+        // Create session and store user
+        var session = httpRequest.getSession(true);
+        session.setAttribute("user", user);
 
-        System.out.println("✅ Session created. JSESSIONID should be sent now.");
+        System.out.println("Session created for user: " + user.getUsername());
 
         return ResponseEntity.ok(response);
     }
@@ -80,15 +75,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@RequestBody RegisterRequest request) {
-        System.out.println("=== REGISTER REQUEST RECEIVED ===");
-        System.out.println("Username: " + request.getUsername());
-        System.out.println("Email: " + request.getEmail());
-        System.out.println("Phone: " + request.getPhoneNumber());
-        System.out.println("Password: " + request.getPassword());
-        System.out.println("Role: " + request.getRole());
-        System.out.println("AdminCode: " + request.getAdminCode());
-        System.out.println("================================");
-
         LoginResponse response = registerService.register(request);
         return ResponseEntity.status(response.isSuccess() ? 200 : 400).body(response);
     }
