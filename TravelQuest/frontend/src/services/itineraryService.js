@@ -3,6 +3,7 @@ const BASE = `${API_BASE_URL}/api/itineraries`;
 
 async function request(url, options = {}) {
   const res = await fetch(url, {
+    credentials: "include",   // 🔥 OBLIGATORIU
     headers: { "Content-Type": "application/json" },
     ...options,
   });
@@ -10,6 +11,7 @@ async function request(url, options = {}) {
   if (!res.ok) throw new Error(await res.text());
   return res.status === 204 ? null : res.json();
 }
+
 
 export function createItinerary(data) {
   return request(BASE, {

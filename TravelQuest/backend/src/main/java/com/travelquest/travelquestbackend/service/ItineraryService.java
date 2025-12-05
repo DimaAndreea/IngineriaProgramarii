@@ -6,6 +6,7 @@ import com.travelquest.travelquestbackend.repository.ItineraryRepository;
 import com.travelquest.travelquestbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,9 +21,9 @@ public class ItineraryService {
         this.userRepository = userRepository;
     }
 
-    // ============================
-    // CREATE
-    // ============================
+    // ================================================================
+    //                      CREATE ITINERARY
+    // ================================================================
     public Itinerary create(ItineraryRequest req) {
 
         User creator = userRepository.findById(req.getGuideId())
@@ -34,25 +35,23 @@ public class ItineraryService {
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
+
         itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
         itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
 
-        // IMPORTANT!!!
-        if (req.getStatus() == null) {
-            itinerary.setStatus(ItineraryStatus.PENDING);
-        } else {
-            itinerary.setStatus(req.getStatus());
-        }
+        itinerary.setStatus(ItineraryStatus.PENDING);
 
         itinerary.setCreator(creator);
 
         // LOCATIONS
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
+
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
             loc.setCity(locDto.getCity());
 
+            // OBJECTIVES
             for (String objName : locDto.getObjectives()) {
                 ItineraryObjective obj = new ItineraryObjective();
                 obj.setLocation(loc);
@@ -66,9 +65,9 @@ public class ItineraryService {
         return itineraryRepository.save(itinerary);
     }
 
-    // ============================
-    // UPDATE
-    // ============================
+    // ================================================================
+    //                        UPDATE ITINERARY
+    // ================================================================
     public Itinerary update(Long id, ItineraryRequest req) {
         Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
@@ -85,6 +84,7 @@ public class ItineraryService {
         itinerary.getLocations().clear();
 
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
+
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
@@ -103,16 +103,25 @@ public class ItineraryService {
         return itineraryRepository.save(itinerary);
     }
 
+    // ================================================================
+    //                     DELETE ITINERARY
+    // ================================================================
     public void delete(Long id) {
         if (!itineraryRepository.existsById(id))
             throw new EntityNotFoundException("Itinerary not found");
         itineraryRepository.deleteById(id);
     }
 
+    // ================================================================
+    //                GET ITINERARIES FOR GUIDE (CREATOR)
+    // ================================================================
     public List<Itinerary> getGuideItineraries(Long guideId) {
         return itineraryRepository.findByCreatorId(guideId);
     }
 
+    // ================================================================
+    //           ADMIN APPROVAL / REJECTION
+    // ================================================================
     public Itinerary approve(Long id) {
         Itinerary it = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
@@ -127,6 +136,7 @@ public class ItineraryService {
         return itineraryRepository.save(it);
     }
 
+    // PUBLIC itineraries (visible to all)
     public List<Itinerary> getPublic() {
         return itineraryRepository.findByStatus(ItineraryStatus.APPROVED);
     }

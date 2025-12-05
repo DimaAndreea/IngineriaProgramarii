@@ -3,24 +3,19 @@ package com.travelquest.travelquestbackend.controller;
 import com.travelquest.travelquestbackend.dto.LoginRequest;
 import com.travelquest.travelquestbackend.dto.LoginResponse;
 import com.travelquest.travelquestbackend.dto.RegisterRequest;
+import com.travelquest.travelquestbackend.model.User;
+import com.travelquest.travelquestbackend.repository.UserRepository;
 import com.travelquest.travelquestbackend.service.AuthService;
 import com.travelquest.travelquestbackend.service.RegisterService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
-/***********************************************
- * Controller pentru autentificare si inregistrare
-
- * - Ofera endpoint-uri REST pentru login si register.
- * - Afiseaza datele primite in consola pentru debug.
- * - Returneaza raspunsuri standard (LoginResponse) cu status HTTP.
- *
- * Endpoint-uri:
- * 1. POST /api/auth/login   -> autentificare utilizator
- * 2. POST /api/auth/register -> inregistrare utilizator
-
- ***********************************************/
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,26 +27,55 @@ public class AuthController {
     @Autowired
     private RegisterService registerService;
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    @Autowired
+    private UserRepository userRepository;
 
-        System.out.println("Login attempt:");
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest
+    ) {
+
+        System.out.println("=== LOGIN REQUEST RECEIVED ===");
         System.out.println("Email: " + request.getEmail());
         System.out.println("Password: " + request.getPassword());
         System.out.println("Role: " + request.getRole());
 
         LoginResponse response = authService.authenticate(request);
 
-        System.out.println("Login success: " + response.isSuccess());
-        System.out.println("User ID: " + response.getUserId());
-        System.out.println("Username: " + response.getUsername());
-        System.out.println("Role returned: " + response.getRole());
+        if (!response.isSuccess()) {
+            System.out.println("❌ Login failed");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
 
-        return ResponseEntity
-                .status(response.isSuccess() ? 200 : 401)
-                .body(response);
+        System.out.println("✅ Login successful. Creating session...");
+
+        // 1️⃣ Load user entity
+        User user = userRepository.findById(response.getUserId()).orElse(null);
+        if (user == null) {
+            System.out.println("❌ User not found after login!");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        // 2️⃣ Create authentication token
+        UsernamePasswordAuthenticationToken authToken =
+            new UsernamePasswordAuthenticationToken(
+                    user,
+                    null,
+                    List.of(() -> "ROLE_" + user.getRole().name())
+            );
+
+
+        // 3️⃣ Register authentication into Spring Security
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        // 4️⃣ Create HTTP session → THIS GENERATES JSESSIONID COOKIE
+        httpRequest.getSession(true);
+
+        System.out.println("✅ Session created. JSESSIONID should be sent now.");
+
+        return ResponseEntity.ok(response);
     }
-
 
 
     @PostMapping("/register")
@@ -66,9 +90,6 @@ public class AuthController {
         System.out.println("================================");
 
         LoginResponse response = registerService.register(request);
-        System.out.println("Register response: " + response.getMessage());
         return ResponseEntity.status(response.isSuccess() ? 200 : 400).body(response);
     }
-
 }
-

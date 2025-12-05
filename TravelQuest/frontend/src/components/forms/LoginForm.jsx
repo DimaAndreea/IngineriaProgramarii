@@ -39,13 +39,17 @@ export default function LoginForm() {
         try {
             const response = await fetch("http://localhost:8088/api/auth/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                credentials: "include",    // 🔥 OBLIGATORIU
+                headers: { 
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     email: form.email,
                     password: form.password,
-                    role: userType.toUpperCase(),  // backend expects uppercase
+                    role: userType.toUpperCase(),
                 }),
             });
+
 
             const data = await response.json(); // parsed only once
 

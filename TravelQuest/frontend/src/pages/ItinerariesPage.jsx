@@ -19,6 +19,7 @@ export default function ItinerariesPage() {
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // LOAD ITINERARIES
   useEffect(() => {
     if (!userId) return;
 
@@ -30,6 +31,7 @@ export default function ItinerariesPage() {
       .catch((err) => console.error("Failed to load itineraries:", err));
   }, [userId]);
 
+  // CREATE
   async function handleCreate(values) {
     const payload = {
       ...values,
@@ -47,11 +49,17 @@ export default function ItinerariesPage() {
     }
   }
 
+  // UPDATE
   async function handleUpdate(values) {
+    const id =
+      values.id || values.itineraryId || values.itinerary_id;
+
     try {
-      const updated = await updateItinerary(values.id, values);
+      const updated = await updateItinerary(id, values);
       setItineraries((prev) =>
-        prev.map((it) => (it.id === values.id ? updated : it))
+        prev.map((it) =>
+          (it.id || it.itineraryId || it.itinerary_id) === id ? updated : it
+        )
       );
       setSelected(null);
       setShowModal(false);
@@ -61,12 +69,18 @@ export default function ItinerariesPage() {
     }
   }
 
+  // DELETE (FIXED!)
   async function handleDelete(id) {
     if (!confirm("Are you sure you want to delete this itinerary?")) return;
 
     try {
       await deleteItinerary(id);
-      setItineraries((prev) => prev.filter((it) => it.id !== id));
+      setItineraries((prev) =>
+        prev.filter(
+          (it) =>
+            (it.id || it.itineraryId || it.itinerary_id) !== id
+        )
+      );
     } catch (err) {
       console.error(err);
       alert("Failed to delete.");
@@ -75,7 +89,6 @@ export default function ItinerariesPage() {
 
   return (
     <div className="itineraries-page-container">
-
       {isGuide && (
         <div className="mini-create-box" onClick={() => setShowModal(true)}>
           <span className="mini-create-text">Start planning a new itinerary...</span>
@@ -83,40 +96,40 @@ export default function ItinerariesPage() {
         </div>
       )}
 
+      {/* CARDS */}
       <div className="cards-grid">
         {itineraries.length === 0 && (
           <p className="empty-text">No itineraries available.</p>
         )}
 
-        {itineraries.map((it) => (
-          <ItineraryCard
-            key={it.id}
-            itinerary={it}
-            canEdit={isGuide && it.creator?.id === Number(userId)}
-            onEdit={() => {
-              setSelected(it);
-              setShowModal(true);
-            }}
-            onDelete={handleDelete}
-          />
-        ))}
+        {itineraries.map((it) => {
+          const itineraryId = it.id || it.itineraryId || it.itinerary_id;
+
+          return (
+            <ItineraryCard
+              key={itineraryId}
+              itinerary={it}
+              canEdit={isGuide && it.creator?.id === Number(userId)}
+              onEdit={() => {
+                setSelected(it);
+                setShowModal(true);
+              }}
+              onDelete={() => handleDelete(itineraryId)}
+            />
+          );
+        })}
       </div>
 
       {isGuide && (
         <ItineraryForm
           visible={showModal}
           initialValues={selected}
-          onSubmit={
-            selected
-              ? (values) => handleUpdate({ ...values, id: selected.id })
-              : handleCreate
-          }
+          onSubmit={selected ? handleUpdate : handleCreate}
           onClose={() => {
             setShowModal(false);
             setSelected(null);
           }}
         />
-
       )}
     </div>
   );
