@@ -3,14 +3,25 @@ const BASE = `${API_BASE_URL}/api/itineraries`;
 
 async function request(url, options = {}) {
   const res = await fetch(url, {
-    credentials: "include",   // 🔥 OBLIGATORIU
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     ...options,
   });
 
-  if (!res.ok) throw new Error(await res.text());
-  return res.status === 204 ? null : res.json();
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || "Request failed");
+  }
+
+  // Dacă răspunsul NU are body → nu încerca să parsezi JSON
+  const contentType = res.headers.get("content-type");
+  if (!contentType || !contentType.includes("application/json")) {
+    return null;
+  }
+
+  return res.json();
 }
+
 
 
 export function createItinerary(data) {

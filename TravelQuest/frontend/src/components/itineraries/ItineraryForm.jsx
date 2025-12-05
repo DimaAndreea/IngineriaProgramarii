@@ -42,6 +42,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
             setForm({
                 ...EMPTY_FORM,
                 ...initialValues,
+                id: initialValues.id, 
                 startDate: initialValues.startDate || "",
                 endDate: initialValues.endDate || "",
                 imageBase64: initialValues.imageBase64 || "",
@@ -106,6 +107,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
     // ================================
     const toBackendPayload = (form) => {
         return {
+            id: form.id,
             guideId: Number(localStorage.getItem("userId")),
             title: form.title,
             description: form.description,

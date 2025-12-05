@@ -21,6 +21,9 @@ public class ItineraryService {
         this.userRepository = userRepository;
     }
 
+    // =====================================================
+    // CREATE
+    // =====================================================
     public Itinerary create(ItineraryRequest req, User creator) {
 
         if (creator == null) {
@@ -33,13 +36,13 @@ public class ItineraryService {
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
-
         itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
         itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
 
         itinerary.setStatus(ItineraryStatus.PENDING);
         itinerary.setCreator(creator);
 
+        // Build locations and objectives
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
 
             ItineraryLocation loc = new ItineraryLocation();
@@ -60,9 +63,18 @@ public class ItineraryService {
         return itineraryRepository.save(itinerary);
     }
 
-    public Itinerary update(Long id, ItineraryRequest req) {
+    // =====================================================
+    // UPDATE
+    // =====================================================
+    public Itinerary update(Long id, ItineraryRequest req, User loggedUser) {
+
         Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
+
+        // Check permission
+        if (!itinerary.getCreator().getId().equals(loggedUser.getId())) {
+            throw new RuntimeException("You cannot edit someone else's itinerary");
+        }
 
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
@@ -72,8 +84,10 @@ public class ItineraryService {
         itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
         itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
 
+        // Clear old locations
         itinerary.getLocations().clear();
 
+        // Add new locations
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
 
             ItineraryLocation loc = new ItineraryLocation();
@@ -94,12 +108,25 @@ public class ItineraryService {
         return itineraryRepository.save(itinerary);
     }
 
-    public void delete(Long id) {
-        if (!itineraryRepository.existsById(id))
-            throw new EntityNotFoundException("Itinerary not found");
-        itineraryRepository.deleteById(id);
+    // =====================================================
+    // DELETE
+    // =====================================================
+    public void delete(Long id, User loggedUser) {
+
+        Itinerary it = itineraryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
+
+        // Permission check
+        if (!it.getCreator().getId().equals(loggedUser.getId())) {
+            throw new RuntimeException("You cannot delete someone else's itinerary");
+        }
+
+        itineraryRepository.delete(it);
     }
 
+    // =====================================================
+    // OTHER METHODS
+    // =====================================================
     public List<Itinerary> getGuideItineraries(Long guideId) {
         return itineraryRepository.findByCreatorId(guideId);
     }

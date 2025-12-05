@@ -31,14 +31,28 @@ public class ItineraryController {
     }
 
     @PutMapping("/{id}")
-    public Itinerary update(@PathVariable Long id, @RequestBody ItineraryRequest req) {
-        return service.update(id, req);
+    public Itinerary update(@PathVariable Long id, @RequestBody ItineraryRequest req, HttpServletRequest request) {
+
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            throw new RuntimeException("Not logged in");
+        }
+
+        return service.update(id, req, user);
     }
 
+
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public void delete(@PathVariable Long id, HttpServletRequest request) {
+
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            throw new RuntimeException("Not logged in");
+        }
+
+        service.delete(id, user);
     }
+
 
     @GetMapping("/guide/{id}")
     public List<Itinerary> guideItineraries(@PathVariable Long id) {
