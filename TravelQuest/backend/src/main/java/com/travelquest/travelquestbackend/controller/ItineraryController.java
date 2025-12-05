@@ -19,6 +19,9 @@ public class ItineraryController {
         this.service = service;
     }
 
+    // ======================
+    // CREATE
+    // ======================
     @PostMapping
     public Itinerary create(@RequestBody ItineraryRequest req, HttpServletRequest request) {
 
@@ -30,6 +33,9 @@ public class ItineraryController {
         return service.create(req, user);
     }
 
+    // ======================
+    // UPDATE
+    // ======================
     @PutMapping("/{id}")
     public Itinerary update(@PathVariable Long id, @RequestBody ItineraryRequest req, HttpServletRequest request) {
 
@@ -41,7 +47,9 @@ public class ItineraryController {
         return service.update(id, req, user);
     }
 
-
+    // ======================
+    // DELETE
+    // ======================
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id, HttpServletRequest request) {
 
@@ -53,7 +61,25 @@ public class ItineraryController {
         service.delete(id, user);
     }
 
+    // ======================
+    // ADMIN — GET ALL PENDING (IMPORTANT!)
+    // ======================
+    @GetMapping("/pending")
+    public List<Itinerary> pending() {
+        return service.getPending();
+    }
 
+    // ======================
+    // GET ONE (id must be LAST!)
+    // ======================
+    @GetMapping("/{id}")
+    public Itinerary getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    // ======================
+    // OTHER GETTERS
+    // ======================
     @GetMapping("/guide/{id}")
     public List<Itinerary> guideItineraries(@PathVariable Long id) {
         return service.getGuideItineraries(id);
@@ -64,6 +90,9 @@ public class ItineraryController {
         return service.getPublic();
     }
 
+    // ======================
+    // ADMIN ACTIONS
+    // ======================
     @PatchMapping("/{id}/approve")
     public Itinerary approve(@PathVariable Long id) {
         return service.approve(id);

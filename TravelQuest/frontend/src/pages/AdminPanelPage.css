@@ -1,0 +1,65 @@
+.admin-wrapper {
+  max-width: 900px;
+  margin: auto;
+  padding: 30px;
+}
+
+.admin-title {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.admin-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-card {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.admin-card-body h3 {
+  margin: 0 0 6px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.approve-btn {
+  background: #4CAF50;
+  padding: 8px 14px;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #FF5252;
+  padding: 8px 14px;
+  color: white;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.empty-msg {
+  font-size: 18px;
+  color: #666;
+}
+
+.admin-loading {
+  text-align: center;
+  padding: 30px;
+}

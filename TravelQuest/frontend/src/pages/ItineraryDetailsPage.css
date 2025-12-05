@@ -1,0 +1,198 @@
+.details-wrapper {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* === IMAGE === */
+.details-gallery {
+  margin-bottom: 30px;
+}
+
+.gallery-main {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+/* === TITLE === */
+.details-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* === META TAGS === */
+.details-meta-header {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.category-tag {
+  background: #eef2ff;
+  padding: 6px 14px;
+  border-radius: 12px;
+  color: #3f48cc;
+  font-weight: 600;
+}
+
+.status-tag {
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.status-tag.pending { background: #fff2c2; color: #b58b00; }
+.status-tag.approved { background: #d9ffe2; color: #008f3c; }
+.status-tag.rejected { background: #ffd4d4; color: #c20000; }
+
+.date-range {
+  font-weight: 500;
+  color: #555;
+}
+
+/* === ABOUT CARD === */
+.details-card.big {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  margin-bottom: 35px;
+}
+
+/* === SECTION TITLE === */
+.section-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+/* === GRID FOR LOCATIONS === */
+.locations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+/* === LOCATION CARDS === */
+.grid-card {
+  background: #f7f8ff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
+
+.grid-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.objectives-list li {
+  margin-left: 15px;
+  margin-bottom: 4px;
+}
+
+/* === PRICE BOX === */
+.bottom-price-box {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.price-label {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  background: #7dabff;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.primary-btn.disabled {
+  background: #bcd3ff;
+  cursor: not-allowed;
+}
+
+.checklist p {
+  color: #444;
+  margin-bottom: 5px;
+}
+
+/* === BACK BUTTON === */
+.back-btn {
+  padding: 10px 20px;
+  background: #dfe6ff;
+  color: #3256e0;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+/* === EDIT & DELETE BUTTONS === */
+.creator-action-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+/* BASE STYLE */
+.soft-btn {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* EDIT BUTTON */
+.soft-btn.edit {
+  background: #e1eaff;
+  color: #2f4fd3;
+  box-shadow: 0 2px 6px rgba(47, 79, 211, 0.2);
+}
+
+.soft-btn.edit:hover {
+  background: #cdd8ff;
+  transform: translateY(-2px);
+}
+
+/* DELETE BUTTON */
+.soft-btn.delete {
+  background: #ffe0e0;
+  color: #c32828;
+  box-shadow: 0 2px 6px rgba(195, 40, 40, 0.2);
+}
+
+.soft-btn.delete:hover {
+  background: #ffcccc;
+  transform: translateY(-2px);
+}

@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import "./ItineraryCard.css";
 
 export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) {
+  const navigate = useNavigate();
+
   const img = itinerary.imageBase64;
 
   const id =
@@ -9,16 +12,15 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
     itinerary.itineraryId ||
     itinerary.itinerary_id;
 
-  function getLocationLabel() {
-    if (Array.isArray(itinerary.locations) && itinerary.locations.length > 0) {
-      const first = itinerary.locations[0];
-      return `${first.city}, ${first.country}`;
-    }
-    return "No location";
-  }
+  // When clicking the card → go to full page details
+  const openDetails = () => {
+    navigate(`/itineraries/${id}`);
+  };
 
   return (
-    <div className="itinerary-card">
+    <div className="itinerary-card" onClick={openDetails}>
+      
+      {/* IMAGE */}
       <div className="card-image">
         {img ? (
           <img src={img} alt="Itinerary" />
@@ -27,30 +29,44 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
         )}
       </div>
 
+      {/* CONTENT */}
       <div className="card-body">
+
+        {/* TITLE */}
         <h3 className="title">{itinerary.title}</h3>
-        <p className="category">{itinerary.category}</p>
-        <p className="description">{itinerary.description}</p>
 
-        <div className="info-row">
-          <span>{getLocationLabel()}</span>
-          <span className="price">{itinerary.price} RON</span>
-        </div>
-
-        <div className="info-row date">
+        {/* DATES */}
+        <p className="date-small">
           {itinerary.startDate} → {itinerary.endDate}
-        </div>
+        </p>
 
+        {/* PRICE */}
+        <p className="price">{itinerary.price} RON</p>
+
+        {/* BUTTONS ONLY FOR CREATOR */}
         {canEdit && (
           <div className="actions">
-            <button className="soft-btn edit" onClick={onEdit}>
+
+            <button
+              className="soft-btn edit"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent opening details page
+                onEdit();
+              }}
+            >
               Edit
             </button>
 
-            {/* IMPORTANT!!! */}
-            <button className="soft-btn delete" onClick={() => onDelete(id)}>
+            <button
+              className="soft-btn delete"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(id);
+              }}
+            >
               Delete
             </button>
+
           </div>
         )}
       </div>

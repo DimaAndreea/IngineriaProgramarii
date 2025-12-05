@@ -13,43 +13,12 @@ async function request(url, options = {}) {
     throw new Error(text || "Request failed");
   }
 
-  // Dacă răspunsul NU are body → nu încerca să parsezi JSON
   const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
     return null;
   }
 
   return res.json();
-}
-
-
-
-export function createItinerary(data) {
-  return request(BASE, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
-
-export function updateItinerary(id, data) {
-  return request(`${BASE}/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-}
-
-export function deleteItinerary(id) {
-  return request(`${BASE}/${id}`, {
-    method: "DELETE",
-  });
-}
-
-export function getGuideItineraries(id) {
-  return request(`${BASE}/guide/${id}`);
-}
-
-export function getPublicItineraries() {
-  return request(`${BASE}/public`);
 }
 
 export function getPendingItineraries() {
@@ -62,4 +31,31 @@ export function approveItinerary(id) {
 
 export function rejectItinerary(id) {
   return request(`${BASE}/${id}/reject`, { method: "PATCH" });
+}
+
+export function createItinerary(data) {
+  return request(BASE, { method: "POST", body: JSON.stringify(data) });
+}
+
+export function updateItinerary(id, data) {
+  return request(`${BASE}/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function deleteItinerary(id) {
+  return request(`${BASE}/${id}`, { method: "DELETE" });
+}
+
+export function getGuideItineraries(id) {
+  return request(`${BASE}/guide/${id}`);
+}
+
+export function getPublicItineraries() {
+  return request(`${BASE}/public`);
+}
+
+export function getItineraryById(id) {
+  return request(`${BASE}/${id}`);
 }
