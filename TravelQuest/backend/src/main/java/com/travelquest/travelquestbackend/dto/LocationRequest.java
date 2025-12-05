@@ -12,8 +12,11 @@ public class LocationRequest {
     @JsonProperty("city")
     private String city;
 
+    // --- MODIFICARE AICI ---
+    // Era: List<MissionRequest> objectives;
+    // Acum: List<String> objectives; (Acceptăm text simplu de la frontend)
     @JsonProperty("objectives") 
-    private List<MissionRequest> objectives; 
+    private List<String> objectives; 
 
     private Integer orderIndex = 1;
 }

@@ -8,10 +8,11 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         description: "",
         category: "",
         price: "",
-        start_date: "",
-        end_date: "",
-        image_base64: "",
+        itinerary_start_date: "",
+        itinerary_end_date: "",
+        image: "",
         status: "PENDING", // 🔥 important!
+        //status: "DRAFT", // if you want to use DRAFT instead"
         locations: [
             {
                 country: "",
@@ -62,10 +63,10 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         if (!form.price || Number(form.price) <= 0)
             err.price = "Price must be greater than 0.";
 
-        if (!form.start_date) err.start_date = "Start date is required.";
-        if (!form.end_date) err.end_date = "End date is required.";
-        if (form.end_date < form.start_date)
-            err.end_date = "End date cannot be before start date.";
+        if (!form.itinerary_start_date) err.itinerary_start_date = "Start date is required.";
+        if (!form.itinerary_end_date) err.itinerary_end_date = "End date is required.";
+        if (form.itinerary_end_date < form.itinerary_start_date)
+            err.itinerary_end_date = "End date cannot be before start date.";
 
         // validate locations
         form.locations.forEach((loc, index) => {
@@ -77,8 +78,8 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
             });
         });
 
-        if (!initialValues && !form.image_base64)
-            err.image_base64 = "Image is required.";
+        if (!initialValues && !form.image)
+            err.image = "Image is required.";
 
         setErrors(err);
         return Object.keys(err).length === 0;
@@ -105,13 +106,26 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setLoading(false);
     };
 
-    const handleImageUpload = (e) => {
+    //ORIGINAL IMAGE UPLOAD HANDLER
+    /*const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = () => setForm({ ...form, image_base64: reader.result });
         reader.readAsDataURL(file);
+    };*/
+
+    // IMAGE UPLOAD HANDLER NOU:
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+
+        if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {setForm({ ...form, image: reader.result });};
+        reader.readAsDataURL(file);
+        }
     };
+    
 
     // LOCATION HANDLERS 
     const addLocation = () => {
@@ -218,14 +232,14 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     <input
                         type="file"
                         accept="image/*"
-                        className={errors.image_base64 ? "input error-input" : "input"}
+                        className={errors.image ? "input error-input" : "input"}
                         onChange={handleImageUpload}
                     />
-                    {errors.image_base64 && <p className="error">{errors.image_base64}</p>}
+                    {errors.image && <p className="error">{errors.image}</p>}
 
-                    {form.image_base64 && (
+                    {form.image && (
                         <div className="image-preview">
-                            <img src={form.image_base64} alt="Preview" />
+                            <img src={form.image} alt="Preview" />
                         </div>
                     )}
 
@@ -235,23 +249,23 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                             <label>Start date</label>
                             <input
                                 type="date"
-                                name="start_date"
-                                className={errors.start_date ? "input error-input" : "input"}
-                                value={form.start_date}
-                                onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+                                name="itinerary_start_date"
+                                className={errors.itinerary_start_date ? "input error-input" : "input"}
+                                value={form.itinerary_start_date}
+                                onChange={(e) => setForm({ ...form, itinerary_start_date: e.target.value })}
                             />
-                            {errors.start_date && <p className="error">{errors.start_date}</p>}
+                            {errors.itinerary_start_date && <p className="error">{errors.itinerary_start_date}</p>}
                         </div>
                         <div>
                             <label>End date</label>
                             <input
                                 type="date"
-                                name="end_date"
-                                className={errors.end_date ? "input error-input" : "input"}
-                                value={form.end_date}
-                                onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                                name="itinerary_end_date"
+                                className={errors.itinerary_end_date ? "input error-input" : "input"}
+                                value={form.itinerary_end_date}
+                                onChange={(e) => setForm({ ...form, itinerary_end_date: e.target.value })}
                             />
-                            {errors.end_date && <p className="error">{errors.end_date}</p>}
+                            {errors.itinerary_end_date && <p className="error">{errors.itinerary_end_date}</p>}
                         </div>
                     </div>
 

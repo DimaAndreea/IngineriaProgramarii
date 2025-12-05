@@ -41,7 +41,7 @@ function getLocationLabel(itinerary) {
 }
 
 export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) {
-    const img = itinerary.image_base64;
+    const img = itinerary.image;
     const { cssClass, label } = getStatusInfo(itinerary.status);
     const locationLabel = getLocationLabel(itinerary);
 
@@ -70,7 +70,7 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
                 </div>
 
                 <div className="info-row date">
-                    {itinerary.start_date} → {itinerary.end_date}
+                    {itinerary.itinerary_start_date} → {itinerary.itinerary_end_date}
                 </div>
 
                 {/* STATUS – doar din backend (admin approval) */}

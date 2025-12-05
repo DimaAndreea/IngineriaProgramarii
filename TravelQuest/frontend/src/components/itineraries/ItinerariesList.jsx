@@ -1,9 +1,9 @@
 import React from "react";
 
-function computeStatus(start_date, end_date) {
+function computeStatus(itinerary_start_date, itinerary_end_date) {
   const now = new Date();
-  const s = new Date(start_date);
-  const e = new Date(end_date);
+  const s = new Date(itinerary_start_date);
+  const e = new Date(itinerary_end_date);
 
   if (now < s) return "UPCOMING";
   if (now > e) return "FINISHED";
@@ -39,9 +39,9 @@ export default function ItinerariesList({ itineraries, onEdit, onDelete }) {
                 <td>{it.location}</td>
                 <td>{it.price} RON</td>
                 <td>
-                  {it.start_date} → {it.end_date}
+                  {it.itinerary_start_date} → {it.itinerary_end_date}
                 </td>
-                <td>{computeStatus(it.start_date, it.end_date)}</td>
+                <td>{computeStatus(it.itinerary_start_date, it.itinerary_end_date)}</td>
 
                 <td>
                   <button onClick={() => onEdit(it)}>Editează</button>
