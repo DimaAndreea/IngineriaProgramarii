@@ -1,0 +1,281 @@
+/* ============================
+   MODAL OVERLAY
+============================ */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* ============================
+   MODAL CONTAINER
+============================ */
+.modal-container {
+  background: white;
+  padding: 28px;
+  border-radius: 14px;
+  width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ============================
+   HEADER
+============================ */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 18px;
+}
+
+/* ============================
+   FORM
+============================ */
+.itinerary-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #fafafa;
+}
+
+.input:focus {
+  border-color: #7aa7ff;
+  background: #fff;
+  outline: none;
+}
+
+/* Highlight invalid input */
+.error-input {
+  border-color: #d9534f !important;
+}
+
+/* ============================
+   ERROR HANDLING
+============================ */
+.error {
+  color: #d9534f;
+  font-size: 13px;
+  margin-top: 4px;       /* FIX spacing */
+  margin-bottom: 6px;    /* FIX spacing */
+}
+
+.general-error {
+  text-align: center;
+}
+
+.success-msg {
+  color: #28a745;
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* ============================
+   IMAGE PREVIEW
+============================ */
+.image-preview img {
+  width: 100%;
+  margin-top: 8px;
+  border-radius: 8px;
+}
+
+/* ============================
+   DATES ROW
+============================ */
+.dates-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ============================
+   PRIMARY BUTTON
+============================ */
+.login-btn {
+  background: #3b7cff;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.2s;
+}
+
+.login-btn:hover {
+  background: #2f69e5;
+}
+
+.login-btn:disabled {
+  background: #9bbcff;
+  cursor: not-allowed;
+}
+
+/* Cancel button */
+.cancel-btn {
+  background: #e6e6e6;
+  color: #444;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.cancel-btn:hover {
+  background: #d5d5d5;
+}
+
+/* ============================
+   LOCATIONS SECTION
+============================ */
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+/* Location card */
+.location-box {
+  background: #f8f9ff;
+  border: 1px solid #dfe4ff;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Location header */
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.location-header h4 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.remove-location-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-location-btn:hover {
+  background: #e05555;
+}
+
+/* OBJECTIVES SECTION */
+.small-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.objective-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.remove-objective-btn {
+  background: #d9534f;
+  color: white;
+  border: none;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.remove-objective-btn:hover {
+  background: #bd3f3b;
+}
+
+.add-objective-btn {
+  background: #eef2ff;
+  color: #4b5cff;
+  border: 1px solid #c5cfff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+}
+
+.add-objective-btn:hover {
+  background: #e2e7ff;
+}
+
+/* ADD LOCATION BUTTON */
+.add-location-btn {
+  background: #fff;
+  color: #3b7cff;
+  border: 2px dashed #7aa7ff;
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-location-btn:hover {
+  background: #f0f4ff;
+}

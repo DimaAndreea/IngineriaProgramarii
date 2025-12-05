@@ -1,0 +1,53 @@
+.active-itinerary-page {
+    padding: 40px 60px;
+}
+
+/* TITLE */
+.active-itinerary-page .page-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* NEXT/PREV BUTTONS */
+.active-itinerary-page .nav-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 25px 0;
+}
+
+.active-itinerary-page .nav-btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+.active-itinerary-page .nav-btn.prev {
+    background: #f1f1f1;
+}
+
+.active-itinerary-page .nav-btn.prev:hover {
+    background: #e7e7e7;
+}
+
+.active-itinerary-page .nav-btn.next {
+    background: #4b7cff;
+    color: white;
+}
+
+.active-itinerary-page .nav-btn.next:hover {
+    background: #3c6ae6;
+}
+
+.active-itinerary-page .nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.active-itinerary-page .stage-content {
+    margin-top: 40px;
+}

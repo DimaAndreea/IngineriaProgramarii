@@ -4,38 +4,41 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    // role from localStorage (persisted login)
-    const [role, setRole] = useState(localStorage.getItem("role") || null);
+  const [auth, setAuth] = useState(() => {
+    const stored = localStorage.getItem("auth");
+    return stored
+      ? JSON.parse(stored)
+      : { role: null, userId: null, username: null };
+  });
 
-    // LOGIN (backend does not send token → only role is stored)
-    const login = (newRole) => {
-        const normalizedRole = newRole.toLowerCase();
-
-        // save role in localStorage
-        localStorage.setItem("role", normalizedRole);
-
-        // update state
-        setRole(normalizedRole);
-
-        // redirect to homepage
-        navigate("/home");
+  const login = ({ role, userId, username }) => {
+    const authData = {
+      role: role.toLowerCase(),
+      userId,
+      username,
     };
 
-    // LOGOUT
-    const logout = () => {
-        localStorage.removeItem("role");
-        setRole(null);
+    localStorage.setItem("auth", JSON.stringify(authData));
+    setAuth(authData);
 
-        navigate("/login");
-    };
+    navigate("/home");
+  };
 
-    const value = { role, login, logout };
+  const logout = () => {
+    localStorage.removeItem("auth");
+    setAuth({ role: null, userId: null, username: null });
+    navigate("/login");
+  };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ ...auth, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
-    return useContext(AuthContext);
+  return useContext(AuthContext);
 }

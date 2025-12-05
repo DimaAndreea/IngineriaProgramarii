@@ -39,13 +39,17 @@ export default function LoginForm() {
         try {
             const response = await fetch("http://localhost:8088/api/auth/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                credentials: "include",  
+                headers: { 
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({
                     email: form.email,
                     password: form.password,
-                    role: userType.toUpperCase(),  // backend expects uppercase
+                    role: userType.toUpperCase(),
                 }),
             });
+
 
             const data = await response.json(); // parsed only once
 
@@ -56,7 +60,12 @@ export default function LoginForm() {
             }
 
             // login & redirect handled by AuthContext
-            login(userType);
+            login({
+                role: data.role,
+                userId: data.userId,
+                username: data.username,
+            });
+
 
             // show success briefly (optional)
             setSuccess(data.message || "Login successful!");
