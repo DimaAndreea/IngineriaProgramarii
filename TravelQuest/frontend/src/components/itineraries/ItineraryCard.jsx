@@ -44,6 +44,8 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
         {/* TITLE */}
         <h3 className="title">{itinerary.title}</h3>
 
+        <p className="author">By: {itinerary.creator?.username}</p>
+
         {/* DATES */}
         <p className="date-small">
           {itinerary.startDate} → {itinerary.endDate}

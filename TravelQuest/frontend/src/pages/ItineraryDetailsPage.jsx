@@ -94,6 +94,9 @@ export default function ItineraryDetailsPage() {
           {itinerary.status}
         </span>
 
+        <span className="author-tag">By: {itinerary.creator?.username}</span>
+
+
         <span className="date-range">
           {itinerary.startDate} → {itinerary.endDate}
         </span>
