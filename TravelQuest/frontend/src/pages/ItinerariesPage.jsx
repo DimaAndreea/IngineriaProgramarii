@@ -106,12 +106,17 @@ export default function ItinerariesPage() {
         <ItineraryForm
           visible={showModal}
           initialValues={selected}
-          onSubmit={selected ? handleUpdate : handleCreate}
+          onSubmit={
+            selected
+              ? (values) => handleUpdate({ ...values, id: selected.id })
+              : handleCreate
+          }
           onClose={() => {
             setShowModal(false);
             setSelected(null);
           }}
         />
+
       )}
     </div>
   );
