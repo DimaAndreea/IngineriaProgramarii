@@ -17,7 +17,7 @@ public class ItineraryLocation {
 
     @ManyToOne
     @JoinColumn(name = "itinerary_id", nullable = false)
-    @JsonBackReference   // ← PREVINE recursia cu Itinerary
+    @JsonBackReference   // PREVINE recursia cu Itinerary
     private Itinerary itinerary;
 
     @Column(name = "country", nullable = false)
@@ -27,7 +27,7 @@ public class ItineraryLocation {
     private String city;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference    // ← parent pentru objectives
+    @JsonManagedReference    // parent pentru objectives
     private List<ItineraryObjective> objectives = new ArrayList<>();
 
     // GETTERS & SETTERS

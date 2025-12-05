@@ -9,26 +9,24 @@ export async function registerUser(data) {
         username: data.username,
         email: data.email,
         password: data.password,
-        phoneNumber: data.phone_number, // camelCase pentru backend
+        phoneNumber: data.phone_number, 
         role: data.role,
-        adminCode: data.role === "admin" ? data.adminCode : null, // trimite doar dacă admin
+        adminCode: data.role === "admin" ? data.adminCode : null, 
       }),
     });
 
-    // Debug: afișează răspunsul brut și statusul HTTP
     const text = await response.text();
     console.log("Raw response text:", text);
     console.log("HTTP status:", response.status);
 
     let result;
     try {
-      result = JSON.parse(text); // încearcă să parsezi JSON
+      result = JSON.parse(text); 
     } catch (err) {
       console.error("Failed to parse JSON:", err);
       throw new Error(`Invalid JSON response. Status: ${response.status}`);
     }
 
-    // Aruncă eroare dacă backend-ul nu returnează succes
     if (!response.ok || !result.success) {
       throw new Error(result?.message || "Register failed");
     }
@@ -37,6 +35,6 @@ export async function registerUser(data) {
 
   } catch (error) {
     console.error("Register request failed:", error);
-    throw error; // propagate error
+    throw error; 
   }
 }

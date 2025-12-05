@@ -28,10 +28,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // IMPORTANT: dezactivezi user-ul default
     @Bean
     public UserDetailsService userDetailsService() {
-        return new InMemoryUserDetailsManager(); // fara user implicit
+        return new InMemoryUserDetailsManager(); 
     }
 
     @Bean
@@ -41,7 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/static/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().permitAll()   // TEST – lasă totul liber
+                        .anyRequest().permitAll()   
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(httpBasic -> httpBasic.disable());

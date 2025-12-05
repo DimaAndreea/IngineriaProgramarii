@@ -10,7 +10,7 @@ public class ItineraryRequest {
     private String category;
     private int price;
     private String imageBase64;
-    private String startDate;  // îl convertim în LocalDate în Service
+    private String startDate;  
     private String endDate;
 
     private ItineraryStatus status = ItineraryStatus.PENDING; // DEFAULT

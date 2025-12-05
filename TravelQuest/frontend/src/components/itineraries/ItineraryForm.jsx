@@ -25,17 +25,14 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
     const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
 
-    // ================================
-    //     LOAD INITIAL VALUES (EDIT)
-    // ================================
+    // ----------------------------- LOAD INITIAL VALUES (EDIT) -----------------------------
     useEffect(() => {
         if (initialValues) {
-            // ⚠️ NORMALIZARE OBIECTIVE
             const normalizedLocations = initialValues.locations?.map(loc => ({
                 country: loc.country || "",
                 city: loc.city || "",
                 objectives: Array.isArray(loc.objectives)
-                    ? loc.objectives.map(obj => obj.name ?? obj) // <<<< cheia!
+                    ? loc.objectives.map(obj => obj.name ?? obj) 
                     : [""]
             })) || [];
 
@@ -56,7 +53,6 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setSuccess("");
     }, [initialValues]);
 
-
     // RESET FORM WHEN MODAL REOPENS (CREATE)
     useEffect(() => {
         if (visible && !initialValues) {
@@ -68,9 +64,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
 
     if (!visible) return null;
 
-    // ================================
-    //           VALIDATION
-    // ================================
+    // ----------------------------- VALIDATION -----------------------------
     const validate = () => {
         const err = {};
 
@@ -102,9 +96,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         return Object.keys(err).length === 0;
     };
 
-    // ================================
-    //    TRANSFORM TO BACKEND DTO
-    // ================================
+    // ----------------------------- TRANSFORM TO BACKEND DTO -----------------------------
     const toBackendPayload = (form) => {
         return {
             id: form.id,
@@ -124,9 +116,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         };
     };
 
-    // ================================
-    //          SUBMIT HANDLER
-    // ================================
+    // ----------------------------- SUBMIT HANDLER -----------------------------
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
@@ -150,9 +140,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setLoading(false);
     };
 
-    // ================================
-    //       IMAGE UPLOAD HANDLER
-    // ================================
+    // ----------------------------- IMAGE UPLOAD HANDLER -----------------------------
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -161,9 +149,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         reader.readAsDataURL(file);
     };
 
-    // ================================
-    //      LOCATION HANDLERS
-    // ================================
+    // ----------------------------- LOCATION HANDLERS -----------------------------
     const addLocation = () => {
         setForm({
             ...form,
@@ -202,9 +188,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         setForm({ ...form, locations: updated });
     };
 
-    // ================================
-    //           RENDER FORM
-    // ================================
+    // ----------------------------- RENDER FORM -----------------------------
     return (
         <div className="modal-overlay">
             <div className="modal-container">

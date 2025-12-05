@@ -23,9 +23,7 @@ export default function ItinerariesPage() {
   const isGuide = role === "guide";
   const isAdmin = role === "admin";
 
-  // ================================
-  // LOAD ITINERARIES BASED ON ROLE
-  // ================================
+  // ----------------------------- LOAD ITINERARIES BASED ON ROLE -----------------------------
   useEffect(() => {
     if (!role || !userId) return;
 
@@ -33,10 +31,9 @@ export default function ItinerariesPage() {
       try {
         if (isGuide) {
 
-          const mine = await getGuideItineraries(userId);   // toate ale lui
-          const approved = await getPublicItineraries();    // toate approved
+          const mine = await getGuideItineraries(userId);  
+          const approved = await getPublicItineraries();   
 
-          // ghidul nu trebuie să vadă approved duplicate
           const combined = [
             ...mine,
             ...approved.filter(a => a.creator.id !== Number(userId))
@@ -45,7 +42,6 @@ export default function ItinerariesPage() {
           setItineraries(combined);
 
         } else {
-          // turist / admin / alt ghid → doar approved
           const approved = await getPublicItineraries();
           setItineraries(approved);
         }
@@ -58,9 +54,7 @@ export default function ItinerariesPage() {
   }, [role, userId]);
 
 
-  // ================================
-  // CREATE
-  // ================================
+  // ----------------------------- CREATE -----------------------------
   async function handleCreate(values) {
     const payload = {
       ...values,
@@ -78,9 +72,7 @@ export default function ItinerariesPage() {
     }
   }
 
-  // ================================
-  // UPDATE
-  // ================================
+  // ----------------------------- UPDATE -----------------------------
   async function handleUpdate(values) {
     const id =
       values.id || values.itineraryId || values.itinerary_id;
@@ -100,9 +92,7 @@ export default function ItinerariesPage() {
     }
   }
 
-  // ================================
-  // DELETE
-  // ================================
+  // ----------------------------- DELETE -----------------------------
   async function handleDelete(id) {
     if (!confirm("Are you sure you want to delete this itinerary?")) return;
 
@@ -123,9 +113,7 @@ export default function ItinerariesPage() {
   return (
     <div className="itineraries-page-container">
 
-      {/* ================================
-          GUIDE — CREATE NEW ITINERARY
-      =================================*/}
+      {/* GUIDE — CREATE NEW ITINERARY */}
       {isGuide && (
         <div className="mini-create-box" onClick={() => setShowModal(true)}>
           <span className="mini-create-text">Start planning a new itinerary...</span>
@@ -133,9 +121,7 @@ export default function ItinerariesPage() {
         </div>
       )}
 
-      {/* ================================
-          ITINERARY CARD GRID
-      =================================*/}
+      {/* ITINERARY CARD GRID */}
       <div className="cards-grid">
         {itineraries.length === 0 && (
           <p className="empty-text">No itineraries available.</p>
@@ -163,9 +149,7 @@ export default function ItinerariesPage() {
         })}
       </div>
 
-      {/* ================================
-          GUIDE — CREATE/EDIT MODAL
-      =================================*/}
+      {/* GUIDE — CREATE/EDIT MODAL */}
       {isGuide && (
         <ItineraryForm
           visible={showModal}

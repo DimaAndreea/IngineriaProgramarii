@@ -14,7 +14,7 @@ public class ItineraryObjective {
 
     @ManyToOne
     @JoinColumn(name = "location_id", nullable = false)
-    @JsonBackReference   // ← PREVINE recursia cu Location
+    @JsonBackReference   // PREVINE recursia cu Location
     private ItineraryLocation location;
 
     @Column(name = "objective_name")

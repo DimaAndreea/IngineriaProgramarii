@@ -98,7 +98,7 @@ public class ItineraryController {
             return it;
         }
 
-        // Altfel → acces interzis
+        // Altfel -> acces interzis
         throw new RuntimeException("You are not allowed to view this itinerary.");
     }
 

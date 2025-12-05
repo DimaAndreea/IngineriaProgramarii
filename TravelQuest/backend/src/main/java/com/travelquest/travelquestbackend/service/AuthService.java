@@ -63,11 +63,10 @@ public class AuthService {
         System.out.println("Login SUCCESS for user: " + user.getUsername() +
                 " with role " + user.getRole());
 
-        // ⬇️ AICI TRIMITEM toate datele necesare frontend-ului
         return new LoginResponse(
                 true,
                 "Login successful",
-                user.getId(),        // IMPORTANT
+                user.getId(),       
                 user.getUsername(),
                 user.getRole().name()
         );

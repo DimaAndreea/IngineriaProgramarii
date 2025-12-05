@@ -39,7 +39,7 @@ export default function LoginForm() {
         try {
             const response = await fetch("http://localhost:8088/api/auth/login", {
                 method: "POST",
-                credentials: "include",    // 🔥 OBLIGATORIU
+                credentials: "include",  
                 headers: { 
                     "Content-Type": "application/json"
                 },

@@ -32,7 +32,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* DETAILS PAGE (MUST BE BEFORE WILDCARD) */}
+          {/* DETAILS PAGE */}
           <Route
             path="/itineraries/:id"
             element={

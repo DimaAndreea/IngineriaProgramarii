@@ -7,5 +7,5 @@ import java.util.List;
 public class LocationDto {
     private String country;
     private String city;
-    private List<String> objectives; // listă de nume (string)
+    private List<String> objectives; 
 }

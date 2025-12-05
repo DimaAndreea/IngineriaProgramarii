@@ -125,7 +125,7 @@ public class ItineraryService {
     }
 
     // =====================================================
-    // GET ONE — 🔥 NECESAR PENTRU DETALII
+    // GET ONE 
     // =====================================================
     public Itinerary getById(Long id) {
         return itineraryRepository.findById(id)
