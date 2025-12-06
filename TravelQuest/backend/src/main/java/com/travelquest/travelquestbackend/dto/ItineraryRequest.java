@@ -8,7 +8,7 @@ public class ItineraryRequest {
 
     private String title;
     private String description;
-    private String category;
+    private ItineraryCategory category;
     private int price;
     private String imageBase64;
     private String startDate;  
@@ -44,8 +44,9 @@ public class ItineraryRequest {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public ItineraryCategory getCategory() { return category; }
+    public void setCategory(ItineraryCategory category) { this.category = category; }
+
 
     public int getPrice() { return price; }
     public void setPrice(int price) { this.price = price; }

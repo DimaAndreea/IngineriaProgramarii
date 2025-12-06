@@ -22,7 +22,7 @@ public class Itinerary {
     private String description;
 
     @Convert(converter = ItineraryCategoryConverter.class)
-    @Column(length = 50)
+    @Column(name = "category")
     private ItineraryCategory category;
 
 
@@ -84,11 +84,11 @@ public class Itinerary {
         this.description = description;
     }
 
-    public String getCategory() {
+    public ItineraryCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(ItineraryCategory category) {
         this.category = category;
     }
 
