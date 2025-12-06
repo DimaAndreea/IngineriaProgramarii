@@ -1,5 +1,6 @@
 package com.travelquest.travelquestbackend.dto;
 
+import com.travelquest.travelquestbackend.model.ItineraryCategory;
 import com.travelquest.travelquestbackend.model.ItineraryStatus;
 import java.util.List;
 
