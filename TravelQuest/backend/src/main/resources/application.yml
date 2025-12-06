@@ -21,6 +21,8 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          use_get_generated_keys: true
 
 server:
   port: 8088

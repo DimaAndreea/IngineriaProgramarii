@@ -12,7 +12,7 @@ import jakarta.persistence.Converter;
  * AutoApply = true -> se aplica automat pentru toate campurile UserRole
  *******************************************************/
 
-@Converter(autoApply = true)
+@Converter(autoApply = false)
 public class UserRoleConverter implements AttributeConverter<UserRole, String> {
 
     @Override

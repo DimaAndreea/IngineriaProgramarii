@@ -63,7 +63,13 @@ public class AuthService {
         System.out.println("Login SUCCESS for user: " + user.getUsername() +
                 " with role " + user.getRole());
 
-        return new LoginResponse(true, "Login successful");
+        return new LoginResponse(
+                true,
+                "Login successful",
+                user.getId(),       
+                user.getUsername(),
+                user.getRole().name()
+        );
     }
 
 }
