@@ -3,6 +3,15 @@ import "./ItineraryForm.css";
 
 export default function ItineraryForm({ visible, initialValues, onSubmit, onClose }) {
 
+    // ENUM categories from backend
+    const CATEGORY_OPTIONS = [
+        { value: "CULTURAL", label: "Cultural" },
+        { value: "ADVENTURE", label: "Adventure" },
+        { value: "CITY_BREAK", label: "City Break" },
+        { value: "ENTERTAINMENT", label: "Entertainment" },
+        { value: "EXOTIC", label: "Exotic" }
+    ];
+
     const EMPTY_FORM = {
         title: "",
         description: "",
@@ -32,14 +41,14 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                 country: loc.country || "",
                 city: loc.city || "",
                 objectives: Array.isArray(loc.objectives)
-                    ? loc.objectives.map(obj => obj.name ?? obj) 
+                    ? loc.objectives.map(obj => obj.name ?? obj)
                     : [""]
             })) || [];
 
             setForm({
                 ...EMPTY_FORM,
                 ...initialValues,
-                id: initialValues.id, 
+                id: initialValues.id,
                 startDate: initialValues.startDate || "",
                 endDate: initialValues.endDate || "",
                 imageBase64: initialValues.imageBase64 || "",
@@ -103,7 +112,7 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
             guideId: Number(localStorage.getItem("userId")),
             title: form.title,
             description: form.description,
-            category: form.category,
+            category: form.category,  
             price: Number(form.price),
             imageBase64: form.imageBase64,
             startDate: form.startDate,
@@ -223,14 +232,21 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     />
                     {errors.description && <p className="error">{errors.description}</p>}
 
-                    {/* CATEGORY */}
+                    {/* CATEGORY — NOW DROPDOWN */}
                     <label>Category</label>
-                    <input
+                    <select
                         className={errors.category ? "input error-input" : "input"}
                         value={form.category}
                         onChange={(e) => setForm({ ...form, category: e.target.value })}
-                        placeholder="Adventure, Cultural..."
-                    />
+                    >
+                        <option value="">Select a category...</option>
+
+                        {CATEGORY_OPTIONS.map(opt => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
+                        ))}
+                    </select>
                     {errors.category && <p className="error">{errors.category}</p>}
 
                     {/* PRICE */}
