@@ -21,8 +21,10 @@ public class Itinerary {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 50)
-    private String category;
+    @Convert(converter = ItineraryCategoryConverter.class)
+    @Column(name = "category")
+    private ItineraryCategory category;
+
 
     @Column(name = "image_base64", columnDefinition = "TEXT")
     private String imageBase64;
@@ -82,11 +84,11 @@ public class Itinerary {
         this.description = description;
     }
 
-    public String getCategory() {
+    public ItineraryCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(ItineraryCategory category) {
         this.category = category;
     }
 
