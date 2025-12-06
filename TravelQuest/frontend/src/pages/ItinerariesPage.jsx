@@ -29,7 +29,7 @@ export default function ItinerariesPage() {
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // ----------------------------------- FILTER STATE (NO location, WITH price + sort) -----------------------------------
+  // ----------------------------------- FILTER STATE -----------------------------------
   const [filters, setFilters] = useState({
     categories: {
       all: true,
@@ -39,17 +39,25 @@ export default function ItinerariesPage() {
       rejected: false,
       others: false,
     },
+
     dates: { startFrom: "", startTo: "" },
 
     price: { min: 0, max: 50000 },
 
-    sort: "none", // none | priceAsc | priceDesc
+    category: {
+      cultural: false,
+      adventure: false,
+      citybreak: false,
+      entertainment: false,
+      exotic: false,
+    },
 
+    sort: "none",
     rating: "",
     searchGlobal: "",
   });
 
-  // Inject global search from navbar
+  // Inject global search into filters
   useEffect(() => {
     setFilters(prev => ({ ...prev, searchGlobal: globalSearch }));
   }, [globalSearch]);
@@ -74,86 +82,71 @@ export default function ItinerariesPage() {
     if (isGuide) load();
   }, [isGuide, userId]);
 
-  // ----------------------------------- MASTER FILTER (AND logic) -----------------------------------
+  // ----------------------------------- MASTER FILTER -----------------------------------
   useEffect(() => {
     let filtered = [...allData];
     const cat = filters.categories;
 
-    // CATEGORY FILTER
+    // OWNER / STATUS FILTERS
     if (!cat.all) {
       filtered = filtered.filter(it => {
         if (cat.mine && it.creator.id !== Number(userId)) return false;
-
         if (cat.approved && it.status.toUpperCase() !== "APPROVED") return false;
-
-        if (
-          cat.pending &&
-          !(it.status.toUpperCase() === "PENDING" && it.creator.id === Number(userId))
-        ) return false;
-
-        if (
-          cat.rejected &&
-          !(it.status.toUpperCase() === "REJECTED" && it.creator.id === Number(userId))
-        ) return false;
-
-        if (
-          cat.others &&
-          !(it.creator.id !== Number(userId) && it.status.toUpperCase() === "APPROVED")
-        ) return false;
-
+        if (cat.pending && !(it.status === "PENDING" && it.creator.id === Number(userId))) return false;
+        if (cat.rejected && !(it.status === "REJECTED" && it.creator.id === Number(userId))) return false;
+        if (cat.others && !(it.creator.id !== Number(userId) && it.status === "APPROVED")) return false;
         return true;
       });
     }
 
-    // DATE RANGE FILTER
+    // DATE RANGE
     if (filters.dates.startFrom) {
-      filtered = filtered.filter(
-        it => new Date(it.startDate) >= new Date(filters.dates.startFrom)
-      );
+      filtered = filtered.filter(it => new Date(it.startDate) >= new Date(filters.dates.startFrom));
     }
-
     if (filters.dates.startTo) {
-      filtered = filtered.filter(
-        it => new Date(it.startDate) <= new Date(filters.dates.startTo)
-      );
+      filtered = filtered.filter(it => new Date(it.startDate) <= new Date(filters.dates.startTo));
     }
 
-    // PRICE RANGE FILTER
-    filtered = filtered.filter(
-      it =>
-        Number(it.price) >= filters.price.min &&
-        Number(it.price) <= filters.price.max
+    // PRICE RANGE
+    filtered = filtered.filter(it =>
+      Number(it.price) >= filters.price.min &&
+      Number(it.price) <= filters.price.max
     );
 
-    // GLOBAL SEARCH FILTER
+    // CATEGORY TYPE FILTER (cultural, adventure, etc.)
+    const selectedCats = Object.keys(filters.category).filter(key => filters.category[key]);
+
+    if (selectedCats.length > 0) {
+      filtered = filtered.filter(it =>
+        selectedCats.includes(it.category?.toLowerCase())
+      );
+    }
+
+    // GLOBAL SEARCH
     if (filters.searchGlobal.trim()) {
       const term = filters.searchGlobal.toLowerCase();
 
       filtered = filtered.filter(it =>
         it.title.toLowerCase().includes(term) ||
         it.creator.username.toLowerCase().includes(term) ||
-        it.locations.some(
-          loc =>
-            loc.country.toLowerCase().includes(term) ||
-            loc.city.toLowerCase().includes(term)
+        it.locations.some(loc =>
+          loc.country.toLowerCase().includes(term) ||
+          loc.city.toLowerCase().includes(term)
         )
       );
     }
 
     // RATING FILTER
     if (filters.rating) {
-      filtered = filtered.filter(
-        it => (it.rating || 0) >= Number(filters.rating)
-      );
+      filtered = filtered.filter(it => (it.rating || 0) >= Number(filters.rating));
     }
 
-    // ----------------------------------- SORTING (APPLIED LAST) -----------------------------------
+    // SORTING
     if (filters.sort === "priceAsc") {
-      filtered = [...filtered].sort((a, b) => Number(a.price) - Number(b.price));
+      filtered.sort((a, b) => Number(a.price) - Number(b.price));
     }
-
     if (filters.sort === "priceDesc") {
-      filtered = [...filtered].sort((a, b) => Number(b.price) - Number(a.price));
+      filtered.sort((a, b) => Number(b.price) - Number(a.price));
     }
 
     setItineraries(filtered);
@@ -196,11 +189,10 @@ export default function ItinerariesPage() {
           </div>
         )}
 
-        {/* RESULT GRID */}
+        {/* GRID */}
         <div className="cards-grid">
           {itineraries.length === 0 && (
             <div className="no-results">
-              🔍 <br />
               <strong>No itineraries match your filters.</strong>
               <p>Try adjusting your filters or search criteria.</p>
             </div>

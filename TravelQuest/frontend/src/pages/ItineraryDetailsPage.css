@@ -4,7 +4,7 @@
   padding: 40px 20px;
 }
 
-/* === IMAGE === */
+/* IMAGE */
 .details-gallery {
   margin-bottom: 30px;
 }
@@ -16,21 +16,23 @@
   border-radius: 16px;
 }
 
-/* === TITLE === */
+/* TITLE */
 .details-title {
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 12px;
 }
 
-/* === META TAGS === */
+/* META TAGS */
 .details-meta-header {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
   margin-bottom: 30px;
+  flex-wrap: wrap;
 }
 
+/* CATEGORY TAG */
 .category-tag {
   background: #eef2ff;
   padding: 6px 14px;
@@ -39,22 +41,49 @@
   font-weight: 600;
 }
 
+/* STATUS BADGES */
 .status-tag {
-  padding: 6px 14px;
-  border-radius: 12px;
+  padding: 5px 12px;
+  border-radius: 10px;
   font-weight: 600;
+  font-size: 13px;
+  display: inline-block;
 }
 
-.status-tag.pending { background: #fff2c2; color: #b58b00; }
-.status-tag.approved { background: #d9ffe2; color: #008f3c; }
-.status-tag.rejected { background: #ffd4d4; color: #c20000; }
+.status-tag.pending {
+  background: #fff4cc;
+  color: #a07800;
+  border: 1px solid #f2df99;
+}
 
+.status-tag.rejected {
+  background: #ffe1e1;
+  color: #c54a4a;
+  border: 1px solid #f5bcbc;
+}
+
+.status-tag.published,
+.status-tag.approved {
+  background: #dfffe5;
+  color: #2f7a39;
+}
+
+/* DATE */
 .date-range {
   font-weight: 500;
   color: #555;
 }
 
-/* === ABOUT CARD === */
+/* AUTHOR TAG */
+.author-tag {
+  background: #eef2ff;
+  padding: 6px 14px;
+  border-radius: 12px;
+  color: #444;
+  font-weight: 600;
+}
+
+/* ABOUT CARD */
 .details-card.big {
   background: white;
   padding: 25px;
@@ -63,14 +92,14 @@
   margin-bottom: 35px;
 }
 
-/* === SECTION TITLE === */
+/* SECTION TITLE */
 .section-title {
   font-size: 24px;
   margin-bottom: 20px;
   margin-top: 10px;
 }
 
-/* === GRID FOR LOCATIONS === */
+/* GRID FOR LOCATIONS */
 .locations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
@@ -78,7 +107,7 @@
   margin-bottom: 40px;
 }
 
-/* === LOCATION CARDS === */
+/* LOCATION CARDS */
 .grid-card {
   background: #f7f8ff;
   padding: 20px;
@@ -104,7 +133,7 @@
   margin-bottom: 4px;
 }
 
-/* === PRICE BOX === */
+/* PRICE BOX */
 .bottom-price-box {
   background: #ffffff;
   padding: 25px;
@@ -142,7 +171,7 @@
   margin-bottom: 5px;
 }
 
-/* === BACK BUTTON === */
+/* BACK BUTTON */
 .back-btn {
   padding: 10px 20px;
   background: #dfe6ff;
@@ -152,14 +181,14 @@
   cursor: pointer;
 }
 
-/* === EDIT & DELETE BUTTONS === */
+/* CREATOR ACTION BUTTONS */
 .creator-action-row {
   display: flex;
   gap: 12px;
   margin-top: 18px;
 }
 
-/* BASE STYLE */
+/* BASE ACTION BUTTONS */
 .soft-btn {
   padding: 8px 18px;
   border-radius: 10px;
@@ -195,12 +224,4 @@
 .soft-btn.delete:hover {
   background: #ffcccc;
   transform: translateY(-2px);
-}
-
-.author-tag {
-  background: #eef2ff;
-  padding: 6px 14px;
-  border-radius: 12px;
-  color: #444;
-  font-weight: 600;
 }
