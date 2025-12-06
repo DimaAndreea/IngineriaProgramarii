@@ -25,12 +25,13 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**") // toate endpoint-urile
-                        .allowedOrigins("http://localhost:5173") // frontend-ul React
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:5173")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // 🔥 PATCH adăugat
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
     }
 }
+
