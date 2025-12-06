@@ -21,8 +21,10 @@ public class Itinerary {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Convert(converter = ItineraryCategoryConverter.class)
     @Column(length = 50)
-    private String category;
+    private ItineraryCategory category;
+
 
     @Column(name = "image_base64", columnDefinition = "TEXT")
     private String imageBase64;
