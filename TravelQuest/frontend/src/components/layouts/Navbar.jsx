@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import UserMenu from "./UserMenu";
 import "./Navbar.css";
 
 export default function Navbar() {
     const { role } = useAuth();
+    const navigate = useNavigate();
 
     const [menuOpen, setMenuOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
     return (
         <nav className="navbar">
@@ -16,11 +18,17 @@ export default function Navbar() {
             <div className="navbar-left">
                 <div className="logo">TravelQuest</div>
 
-                {/* search bar (desktop) */}
+                {/* SEARCH BAR */}
                 <input
                     type="text"
                     className="search-bar"
                     placeholder="Search itineraries..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchTerm(value);
+                        navigate(`/itineraries?search=${encodeURIComponent(value)}`);
+                    }}
                 />
 
                 {/* search icon (mobile) */}
@@ -32,7 +40,7 @@ export default function Navbar() {
                 </button>
             </div>
 
-            {/* CENTER BUTTONS (desktop only) */}
+            {/* CENTER BUTTONS */}
             <div className="navbar-center">
                 <Link to="/home" className="nav-btn">Home</Link>
                 <Link to="/itineraries" className="nav-btn">Itineraries</Link>
@@ -51,62 +59,43 @@ export default function Navbar() {
             {/* RIGHT SIDE */}
             <div className="navbar-right">
 
-                {/* wrapper for dropdown alignment */}
                 <div className="hamburger-wrapper">
-                    {/* HAMBURGER ICON (mobile only) */}
+
                     <button
                         className="hamburger"
                         onClick={() => setMenuOpen(prev => !prev)}
                         aria-label="Open menu"
                     >
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <span></span><span></span><span></span>
                     </button>
 
-                    {/* HAMBURGER DROPDOWN */}
                     {menuOpen && (
                         <div className="hamburger-dropdown">
-                            <Link
-                                to="/home"
-                                className="dropdown-item"
-                                onClick={() => setMenuOpen(false)}
-                            >
+                            <Link to="/home" className="dropdown-item"
+                                  onClick={() => setMenuOpen(false)}>
                                 Home
                             </Link>
 
-                            <Link
-                                to="/itineraries"
-                                className="dropdown-item"
-                                onClick={() => setMenuOpen(false)}
-                            >
+                            <Link to="/itineraries" className="dropdown-item"
+                                  onClick={() => setMenuOpen(false)}>
                                 Itineraries
                             </Link>
 
                             {(role === "guide" || role === "tourist") && (
-                                <Link
-                                    to="/active"
-                                    className="dropdown-item"
-                                    onClick={() => setMenuOpen(false)}
-                                >
+                                <Link to="/active" className="dropdown-item"
+                                      onClick={() => setMenuOpen(false)}>
                                     Active Itinerary
                                 </Link>
                             )}
 
-                            <Link
-                                to="/missions"
-                                className="dropdown-item"
-                                onClick={() => setMenuOpen(false)}
-                            >
+                            <Link to="/missions" className="dropdown-item"
+                                  onClick={() => setMenuOpen(false)}>
                                 Missions & Rewards
                             </Link>
 
                             {role === "admin" && (
-                                <Link
-                                    to="/admin"
-                                    className="dropdown-item"
-                                    onClick={() => setMenuOpen(false)}
-                                >
+                                <Link to="/admin" className="dropdown-item"
+                                      onClick={() => setMenuOpen(false)}>
                                     Admin Panel
                                 </Link>
                             )}
@@ -114,7 +103,6 @@ export default function Navbar() {
                     )}
                 </div>
 
-                {/* PROFILE USER MENU */}
                 <UserMenu />
             </div>
         </nav>
