@@ -12,6 +12,7 @@ import {
   createItinerary,
   updateItinerary,
   deleteItinerary,
+  getAllItineraries,   // 🔥 nou
 } from "../services/itineraryService";
 
 import "./ItinerariesPage.css";
@@ -19,6 +20,7 @@ import "./ItinerariesPage.css";
 export default function ItinerariesPage() {
   const { role, userId } = useAuth();
   const isGuide = role === "guide";
+  const isAdmin = role === "admin";
 
   const locationURL = useLocation();
   const globalSearch = new URLSearchParams(locationURL.search).get("search") || "";
@@ -57,44 +59,58 @@ export default function ItinerariesPage() {
     searchGlobal: "",
   });
 
-  // Inject global search into filters
+  // Inject global search
   useEffect(() => {
     setFilters(prev => ({ ...prev, searchGlobal: globalSearch }));
   }, [globalSearch]);
 
-  // ----------------------------------- LOAD DATA -----------------------------------
+  // ----------------------------------- LOAD DATA (GUIDE + ADMIN) -----------------------------------
   useEffect(() => {
     async function load() {
-      if (!userId || !isGuide) return;
+      try {
+        // GHID → propriile + public ale altora (cum era înainte)
+        if (isGuide && userId) {
+          const mine = await getGuideItineraries(userId);
+          const approved = await getPublicItineraries();
 
-      const mine = await getGuideItineraries(userId);
-      const approved = await getPublicItineraries();
+          const combined = [
+            ...mine,
+            ...approved.filter(a => a.creator.id !== Number(userId)),
+          ];
 
-      const combined = [
-        ...mine,
-        ...approved.filter(a => a.creator.id !== Number(userId)),
-      ];
+          setAllData(combined);
+          setItineraries(combined);
+        }
 
-      setAllData(combined);
-      setItineraries(combined);
+        // ADMIN → toate itinerariile
+        if (isAdmin) {
+          const all = await getAllItineraries();
+          setAllData(all);
+          setItineraries(all);
+        }
+      } catch (err) {
+        console.error("Failed to load itineraries:", err);
+      }
     }
 
-    if (isGuide) load();
-  }, [isGuide, userId]);
+    if (isGuide || isAdmin) {
+      load();
+    }
+  }, [isGuide, isAdmin, userId]);
 
   // ----------------------------------- MASTER FILTER -----------------------------------
   useEffect(() => {
     let filtered = [...allData];
     const cat = filters.categories;
 
-    // OWNER / STATUS FILTERS
+    // CATEGORY (owner/status) FILTER
     if (!cat.all) {
       filtered = filtered.filter(it => {
         if (cat.mine && it.creator.id !== Number(userId)) return false;
         if (cat.approved && it.status.toUpperCase() !== "APPROVED") return false;
-        if (cat.pending && !(it.status === "PENDING" && it.creator.id === Number(userId))) return false;
-        if (cat.rejected && !(it.status === "REJECTED" && it.creator.id === Number(userId))) return false;
-        if (cat.others && !(it.creator.id !== Number(userId) && it.status === "APPROVED")) return false;
+        if (cat.pending && !(it.status.toUpperCase() === "PENDING" && it.creator.id === Number(userId))) return false;
+        if (cat.rejected && !(it.status.toUpperCase() === "REJECTED" && it.creator.id === Number(userId))) return false;
+        if (cat.others && !(it.creator.id !== Number(userId) && it.status.toUpperCase() === "APPROVED")) return false;
         return true;
       });
     }
@@ -104,7 +120,7 @@ export default function ItinerariesPage() {
       filtered = filtered.filter(it => new Date(it.startDate) >= new Date(filters.dates.startFrom));
     }
     if (filters.dates.startTo) {
-      filtered = filtered.filter(it => new Date(it.startDate) <= new Date(filters.dates.startTo));
+      filtered = filtered.filter(it => new Date(it.endDate) <= new Date(filters.dates.startTo));
     }
 
     // PRICE RANGE
@@ -113,7 +129,7 @@ export default function ItinerariesPage() {
       Number(it.price) <= filters.price.max
     );
 
-    // CATEGORY TYPE FILTER (cultural, adventure, etc.)
+    // CATEGORY TYPE FILTER 
     const selectedCats = Object.keys(filters.category).filter(key => filters.category[key]);
 
     if (selectedCats.length > 0) {
@@ -136,24 +152,24 @@ export default function ItinerariesPage() {
       );
     }
 
-    // RATING FILTER
+    // RATING
     if (filters.rating) {
       filtered = filtered.filter(it => (it.rating || 0) >= Number(filters.rating));
     }
 
-    // SORTING
+    // SORT
     if (filters.sort === "priceAsc") {
-      filtered.sort((a, b) => Number(a.price) - Number(b.price));
+      filtered = [...filtered].sort((a, b) => Number(a.price) - Number(b.price));
     }
     if (filters.sort === "priceDesc") {
-      filtered.sort((a, b) => Number(b.price) - Number(a.price));
+      filtered = [...filtered].sort((a, b) => Number(b.price) - Number(a.price));
     }
 
     setItineraries(filtered);
 
   }, [filters, allData, userId]);
 
-  // ----------------------------------- CRUD -----------------------------------
+  // ----------------------------------- CRUD (GHID) -----------------------------------
   async function handleCreate(values) {
     const payload = { ...values, guideId: Number(userId), status: "PENDING" };
     const created = await createItinerary(payload);
@@ -175,11 +191,17 @@ export default function ItinerariesPage() {
   return (
     <div className="itineraries-layout">
 
-      {isGuide && <FiltersSidebar filters={filters} setFilters={setFilters} />}
+      {(isGuide || isAdmin) && (
+        <FiltersSidebar
+          filters={filters}
+          setFilters={setFilters}
+          role={role}         // 🔥 trimitem rolul ca să ascundem "My / Other guides" pentru admin
+        />
+      )}
 
       <div className="itineraries-page-container">
 
-        {/* CREATE BUTTON */}
+        {/* CREATE BUTTON – DOAR PENTRU GHID */}
         {isGuide && (
           <div className="top-align-wrapper">
             <div className="mini-create-box" onClick={() => setShowModal(true)}>
@@ -189,8 +211,9 @@ export default function ItinerariesPage() {
           </div>
         )}
 
-        {/* GRID */}
+        {/* RESULT GRID */}
         <div className="cards-grid">
+
           {itineraries.length === 0 && (
             <div className="no-results">
               <strong>No itineraries match your filters.</strong>
@@ -202,13 +225,14 @@ export default function ItinerariesPage() {
             <ItineraryCard
               key={it.id}
               itinerary={it}
-              canEdit={isGuide && it.creator.id === Number(userId)}
+              canEdit={isGuide && it.creator.id === Number(userId)}   // admin nu editează aici
               onEdit={() => { setSelected(it); setShowModal(true); }}
               onDelete={() => handleDelete(it.id)}
             />
           ))}
         </div>
 
+        {/* FORMULAR CREATE / EDIT – DOAR GHID */}
         {isGuide && (
           <ItineraryForm
             visible={showModal}

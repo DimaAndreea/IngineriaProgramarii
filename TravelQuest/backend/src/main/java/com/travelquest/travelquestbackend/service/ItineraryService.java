@@ -42,7 +42,6 @@ public class ItineraryService {
         itinerary.setStatus(ItineraryStatus.PENDING);
         itinerary.setCreator(creator);
 
-        // Build locations & objectives
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
 
             ItineraryLocation loc = new ItineraryLocation();
@@ -145,6 +144,13 @@ public class ItineraryService {
 
     public List<Itinerary> getPending() {
         return itineraryRepository.findByStatus(ItineraryStatus.PENDING);
+    }
+
+    // =======================
+    // ADMIN — GET ALL
+    // =======================
+    public List<Itinerary> getAll() {
+        return itineraryRepository.findAll();
     }
 
     public Itinerary approve(Long id) {
