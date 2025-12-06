@@ -28,14 +28,14 @@ export function getPendingItineraries() {
 export function approveItinerary(id) {
   return request(`${BASE}/${id}/approve`, {
     method: "PATCH",
-    credentials: "include"
+    credentials: "include",
   });
 }
 
 export function rejectItinerary(id) {
   return request(`${BASE}/${id}/reject`, {
     method: "PATCH",
-    credentials: "include"
+    credentials: "include",
   });
 }
 
@@ -64,4 +64,9 @@ export function getPublicItineraries() {
 
 export function getItineraryById(id) {
   return request(`${BASE}/${id}`);
+}
+
+// 🔥 NOU – folosit de ADMIN pentru a vedea toate itinerariile
+export function getAllItineraries() {
+  return request(BASE);
 }

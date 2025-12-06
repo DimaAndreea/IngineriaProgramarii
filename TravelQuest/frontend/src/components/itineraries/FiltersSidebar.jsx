@@ -1,7 +1,9 @@
 import React from "react";
 import "./FiltersSidebar.css";
 
-export default function FiltersSidebar({ filters, setFilters }) {
+export default function FiltersSidebar({ filters, setFilters, role }) {
+
+  const isGuide = role === "guide";
 
   function toggleCategoryGroup(key) {
     setFilters(prev => ({
@@ -53,32 +55,40 @@ export default function FiltersSidebar({ filters, setFilters }) {
     }));
   }
 
+  const visibilityOptions = isGuide
+    ? [
+        ["all", "All itineraries"],
+        ["mine", "My itineraries"],
+        ["approved", "Published"],
+        ["pending", "Pending"],
+        ["rejected", "Rejected"],
+        ["others", "Other guides"],
+      ]
+    : [
+        ["all", "All itineraries"],
+        ["approved", "Published"],
+        ["pending", "Pending"],
+        ["rejected", "Rejected"],
+      ];
+
   return (
     <div className="filters-panel">
 
-      {/* ---------- OWNERSHIP & STATUS ---------- */}
+      {/* ---------- VISIBILITY GROUP ---------- */}
       <details className="filter-box" open>
-        <summary>Ownership & Status</summary>
-        <div className="filter-content">
+        <summary>{isGuide ? "Ownership & Status" : "Status"}</summary>
 
-          {[
-            ["all", "All itineraries"],
-            ["mine", "My itineraries"],
-            ["published", "Published"],   // UI label only
-            ["pending", "Pending"],
-            ["rejected", "Rejected"],
-            ["others", "Other guides"],
-          ].map(([key, label]) => (
+        <div className="filter-content">
+          {visibilityOptions.map(([key, label]) => (
             <label key={key} className="checkbox-item">
               <input
                 type="checkbox"
-                checked={filters.categories[key === "published" ? "approved" : key]} 
-                onChange={() => toggleCategoryGroup(key === "published" ? "approved" : key)}
+                checked={filters.categories[key]}
+                onChange={() => toggleCategoryGroup(key)}
               />
               {label}
             </label>
           ))}
-
         </div>
       </details>
 
@@ -86,7 +96,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
       <details className="filter-box">
         <summary>Category</summary>
         <div className="filter-content">
-
           {[
             ["cultural", "Cultural"],
             ["adventure", "Adventure"],
@@ -103,7 +112,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
               {label}
             </label>
           ))}
-
         </div>
       </details>
 
@@ -111,7 +119,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
       <details className="filter-box">
         <summary>Date range</summary>
         <div className="filter-content">
-
           <label>Start date from:</label>
           <input
             type="date"
@@ -137,7 +144,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
               }))
             }
           />
-
         </div>
       </details>
 
@@ -145,7 +151,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
       <details className="filter-box">
         <summary>Price</summary>
         <div className="filter-content">
-
           <label>Min: {filters.price.min} RON</label>
           <input
             type="range"
@@ -173,7 +178,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
               }))
             }
           />
-
         </div>
       </details>
 
@@ -181,7 +185,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
       <details className="filter-box">
         <summary>Sort by</summary>
         <div className="filter-content">
-
           <select
             value={filters.sort}
             onChange={e => setFilters(prev => ({ ...prev, sort: e.target.value }))}
@@ -191,7 +194,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
             <option value="priceAsc">Price: Low → High</option>
             <option value="priceDesc">Price: High → Low</option>
           </select>
-
         </div>
       </details>
 
@@ -199,7 +201,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
       <details className="filter-box">
         <summary>Rating</summary>
         <div className="filter-content">
-
           {[5,4,3,2,1].map(stars => (
             <label key={stars} className="rating-item">
               <input
@@ -215,7 +216,6 @@ export default function FiltersSidebar({ filters, setFilters }) {
               <span className="stars">{"★".repeat(stars)}{"☆".repeat(5-stars)}</span>
             </label>
           ))}
-
         </div>
       </details>
 

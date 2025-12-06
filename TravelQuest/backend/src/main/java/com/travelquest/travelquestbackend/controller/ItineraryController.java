@@ -63,6 +63,21 @@ public class ItineraryController {
     }
 
     // ======================
+    // ADMIN — GET ALL ITINERARIES
+    // ======================
+    @GetMapping
+    public List<Itinerary> getAll(HttpServletRequest request) {
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        if (user == null || !"ADMIN".equals(user.getRole().name())) {
+            throw new RuntimeException("Only admin can view all itineraries.");
+        }
+
+        return service.getAll();
+    }
+
+    // ======================
     // ADMIN — GET ALL PENDING
     // ======================
     @GetMapping("/pending")
@@ -83,25 +98,14 @@ public class ItineraryController {
         boolean isCreator = (user != null && it.getCreator().getId().equals(user.getId()));
         boolean isAdmin = (user != null && user.getRole().name().equals("ADMIN"));
 
-        // ADMIN poate vedea orice
-        if (isAdmin) {
-            return it;
-        }
+        if (isAdmin) return it;
 
-        // Oricine poate vedea itinerarii APPROVED
-        if (it.getStatus() == ItineraryStatus.APPROVED) {
-            return it;
-        }
+        if (it.getStatus() == ItineraryStatus.APPROVED) return it;
 
-        // Creatorul poate vedea propriile itinerarii neaprobate
-        if (isCreator) {
-            return it;
-        }
+        if (isCreator) return it;
 
-        // Altfel -> acces interzis
         throw new RuntimeException("You are not allowed to view this itinerary.");
     }
-
 
     // ======================
     // OTHER GETTERS
