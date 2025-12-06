@@ -20,14 +20,31 @@ export default function ItineraryDetailsPage() {
     itinerary?.creator?.id &&
     Number(itinerary.creator.id) === Number(userId);
 
-  const status = itinerary?.status?.toUpperCase();
+  const rawStatus = itinerary?.status?.toUpperCase();
 
-  // ========== NEW RULES ==========
-  const canEditThis =
-    isCreator && status === "PENDING";
+  // 🔥 FRONTEND DISPLAY STATUS
+  const displayStatus =
+    rawStatus === "APPROVED"
+      ? "Published"
+      : rawStatus === "PENDING"
+      ? "Pending"
+      : rawStatus === "REJECTED"
+      ? "Rejected"
+      : rawStatus || "";
 
-  const canDeleteThis =
-    isCreator && (status === "PENDING" || status === "REJECTED");
+  // CSS class for badge
+  const statusClass =
+    rawStatus === "APPROVED"
+      ? "published"
+      : rawStatus === "PENDING"
+      ? "pending"
+      : rawStatus === "REJECTED"
+      ? "rejected"
+      : "";
+
+  // Rules
+  const canEditThis = isCreator && rawStatus === "PENDING";
+  const canDeleteThis = isCreator && (rawStatus === "PENDING" || rawStatus === "REJECTED");
 
   // LOAD ITINERARY
   useEffect(() => {
@@ -90,12 +107,12 @@ export default function ItineraryDetailsPage() {
       <div className="details-meta-header">
         <span className="category-tag">{itinerary.category}</span>
 
-        <span className={`status-tag ${itinerary.status.toLowerCase()}`}>
-          {itinerary.status}
+        {/* 🔥 STATUS BADGE */}
+        <span className={`status-tag ${statusClass}`}>
+          {displayStatus}
         </span>
 
         <span className="author-tag">By: {itinerary.creator?.username}</span>
-
 
         <span className="date-range">
           {itinerary.startDate} → {itinerary.endDate}
@@ -110,8 +127,11 @@ export default function ItineraryDetailsPage() {
 
         <div className="info-list">
           <p><strong>Category:</strong> {itinerary.category}</p>
+
+          {/* 🔥 DISPLAY STATUS HERE TOO */}
+          <p><strong>Status:</strong> {displayStatus}</p>
+
           <p><strong>Price:</strong> {itinerary.price} RON</p>
-          <p><strong>Status:</strong> {itinerary.status}</p>
         </div>
 
         {/* ACTIONS — EDIT & DELETE */}

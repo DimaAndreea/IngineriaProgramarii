@@ -1,75 +1,104 @@
+/* PANEL */
 .filters-panel {
   width: 240px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  height: fit-content;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.filters-panel h3 {
-  font-size: 20px;
-  margin-bottom: 4px;
+/* FILTER BOX */
+.filter-box {
+  border: 1px solid #d7d7d7;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  overflow: hidden;
 }
 
-.section-title {
-  margin-top: 6px;
-  font-size: 16px;
+/* SUMMARY (header) */
+.filter-box > summary {
+  padding: 12px;
   font-weight: 600;
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
   cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  border-bottom: 1px solid #eee;
+}
+
+.filter-box > summary::-webkit-details-marker {
+  display: none;
+}
+
+.filter-box > summary::after {
+  content: "▾";
   font-size: 14px;
+  opacity: 0.6;
+  transition: transform 0.2s ease;
 }
 
-.filter-date,
-.filter-text {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.filter-box[open] > summary::after {
+  transform: rotate(180deg);
 }
 
+.filter-box > summary:hover {
+  background: #f9f9f9;
+}
+
+/* INSIDE CONTENT */
+.filter-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* CHECKBOX ITEMS */
+.checkbox-item,
 .rating-item {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 14px;
+}
+
+/* DATE INPUT */
+.filter-date {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+/* SORT */
+.sort-select {
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* RESET BUTTON */
+.reset-btn {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background: #ff4d4d;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.reset-btn:hover {
+  background: #d63030;
 }
 
 .stars {
   font-size: 18px;
   color: #fbbf24;
-}
-
-.reset-btn {
-  margin-top: 10px;
-  padding: 10px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.reset-btn:hover {
-  background: #dc2626;
-}
-
-.price-range {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.price-range input[type="range"] {
-  width: 100%;
 }

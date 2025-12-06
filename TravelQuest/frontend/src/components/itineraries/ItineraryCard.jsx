@@ -14,21 +14,27 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
 
   const status = itinerary.status?.toUpperCase();
 
+  const displayStatus =
+    status === "APPROVED" ? "Published" :
+    status === "PENDING" ? "Pending" :
+    status === "REJECTED" ? "Rejected" :
+    status;
+
+  const statusClass =
+    status === "APPROVED" ? "status-published" :
+    status === "PENDING" ? "status-pending" :
+    status === "REJECTED" ? "status-rejected" :
+    "";
+
   // RULES:
-  const canEditThis =
-    canEdit && status === "PENDING";
+  const canEditThis = canEdit && status === "PENDING";
+  const canDeleteThis = canEdit && (status === "PENDING" || status === "REJECTED");
 
-  const canDeleteThis =
-    canEdit && (status === "PENDING" || status === "REJECTED");
-
-  // When clicking the card → go to full page details
-  const openDetails = () => {
-    navigate(`/itineraries/${id}`);
-  };
+  const openDetails = () => navigate(`/itineraries/${id}`);
 
   return (
     <div className="itinerary-card" onClick={openDetails}>
-      
+
       {/* IMAGE */}
       <div className="card-image">
         {img ? (
@@ -36,49 +42,43 @@ export default function ItineraryCard({ itinerary, canEdit, onEdit, onDelete }) 
         ) : (
           <div className="placeholder">X</div>
         )}
+
+        {/* STATUS BADGE */}
+        <span className={`status-badge ${statusClass}`}>{displayStatus}</span>
       </div>
 
       {/* CONTENT */}
       <div className="card-body">
-
-        {/* TITLE */}
         <h3 className="title">{itinerary.title}</h3>
 
         <p className="author">By: {itinerary.creator?.username}</p>
 
-        {/* DATES */}
         <p className="date-small">
           {itinerary.startDate} → {itinerary.endDate}
         </p>
 
-        {/* PRICE */}
-        <p className="price">{itinerary.price} RON</p>
+        {/* PRICE BADGE */}
+        <div className="price-badge">
+          {itinerary.price} RON
+        </div>
 
-        {/* ACTION BUTTONS BASED ON STATUS */}
+        {/* ACTION BUTTONS */}
         {(canEditThis || canDeleteThis) && (
           <div className="actions">
 
-            {/* EDIT only if PENDING */}
             {canEditThis && (
               <button
                 className="soft-btn edit"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
+                onClick={(e) => { e.stopPropagation(); onEdit(); }}
               >
                 Edit
               </button>
             )}
 
-            {/* DELETE if PENDING or REJECTED */}
             {canDeleteThis && (
               <button
                 className="soft-btn delete"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(id);
-                }}
+                onClick={(e) => { e.stopPropagation(); onDelete(id); }}
               >
                 Delete
               </button>
