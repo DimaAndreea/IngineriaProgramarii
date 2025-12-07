@@ -125,16 +125,16 @@ export default function ItinerariesPage() {
 
     // PRICE RANGE
     filtered = filtered.filter(it =>
-      Number(it.price) >= filters.price.min &&
-      Number(it.price) <= filters.price.max
+        Number(it.price) >= filters.price.min &&
+        Number(it.price) <= filters.price.max
     );
 
-    // CATEGORY TYPE FILTER 
+    // CATEGORY TYPE FILTER
     const selectedCats = Object.keys(filters.category).filter(key => filters.category[key]);
 
     if (selectedCats.length > 0) {
       filtered = filtered.filter(it =>
-        selectedCats.includes(it.category?.toLowerCase())
+          selectedCats.includes(it.category?.toLowerCase())
       );
     }
 
@@ -143,12 +143,12 @@ export default function ItinerariesPage() {
       const term = filters.searchGlobal.toLowerCase();
 
       filtered = filtered.filter(it =>
-        it.title.toLowerCase().includes(term) ||
-        it.creator.username.toLowerCase().includes(term) ||
-        it.locations.some(loc =>
-          loc.country.toLowerCase().includes(term) ||
-          loc.city.toLowerCase().includes(term)
-        )
+          it.title.toLowerCase().includes(term) ||
+          it.creator.username.toLowerCase().includes(term) ||
+          it.locations.some(loc =>
+              loc.country.toLowerCase().includes(term) ||
+              loc.city.toLowerCase().includes(term)
+          )
       );
     }
 
@@ -189,60 +189,60 @@ export default function ItinerariesPage() {
 
   // ----------------------------------- RENDER -----------------------------------
   return (
-    <div className="itineraries-layout">
+      <div className="itineraries-layout">
 
-      {(isGuide || isAdmin) && (
-        <FiltersSidebar
-          filters={filters}
-          setFilters={setFilters}
-          role={role}         // 🔥 trimitem rolul ca să ascundem "My / Other guides" pentru admin
-        />
-      )}
-
-      <div className="itineraries-page-container">
-
-        {/* CREATE BUTTON – DOAR PENTRU GHID */}
-        {isGuide && (
-          <div className="top-align-wrapper">
-            <div className="mini-create-box" onClick={() => setShowModal(true)}>
-              <span className="mini-create-text">Start planning a new itinerary...</span>
-              <button className="mini-create-btn">Create</button>
-            </div>
-          </div>
+        {(isGuide || isAdmin) && (
+            <FiltersSidebar
+                filters={filters}
+                setFilters={setFilters}
+                role={role}         // 🔥 trimitem rolul ca să ascundem "My / Other guides" pentru admin
+            />
         )}
 
-        {/* RESULT GRID */}
-        <div className="cards-grid">
+        <div className="itineraries-page-container">
 
-          {itineraries.length === 0 && (
-            <div className="no-results">
-              <strong>No itineraries match your filters.</strong>
-              <p>Try adjusting your filters or search criteria.</p>
-            </div>
+          {/* CREATE BUTTON – DOAR PENTRU GHID */}
+          {isGuide && (
+              <div className="top-align-wrapper">
+                <div className="mini-create-box" onClick={() => setShowModal(true)}>
+                  <span className="mini-create-text">Start planning a new itinerary...</span>
+                  <button className="mini-create-btn">Create</button>
+                </div>
+              </div>
           )}
 
-          {itineraries.map(it => (
-            <ItineraryCard
-              key={it.id}
-              itinerary={it}
-              canEdit={isGuide && it.creator.id === Number(userId)}   // admin nu editează aici
-              onEdit={() => { setSelected(it); setShowModal(true); }}
-              onDelete={() => handleDelete(it.id)}
-            />
-          ))}
+          {/* RESULT GRID */}
+          <div className="cards-grid">
+
+            {itineraries.length === 0 && (
+                <div className="no-results">
+                  <strong>No itineraries match your filters.</strong>
+                  <p>Try adjusting your filters or search criteria.</p>
+                </div>
+            )}
+
+            {itineraries.map(it => (
+                <ItineraryCard
+                    key={it.id}
+                    itinerary={it}
+                    canEdit={isGuide && it.creator.id === Number(userId)}   // admin nu editează aici
+                    onEdit={() => { setSelected(it); setShowModal(true); }}
+                    onDelete={() => handleDelete(it.id)}
+                />
+            ))}
+          </div>
+
+          {/* FORMULAR CREATE / EDIT – DOAR GHID */}
+          {isGuide && (
+              <ItineraryForm
+                  visible={showModal}
+                  initialValues={selected}
+                  onSubmit={selected ? handleUpdate : handleCreate}
+                  onClose={() => { setShowModal(false); setSelected(null); }}
+              />
+          )}
+
         </div>
-
-        {/* FORMULAR CREATE / EDIT – DOAR GHID */}
-        {isGuide && (
-          <ItineraryForm
-            visible={showModal}
-            initialValues={selected}
-            onSubmit={selected ? handleUpdate : handleCreate}
-            onClose={() => { setShowModal(false); setSelected(null); }}
-          />
-        )}
-
       </div>
-    </div>
   );
 }
