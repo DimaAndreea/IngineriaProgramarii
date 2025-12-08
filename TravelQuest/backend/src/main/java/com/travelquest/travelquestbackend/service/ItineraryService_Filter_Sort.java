@@ -42,6 +42,48 @@ public class ItineraryService_Filter_Sort {
         }
 
         // --------------------------
+        // FILTER BY STATUS
+        // --------------------------
+        if (filterDTO.categories != null) {
+
+            if (!Boolean.TRUE.equals(filterDTO.categories.get("all"))) {
+
+                List<Predicate> statusPredicates = new ArrayList<>();
+
+                // mine = itineraries created by user
+                if (Boolean.TRUE.equals(filterDTO.categories.get("mine"))) {
+                    statusPredicates.add(cb.equal(root.get("creator").get("id"), loggedUser.getId()));
+                }
+
+                // others = only approved itineraries not created by user
+                if (Boolean.TRUE.equals(filterDTO.categories.get("others"))) {
+                    Predicate notMine = cb.notEqual(root.get("creator").get("id"), loggedUser.getId());
+                    Predicate approved = cb.equal(root.get("status"), ItineraryStatus.APPROVED);
+                    statusPredicates.add(cb.and(notMine, approved));
+                }
+
+                // approved
+                if (Boolean.TRUE.equals(filterDTO.categories.get("approved"))) {
+                    statusPredicates.add(cb.equal(root.get("status"), ItineraryStatus.APPROVED));
+                }
+
+                // pending
+                if (Boolean.TRUE.equals(filterDTO.categories.get("pending"))) {
+                    statusPredicates.add(cb.equal(root.get("status"), ItineraryStatus.PENDING));
+                }
+
+                // rejected
+                if (Boolean.TRUE.equals(filterDTO.categories.get("rejected"))) {
+                    statusPredicates.add(cb.equal(root.get("status"), ItineraryStatus.REJECTED));
+                }
+
+                if (!statusPredicates.isEmpty()) {
+                    predicates.add(cb.or(statusPredicates.toArray(new Predicate[0])));
+                }
+            }
+        }
+
+        // --------------------------
         // GLOBAL SEARCH
         // --------------------------
         if (filterDTO.searchGlobal != null && !filterDTO.searchGlobal.trim().isEmpty()) {
@@ -82,15 +124,29 @@ public class ItineraryService_Filter_Sort {
         }
 
         // --------------------------
-        // CATEGORY TYPE
+        // CATEGORY TYPE 
         // --------------------------
         if (filterDTO.category != null && filterDTO.category.values().stream().anyMatch(Boolean::booleanValue)) {
+
             List<Predicate> catPreds = new ArrayList<>();
+
             filterDTO.category.forEach((catName, selected) -> {
                 if (Boolean.TRUE.equals(selected)) {
-                    catPreds.add(cb.equal(cb.lower(root.get("category")), catName.toLowerCase()));
+
+                    String normalized = catName.toLowerCase()
+                            .replace("_", "")
+                            .replace(" ", "");
+
+                    Expression<String> dbCategoryNormalized = cb.lower(
+                            cb.function("REPLACE", String.class,
+                                    cb.function("REPLACE", String.class, root.get("category"), cb.literal("_"), cb.literal("")),
+                                    cb.literal(" "), cb.literal(""))
+                    );
+
+                    catPreds.add(cb.like(dbCategoryNormalized, "%" + normalized + "%"));
                 }
             });
+
             predicates.add(cb.or(catPreds.toArray(new Predicate[0])));
         }
 

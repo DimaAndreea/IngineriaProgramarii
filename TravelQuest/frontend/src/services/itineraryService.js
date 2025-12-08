@@ -4,7 +4,7 @@ const BASE = `${API_BASE_URL}/api/itineraries`;
 async function request(url, options = {}) {
   const res = await fetch(url, {
     credentials: "include",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   });
 
@@ -66,7 +66,22 @@ export function getItineraryById(id) {
   return request(`${BASE}/${id}`);
 }
 
-// 🔥 NOU – folosit de ADMIN pentru a vedea toate itinerariile
+// used for admin 
 export function getAllItineraries() {
   return request(BASE);
 }
+
+export function filterItineraries(filter, userId) {
+  return request(`${BASE}/filter`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      userId: userId
+    },
+    body: JSON.stringify(filter)
+  });
+}
+
+
+
+
