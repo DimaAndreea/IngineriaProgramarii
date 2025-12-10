@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import "./ActiveItineraryPage.css";
 
 import ProgressBar from "../components/itineraries/active/ProgressBar";
@@ -7,157 +8,201 @@ import MissionList from "../components/itineraries/active/MissionList";
 import FeedbackList from "../components/itineraries/active/FeedbackList";
 import MissionModal from "../components/itineraries/active/MissionModal";
 
+import {
+  getActiveItinerary,
+  updateSubmissionStatus as apiUpdateSubmissionStatus,
+} from "../services/itineraryService";
+
 export default function ActiveItineraryPage() {
-    const stages = ["Created", "Brașov", "Sibiu", "Cluj", "Feedback"];
+  // presupunem rută de tip /active-itinerary/:id (sau similar)
+  const { id } = useParams();
+  const itineraryId = id; // dacă nu există încă în router, va fi undefined
 
-    const participants = [
-        { id: 1, name: "Alice", avatar: "https://i.pravatar.cc/150?img=1", level: 5 },
-        { id: 2, name: "David", avatar: "https://i.pravatar.cc/150?img=2" },
-        { id: 3, name: "Hugh", avatar: "https://i.pravatar.cc/150?img=3" }
-    ];
+  const [title, setTitle] = useState("");
+  const [stages, setStages] = useState([]);
+  const [participants, setParticipants] = useState([]);
+  const [missions, setMissions] = useState([]); // array de array-uri pe locații
+  const [submissions, setSubmissions] = useState([]);
+  const [feedback, setFeedback] = useState([]);
 
-    const missions = [
-        [
-            { id: 1, text: "Take a photo with the Black Church." },
-            { id: 2, text: "Try a local dish and upload a photo." }
-        ],
-        [{ id: 3, text: "Capture the Council Tower in Sibiu." }],
-        [{ id: 4, text: "Upload a photo from Cluj Central Park." }]
-    ];
+  const [currentStage, setCurrentStage] = useState(0);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
 
-    const [submissions, setSubmissions] = useState([
-        {
-            id: 1,
-            missionId: 1,
-            participantId: 1,
-            status: "approved",
-            submittedAt: "2025-11-19T10:30:00Z",
-            reviewedAt: "2025-11-19T11:05:00Z",
-            image: "https://images.pexels.com/photos/2901207/pexels-photo-2901207.jpeg"
-        },
-        {
-            id: 2,
-            missionId: 1,
-            participantId: 2,
-            status: "pending",
-            submittedAt: "2025-11-19T10:45:00Z",
-            image: "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg"
-        },
-        {
-            id: 3,
-            missionId: 1,
-            participantId: 3,
-            status: "rejected",
-            submittedAt: "2025-11-19T11:10:00Z",
-            reviewedAt: "2025-11-19T11:35:00Z",
-            image: "https://images.pexels.com/photos/167404/pexels-photo-167404.jpeg"
-        }
-    ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const feedback = [
-        { id: 1, name: "Alice", rating: 5, text: "Amazing experience!" },
-        { id: 2, name: "David", rating: 4, text: "Enjoyed every moment." }
-    ];
+  // ---------------------- LOAD FROM BACKEND ----------------------
+  useEffect(() => {
+    if (!itineraryId) {
+      // dacă nu avem id din URL, măcar nu aruncăm eroare
+      setLoading(false);
+      setError("No active itinerary selected.");
+      return;
+    }
 
-    const [currentStage, setCurrentStage] = useState(0);
+    async function load() {
+      setLoading(true);
+      setError(null);
 
-    const [selectedSubmission, setSelectedSubmission] = useState(null);
+      try {
+        /**
+         * Ne așteptăm ca backend-ul să trimită ceva de genul:
+         * {
+         *   id,
+         *   title,
+         *   stages: ["Created", "Brașov", "Sibiu", "Cluj", "Feedback"],
+         *   participants: [...],
+         *   missions: [ [ {id,text}, ... ], ... ], // index 0 = prima locație reală
+         *   submissions: [...],
+         *   feedback: [...]
+         * }
+         */
+        const data = await getActiveItinerary(itineraryId);
 
-    const currentLocationMissions =
-        currentStage > 0 && currentStage < stages.length - 1
-            ? missions[currentStage - 1]
-            : [];
+        setTitle(data.title || "");
+        setStages(data.stages || []);
+        setParticipants(data.participants || []);
+        setMissions(data.missions || []);
+        setSubmissions(data.submissions || []);
+        setFeedback(data.feedback || []);
+        setCurrentStage(0);
+      } catch (err) {
+        console.error("Failed to load active itinerary:", err);
+        setError(err.message || "Failed to load active itinerary.");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    const goNext = () =>
-        setCurrentStage((s) => Math.min(s + 1, stages.length - 1));
+    load();
+  }, [itineraryId]);
 
-    const goPrev = () =>
-        setCurrentStage((s) => Math.max(s - 1, 0));
+  // ---------------------- DERIVED DATA ----------------------
+  const currentLocationMissions =
+    currentStage > 0 && currentStage < stages.length - 1
+      ? missions[currentStage - 1] || []
+      : [];
 
-    const handleViewSubmission = (participant, mission, submission) => {
-        setSelectedSubmission({ participant, mission, submission });
-    };
+  // ---------------------- NAVIGATION ----------------------
+  const goNext = () =>
+    setCurrentStage((s) => Math.min(s + 1, Math.max(stages.length - 1, 0)));
 
-    const closeModal = () => setSelectedSubmission(null);
+  const goPrev = () => setCurrentStage((s) => Math.max(s - 1, 0));
 
-    const updateSubmissionStatus = (id, status) => {
-        const reviewedAt = new Date().toISOString();
+  // ---------------------- SUBMISSION MODAL ----------------------
+  const handleViewSubmission = (participant, mission, submission) => {
+    setSelectedSubmission({ participant, mission, submission });
+  };
 
-        setSubmissions((prev) =>
-            prev.map((s) =>
-                s.id === id ? { ...s, status, reviewedAt } : s
-            )
-        );
+  const closeModal = () => setSelectedSubmission(null);
 
-        setSelectedSubmission((prev) =>
-            prev && prev.submission.id === id
-                ? {
-                      ...prev,
-                      submission: { ...prev.submission, status, reviewedAt }
-                  }
-                : prev
-        );
-    };
+  // ---------------------- UPDATE SUBMISSION STATUS ----------------------
+  const updateSubmissionStatus = async (submissionId, status) => {
+    const reviewedAt = new Date().toISOString();
 
-    const handleApprove = (id) => updateSubmissionStatus(id, "approved");
-    const handleReject = (id) => updateSubmissionStatus(id, "rejected");
+    try {
+      // apel către backend – va fi implementat de colegă
+      await apiUpdateSubmissionStatus(itineraryId, submissionId, status);
+    } catch (err) {
+      console.error("Failed to update submission status:", err);
+      // poți pune aici un toast / mesaj de eroare în UI când vei avea un sistem de notificări
+    }
 
-    return (
-        <div className="active-itinerary-page">
-            <h1 className="page-title">Transylvania Explorer</h1>
-
-            <ProgressBar stages={stages} currentStage={currentStage} />
-
-            <div className="nav-buttons">
-                <button
-                    className="nav-btn prev"
-                    onClick={goPrev}
-                    disabled={currentStage === 0}
-                >
-                    ← Previous
-                </button>
-
-                <button
-                    className="nav-btn next"
-                    onClick={goNext}
-                    disabled={currentStage === stages.length - 1}
-                >
-                    Next →
-                </button>
-            </div>
-
-            <div className="stage-content">
-                {currentStage === 0 && (
-                    <ParticipantList participants={participants} />
-                )}
-
-                {currentStage > 0 && currentStage < stages.length - 1 && (
-                    <MissionList
-                        missions={currentLocationMissions}
-                        participants={participants}
-                        submissions={submissions}
-                        onViewSubmission={handleViewSubmission}
-                    />
-                )}
-
-                {currentStage === stages.length - 1 && (
-                    <FeedbackList
-                        participants={participants}
-                        feedback={feedback}
-                    />
-                )}
-            </div>
-
-            {selectedSubmission && (
-                <MissionModal
-                    mission={selectedSubmission.mission}
-                    participant={selectedSubmission.participant}
-                    submission={selectedSubmission.submission}
-                    onApprove={handleApprove}
-                    onReject={handleReject}
-                    onClose={closeModal}
-                />
-            )}
-        </div>
+    // actualizare optimistă în state (păstrăm exact funcționalitatea existentă)
+    setSubmissions((prev) =>
+      prev.map((s) =>
+        s.id === submissionId ? { ...s, status, reviewedAt } : s
+      )
     );
+
+    setSelectedSubmission((prev) =>
+      prev && prev.submission.id === submissionId
+        ? {
+            ...prev,
+            submission: { ...prev.submission, status, reviewedAt },
+          }
+        : prev
+    );
+  };
+
+  const handleApprove = (id) => updateSubmissionStatus(id, "approved");
+  const handleReject = (id) => updateSubmissionStatus(id, "rejected");
+
+  // ---------------------- RENDER ----------------------
+  if (loading) {
+    return (
+      <div className="active-itinerary-page">
+        <h1 className="page-title">Active itinerary</h1>
+        <p>Loading active itinerary...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="active-itinerary-page">
+        <h1 className="page-title">Active itinerary</h1>
+        <p className="error-message">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="active-itinerary-page">
+      <h1 className="page-title">{title || "Active itinerary"}</h1>
+
+      <ProgressBar stages={stages} currentStage={currentStage} />
+
+      <div className="nav-buttons">
+        <button
+          className="nav-btn prev"
+          onClick={goPrev}
+          disabled={currentStage === 0}
+        >
+          ← Previous
+        </button>
+
+        <button
+          className="nav-btn next"
+          onClick={goNext}
+          disabled={stages.length === 0 || currentStage === stages.length - 1}
+        >
+          Next →
+        </button>
+      </div>
+
+      <div className="stage-content">
+        {/* STAGE 0 → PARTICIPANTS */}
+        {currentStage === 0 && (
+          <ParticipantList participants={participants} />
+        )}
+
+        {/* STAGES INTERMEDIARE → MISSIONS */}
+        {currentStage > 0 && currentStage < stages.length - 1 && (
+          <MissionList
+            missions={currentLocationMissions}
+            participants={participants}
+            submissions={submissions}
+            onViewSubmission={handleViewSubmission}
+          />
+        )}
+
+        {/* ULTIMUL STAGE → FEEDBACK */}
+        {stages.length > 0 && currentStage === stages.length - 1 && (
+          <FeedbackList participants={participants} feedback={feedback} />
+        )}
+      </div>
+
+      {selectedSubmission && (
+        <MissionModal
+          mission={selectedSubmission.mission}
+          participant={selectedSubmission.participant}
+          submission={selectedSubmission.submission}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onClose={closeModal}
+        />
+      )}
+    </div>
+  );
 }

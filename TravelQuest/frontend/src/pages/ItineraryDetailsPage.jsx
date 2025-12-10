@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getItineraryById, updateItinerary, deleteItinerary } from "../services/itineraryService";
+import {
+  getItineraryById,
+  updateItinerary,
+  deleteItinerary,
+  joinItinerary,
+} from "../services/itineraryService";
 import { useAuth } from "../context/AuthContext";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 
@@ -9,7 +14,8 @@ import "./ItineraryDetailsPage.css";
 export default function ItineraryDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userId } = useAuth();
+  const { userId, role } = useAuth(); // luam si role
+  const isTourist = role === "tourist";
 
   const [itinerary, setItinerary] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +28,7 @@ export default function ItineraryDetailsPage() {
 
   const rawStatus = itinerary?.status?.toUpperCase();
 
-  // 🔥 FRONTEND DISPLAY STATUS
+  // FRONTEND DISPLAY STATUS
   const displayStatus =
     rawStatus === "APPROVED"
       ? "Published"
@@ -44,7 +50,11 @@ export default function ItineraryDetailsPage() {
 
   // Rules
   const canEditThis = isCreator && rawStatus === "PENDING";
-  const canDeleteThis = isCreator && (rawStatus === "PENDING" || rawStatus === "REJECTED");
+  const canDeleteThis =
+    isCreator && (rawStatus === "PENDING" || rawStatus === "REJECTED");
+
+  // Turist poate da join doar la APPROVED
+  const canJoinThis = isTourist && rawStatus === "APPROVED";
 
   // LOAD ITINERARY
   useEffect(() => {
@@ -77,7 +87,8 @@ export default function ItineraryDetailsPage() {
 
   // UPDATE
   async function handleUpdate(values) {
-    const realId = itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
+    const realId =
+      itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
 
     try {
       const updated = await updateItinerary(realId, values);
@@ -89,15 +100,33 @@ export default function ItineraryDetailsPage() {
     }
   }
 
+  // JOIN (turist) – acum chiar trimite cerere către backend
+  async function handleJoin() {
+    const realId =
+      itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
+
+    try {
+      await joinItinerary(realId);
+      console.log("Join tour succeeded (details page) for itinerary:", realId);
+      // TODO: feedback vizual (toast / mesaj de succes)
+    } catch (err) {
+      console.error("Join tour failed (details page):", err);
+      // TODO: feedback de eroare în UI
+    }
+  }
+
   if (loading) return <div className="loading">Loading...</div>;
   if (!itinerary) return <div className="error">Itinerary not found.</div>;
 
   return (
     <div className="details-wrapper">
-
       {/* IMAGE */}
       <div className="details-gallery">
-        <img className="gallery-main" src={itinerary.imageBase64} alt="Itinerary" />
+        <img
+          className="gallery-main"
+          src={itinerary.imageBase64}
+          alt="Itinerary"
+        />
       </div>
 
       {/* TITLE */}
@@ -107,10 +136,12 @@ export default function ItineraryDetailsPage() {
       <div className="details-meta-header">
         <span className="category-tag">{itinerary.category}</span>
 
-        {/* 🔥 STATUS BADGE */}
-        <span className={`status-tag ${statusClass}`}>
-          {displayStatus}
-        </span>
+        {/* STATUS BADGE – hidden for tourist */}
+        {!isTourist && (
+          <span className={`status-tag ${statusClass}`}>
+            {displayStatus}
+          </span>
+        )}
 
         <span className="author-tag">By: {itinerary.creator?.username}</span>
 
@@ -126,18 +157,38 @@ export default function ItineraryDetailsPage() {
         <p className="details-description">{itinerary.description}</p>
 
         <div className="info-list">
-          <p><strong>Category:</strong> {itinerary.category}</p>
+          <p>
+            <strong>Category:</strong> {itinerary.category}
+          </p>
 
-          {/* 🔥 DISPLAY STATUS HERE TOO */}
-          <p><strong>Status:</strong> {displayStatus}</p>
+          {/* STATUS TEXT – hidden for turist */}
+          {!isTourist && (
+            <p>
+              <strong>Status:</strong> {displayStatus}
+            </p>
+          )}
 
-          <p><strong>Price:</strong> {itinerary.price} RON</p>
+          <p>
+            <strong>Price:</strong> {itinerary.price} RON
+          </p>
         </div>
 
-        {/* ACTIONS — EDIT & DELETE */}
+        {/* JOIN BUTTON – TURIST */}
+        {canJoinThis && (
+          <div className="creator-action-row" style={{ marginTop: "20px" }}>
+            <button
+              className="soft-btn primary"
+              onClick={handleJoin}
+              style={{ width: "100%", justifyContent: "center" }}
+            >
+              Join tour
+            </button>
+          </div>
+        )}
+
+        {/* ACTIONS — EDIT & DELETE (creator guide, pending / rejected) */}
         {(canEditThis || canDeleteThis) && (
           <div className="creator-action-row">
-
             {canEditThis && (
               <button
                 className="soft-btn edit"
@@ -148,14 +199,10 @@ export default function ItineraryDetailsPage() {
             )}
 
             {canDeleteThis && (
-              <button
-                className="soft-btn delete"
-                onClick={handleDelete}
-              >
+              <button className="soft-btn delete" onClick={handleDelete}>
                 Delete
               </button>
             )}
-
           </div>
         )}
       </div>
@@ -168,10 +215,16 @@ export default function ItineraryDetailsPage() {
           <div className="location-card grid-card" key={index}>
             <h3>Location #{index + 1}</h3>
 
-            <p><strong>Country:</strong> {loc.country}</p>
-            <p><strong>City:</strong> {loc.city}</p>
+            <p>
+              <strong>Country:</strong> {loc.country}
+            </p>
+            <p>
+              <strong>City:</strong> {loc.city}
+            </p>
 
-            <p><strong>Objectives:</strong></p>
+            <p className="objectives-label">
+              <strong>Objectives:</strong>
+            </p>
             <ul className="objectives-list">
               {loc.objectives.map((obj, i) => (
                 <li key={i}>{obj.name}</li>
