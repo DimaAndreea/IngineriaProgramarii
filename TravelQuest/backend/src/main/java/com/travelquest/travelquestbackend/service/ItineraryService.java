@@ -1,5 +1,6 @@
 package com.travelquest.travelquestbackend.service;
 
+import com.travelquest.travelquestbackend.dto.ActiveItinerarySummaryDto;
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
@@ -8,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -165,5 +167,19 @@ public class ItineraryService {
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
         it.setStatus(ItineraryStatus.REJECTED);
         return itineraryRepository.save(it);
+    }
+
+    // =====================================================
+    // GUIDE — ACTIVE ITINERARIES
+    // =====================================================
+    public List<Itinerary> getActiveItinerariesForGuide(User guide) {
+
+        if (guide == null) {
+            throw new RuntimeException("User not authenticated.");
+        }
+
+        LocalDate today = LocalDate.now(); // poți folosi și cu ZoneId dacă vrei
+
+        return itineraryRepository.findActiveItinerariesForGuide(guide.getId(), today);
     }
 }

@@ -63,6 +63,26 @@ public class ItineraryController {
     }
 
     // ======================
+    // GUIDE — ACTIVE ITINERARIES
+    // ======================
+    @GetMapping("/active")
+    public List<Itinerary> getActiveForGuide(HttpServletRequest request) {
+
+        User user = (User) request.getSession().getAttribute("user");
+
+        //doar pentru testare fara frontend
+        System.out.println(">>> getActiveForGuide called for user " + user.getId());
+
+
+        if (user == null || !"GUIDE".equals(user.getRole().name())) {
+            throw new RuntimeException("Only guides can view their active itineraries.");
+        }
+
+        return service.getActiveItinerariesForGuide(user);
+    }
+
+
+    // ======================
     // ADMIN — GET ALL ITINERARIES
     // ======================
     @GetMapping
