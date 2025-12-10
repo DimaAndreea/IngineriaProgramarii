@@ -1,10 +1,14 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 const BASE = `${API_BASE_URL}/api/itineraries`;
 
 async function request(url, options = {}) {
   const res = await fetch(url, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
     ...options,
   });
 
@@ -66,7 +70,7 @@ export function getItineraryById(id) {
   return request(`${BASE}/${id}`);
 }
 
-// used for admin 
+// used for admin
 export function getAllItineraries() {
   return request(BASE);
 }
@@ -76,12 +80,29 @@ export function filterItineraries(filter, userId) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      userId: userId
+      userId: userId,
     },
-    body: JSON.stringify(filter)
+    body: JSON.stringify(filter),
   });
 }
 
+export function joinItinerary(id) {
+  return request(`${BASE}/${id}/join`, {
+    method: "POST",
+  });
+}
 
+/* ---------------- ACTIVE ITINERARY (GUIDE VIEW) ---------------- */
 
+// backend: GET /api/itineraries/active -> lista de itinerarii active pt ghidul curent
+export function getActiveItinerariesForGuide() {
+  return request(`${BASE}/active`);
+}
 
+// backend: PATCH /api/itineraries/{itineraryId}/submissions/{submissionId}
+export function updateSubmissionStatus(itineraryId, submissionId, status) {
+  return request(`${BASE}/${itineraryId}/submissions/${submissionId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
