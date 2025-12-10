@@ -33,14 +33,34 @@ public class ItineraryService {
             throw new EntityNotFoundException("Creator not found in session");
         }
 
+        // 1. Parsăm datele și verificăm că intervalul e valid
+        LocalDate startDate = LocalDate.parse(req.getStartDate());
+        LocalDate endDate = LocalDate.parse(req.getEndDate());
+
+        if (endDate.isBefore(startDate)) {
+            throw new RuntimeException("End date cannot be before start date");
+        }
+
+        // 2. Verificăm dacă ghidul are deja un itinerariu care se suprapune
+        boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuide(
+                creator.getId(),
+                startDate,
+                endDate
+        );
+
+        if (overlaps) {
+            throw new RuntimeException("You already have another itinerary in this time interval.");
+        }
+
+        // 3. Creăm itinerariul doar dacă nu există suprapuneri
         Itinerary itinerary = new Itinerary();
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
-        itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
-        itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
+        itinerary.setStartDate(startDate);
+        itinerary.setEndDate(endDate);
         itinerary.setStatus(ItineraryStatus.PENDING);
         itinerary.setCreator(creator);
 
@@ -80,13 +100,32 @@ public class ItineraryService {
             throw new RuntimeException("You cannot edit an itinerary that has been approved or rejected");
         }
 
+        LocalDate startDate = LocalDate.parse(req.getStartDate());
+        LocalDate endDate = LocalDate.parse(req.getEndDate());
+
+        if (endDate.isBefore(startDate)) {
+            throw new RuntimeException("End date cannot be before start date");
+        }
+
+        // verificăm suprapunerea cu ALTE itinerarii ale aceluiași ghid
+        boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuideExcludingItinerary(
+                loggedUser.getId(),
+                id,
+                startDate,
+                endDate
+        );
+
+        if (overlaps) {
+            throw new RuntimeException("You already have another itinerary in this time interval.");
+        }
+
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
-        itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
-        itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
+        itinerary.setStartDate(startDate);
+        itinerary.setEndDate(endDate);
 
         itinerary.getLocations().clear();
 
@@ -109,6 +148,7 @@ public class ItineraryService {
 
         return itineraryRepository.save(itinerary);
     }
+
 
     // =====================================================
     // DELETE
