@@ -43,11 +43,13 @@
 
 /* STATUS BADGES */
 .status-tag {
-  padding: 5px 12px;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 13px;
-  display: inline-block;
+  padding: 6px 16px;       
+  border-radius: 12px;     
+  font-weight: 600;         
+  font-size: 14px;         
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .status-tag.pending {
@@ -88,8 +90,16 @@
   background: white;
   padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   margin-bottom: 35px;
+}
+
+.details-description {
+  margin-bottom: 12px;
+}
+
+.info-list p {
+  margin: 4px 0;
 }
 
 /* SECTION TITLE */
@@ -112,13 +122,13 @@
   background: #f7f8ff;
   padding: 20px;
   border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .grid-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .grid-card h3 {
@@ -128,17 +138,26 @@
   font-weight: 700;
 }
 
-.objectives-list li {
-  margin-left: 15px;
+.objectives-label {
+  margin-top: 10px;
   margin-bottom: 4px;
 }
 
-/* PRICE BOX */
+.objectives-list {
+  margin: 0 0 4px 18px;
+  padding-left: 0;
+}
+
+.objectives-list li {
+  margin-bottom: 4px;
+}
+
+/* PRICE BOX (unused for now but kept) */
 .bottom-price-box {
   background: #ffffff;
   padding: 25px;
   border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   text-align: center;
   margin-bottom: 30px;
 }

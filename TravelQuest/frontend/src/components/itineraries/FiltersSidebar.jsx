@@ -3,6 +3,7 @@ import "./FiltersSidebar.css";
 
 export default function FiltersSidebar({ filters, setFilters, role }) {
   const isGuide = role === "guide";
+  const isTourist = role === "tourist";
 
   function toggleCategoryGroup(key) {
     setFilters(prev => ({
@@ -50,7 +51,6 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
 
       sort: "none",
       rating: "",
-      // păstrăm căutarea globală venită din URL
       searchGlobal: prev.searchGlobal,
     }));
   }
@@ -73,26 +73,28 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
 
   return (
     <div className="filters-panel">
-      {/* ---------- VISIBILITY GROUP ---------- */}
-      <details className="filter-box" open>
-        <summary>{isGuide ? "Ownership & Status" : "Status"}</summary>
+      {/* ---------- VISIBILITY GROUP (hidden for tourists) ---------- */}
+      {!isTourist && (
+        <details className="filter-box" open>
+          <summary>{isGuide ? "Ownership & Status" : "Status"}</summary>
 
-        <div className="filter-content">
-          {visibilityOptions.map(([key, label]) => (
-            <label key={key} className="checkbox-item">
-              <input
-                type="checkbox"
-                checked={filters.categories[key]}
-                onChange={() => toggleCategoryGroup(key)}
-              />
-              {label}
-            </label>
-          ))}
-        </div>
-      </details>
+          <div className="filter-content">
+            {visibilityOptions.map(([key, label]) => (
+              <label key={key} className="checkbox-item">
+                <input
+                  type="checkbox"
+                  checked={filters.categories[key]}
+                  onChange={() => toggleCategoryGroup(key)}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </details>
+      )}
 
       {/* ---------- CATEGORY FILTER ---------- */}
-      <details className="filter-box">
+      <details className="filter-box" open>
         <summary>Category</summary>
         <div className="filter-content">
           {[
@@ -115,7 +117,7 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
       </details>
 
       {/* ---------- DATE FILTER ---------- */}
-      <details className="filter-box">
+      <details className="filter-box" open>
         <summary>Date range</summary>
         <div className="filter-content">
           <label>Start date from:</label>
@@ -147,7 +149,7 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
       </details>
 
       {/* ---------- PRICE FILTER ---------- */}
-      <details className="filter-box">
+      <details className="filter-box" open>
         <summary>Price</summary>
         <div className="filter-content">
           <label>Min: {filters.price.min} RON</label>
@@ -181,7 +183,7 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
       </details>
 
       {/* ---------- SORT ---------- */}
-      <details className="filter-box">
+      <details className="filter-box" open>
         <summary>Sort by</summary>
         <div className="filter-content">
           <select
@@ -199,7 +201,7 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
       </details>
 
       {/* ---------- RATING ---------- */}
-      <details className="filter-box">
+      <details className="filter-box" open>
         <summary>Rating</summary>
         <div className="filter-content">
           {[5, 4, 3, 2, 1].map(stars => (

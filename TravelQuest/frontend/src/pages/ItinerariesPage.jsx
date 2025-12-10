@@ -19,6 +19,7 @@ export default function ItinerariesPage() {
   const { role, userId } = useAuth();
   const isGuide = role === "guide";
   const isAdmin = role === "admin";
+  const isTourist = role === "tourist";
 
   const locationURL = useLocation();
   const globalSearch =
@@ -67,11 +68,13 @@ export default function ItinerariesPage() {
   // ----------------------------------- LOAD FROM BACKEND (FILTER+SORT) -----------------------------------
   const loadItineraries = useCallback(
     async currentFilters => {
-      if (!isGuide && !isAdmin) {
+      // dacă nu avem rol (nu e logat), nu încărcăm nimic
+      if (!role) {
         setItineraries([]);
         return;
       }
 
+      // pentru ghid avem nevoie sigur de userId
       if (isGuide && !userId) {
         return;
       }
@@ -80,11 +83,27 @@ export default function ItinerariesPage() {
       setError(null);
 
       try {
-        const filterPayload = {
+        let filterPayload = {
           ...currentFilters,
           guideId: null,
         };
 
+        // pentru turist forțăm să vadă DOAR itinerarii aprobate,
+        // indiferent de combinația de statusuri din UI
+        if (isTourist) {
+          filterPayload = {
+            ...filterPayload,
+            categories: {
+              ...(filterPayload.categories || {}),
+              all: false,
+              mine: false,
+              approved: true,
+              pending: false,
+              rejected: false,
+              others: false,
+            },
+          };
+        }
 
         const result = await filterItineraries(
           filterPayload,
@@ -100,7 +119,7 @@ export default function ItinerariesPage() {
         setLoading(false);
       }
     },
-    [isGuide, isAdmin, userId]
+    [role, isGuide, isTourist, userId]
   );
 
   // reload itineraries when changes in filters
@@ -129,7 +148,7 @@ export default function ItinerariesPage() {
   // ----------------------------------- RENDER -----------------------------------
   return (
     <div className="itineraries-layout">
-      {(isGuide || isAdmin) && (
+      {(isGuide || isAdmin || isTourist) && (
         <FiltersSidebar
           filters={filters}
           setFilters={setFilters}
@@ -180,6 +199,7 @@ export default function ItinerariesPage() {
                   setShowModal(true);
                 }}
                 onDelete={() => handleDelete(it.id)}
+                canParticipate={isTourist}
               />
             ))}
           </div>
