@@ -5,7 +5,10 @@ const BASE = `${API_BASE_URL}/api/itineraries`;
 async function request(url, options = {}) {
   const res = await fetch(url, {
     credentials: "include",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
     ...options,
   });
 
@@ -90,14 +93,16 @@ export function joinItinerary(id) {
 }
 
 /* ---------------- ACTIVE ITINERARY (GUIDE VIEW) ---------------- */
-export function getActiveItinerary(id) {
-  return request(`${BASE}/${id}/active`);
+
+// backend: GET /api/itineraries/active -> lista de itinerarii active pt ghidul curent
+export function getActiveItinerariesForGuide() {
+  return request(`${BASE}/active`);
 }
 
-
-// export function updateSubmissionStatus(itineraryId, submissionId, status) {
-//   return request(`${BASE}/${itineraryId}/submissions/${submissionId}`, {
-//     method: "PATCH",
-//     body: JSON.stringify({ status }),
-//   });
-// }
+// backend: PATCH /api/itineraries/{itineraryId}/submissions/{submissionId}
+export function updateSubmissionStatus(itineraryId, submissionId, status) {
+  return request(`${BASE}/${itineraryId}/submissions/${submissionId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}

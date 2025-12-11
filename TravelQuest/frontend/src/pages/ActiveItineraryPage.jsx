@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import "./ActiveItineraryPage.css";
 
 import ProgressBar from "../components/itineraries/active/ProgressBar";
@@ -9,14 +8,12 @@ import FeedbackList from "../components/itineraries/active/FeedbackList";
 import MissionModal from "../components/itineraries/active/MissionModal";
 
 import {
-  getActiveItinerary,
+  getActiveItinerariesForGuide,
   updateSubmissionStatus as apiUpdateSubmissionStatus,
 } from "../services/itineraryService";
 
 export default function ActiveItineraryPage() {
-  // presupunem rută de tip /active-itinerary/:id (sau similar)
-  const { id } = useParams();
-  const itineraryId = id; // dacă nu există încă în router, va fi undefined
+  const [itineraryId, setItineraryId] = useState(null);
 
   const [title, setTitle] = useState("");
   const [stages, setStages] = useState([]);
@@ -33,38 +30,58 @@ export default function ActiveItineraryPage() {
 
   // ---------------------- LOAD FROM BACKEND ----------------------
   useEffect(() => {
-    if (!itineraryId) {
-      // dacă nu avem id din URL, măcar nu aruncăm eroare
-      setLoading(false);
-      setError("No active itinerary selected.");
-      return;
-    }
-
     async function load() {
       setLoading(true);
       setError(null);
 
       try {
-        /**
-         * Ne așteptăm ca backend-ul să trimită ceva de genul:
-         * {
-         *   id,
-         *   title,
-         *   stages: ["Created", "Brașov", "Sibiu", "Cluj", "Feedback"],
-         *   participants: [...],
-         *   missions: [ [ {id,text}, ... ], ... ], // index 0 = prima locație reală
-         *   submissions: [...],
-         *   feedback: [...]
-         * }
-         */
-        const data = await getActiveItinerary(itineraryId);
+        // backend: ia automat itinerariile active pt ghidul logat
+        const list = await getActiveItinerariesForGuide();
 
-        setTitle(data.title || "");
-        setStages(data.stages || []);
-        setParticipants(data.participants || []);
-        setMissions(data.missions || []);
-        setSubmissions(data.submissions || []);
-        setFeedback(data.feedback || []);
+        if (!list || list.length === 0) {
+          setError("No active itinerary for today.");
+          setItineraryId(null);
+          setStages([]);
+          setParticipants([]);
+          setMissions([]);
+          setSubmissions([]);
+          setFeedback([]);
+          setCurrentStage(0);
+          return;
+        }
+
+        // deocamdată luăm primul itinerariu activ
+        const active = list[0];
+
+        setItineraryId(active.id);
+        setTitle(active.title || "Active itinerary");
+
+        // stagiile: 0 → Participants, apoi câte o locație, apoi Feedback
+        const locationStages = Array.isArray(active.locations)
+          ? active.locations.map((loc, idx) => {
+              // încercăm să afișăm ceva uman:
+              if (loc.city && loc.country) return `${loc.city}`;
+              if (loc.city) return loc.city;
+              if (loc.name) return loc.name;
+              return `Location #${idx + 1}`;
+            })
+          : [];
+
+        setStages(["Participants", ...locationStages, "Feedback"]);
+
+        // participanți
+        setParticipants(active.participants || []);
+
+        // misiuni – presupunem că vin pe locații
+        const missionsPerLocation = Array.isArray(active.locations)
+          ? active.locations.map((loc) => loc.missions || [])
+          : [];
+        setMissions(missionsPerLocation);
+
+        // submissions & feedback – dacă backend-ul le trimite deja separat
+        setSubmissions(active.submissions || []);
+        setFeedback(active.feedback || []);
+
         setCurrentStage(0);
       } catch (err) {
         console.error("Failed to load active itinerary:", err);
@@ -75,7 +92,7 @@ export default function ActiveItineraryPage() {
     }
 
     load();
-  }, [itineraryId]);
+  }, []);
 
   // ---------------------- DERIVED DATA ----------------------
   const currentLocationMissions =
@@ -85,7 +102,9 @@ export default function ActiveItineraryPage() {
 
   // ---------------------- NAVIGATION ----------------------
   const goNext = () =>
-    setCurrentStage((s) => Math.min(s + 1, Math.max(stages.length - 1, 0)));
+    setCurrentStage((s) =>
+      Math.min(s + 1, Math.max(stages.length - 1, 0))
+    );
 
   const goPrev = () => setCurrentStage((s) => Math.max(s - 1, 0));
 
@@ -98,17 +117,21 @@ export default function ActiveItineraryPage() {
 
   // ---------------------- UPDATE SUBMISSION STATUS ----------------------
   const updateSubmissionStatus = async (submissionId, status) => {
+    if (!itineraryId) {
+      console.warn("No itineraryId set for updateSubmissionStatus");
+      return;
+    }
+
     const reviewedAt = new Date().toISOString();
 
     try {
-      // apel către backend – va fi implementat de colegă
       await apiUpdateSubmissionStatus(itineraryId, submissionId, status);
     } catch (err) {
       console.error("Failed to update submission status:", err);
-      // poți pune aici un toast / mesaj de eroare în UI când vei avea un sistem de notificări
+      // aici vei pune un toast / mesaj de eroare când vei avea un sistem de notificări
     }
 
-    // actualizare optimistă în state (păstrăm exact funcționalitatea existentă)
+    // actualizare optimistă
     setSubmissions((prev) =>
       prev.map((s) =>
         s.id === submissionId ? { ...s, status, reviewedAt } : s

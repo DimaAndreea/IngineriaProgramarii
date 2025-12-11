@@ -1,0 +1,54 @@
+.active-itinerary-page .progress-bar {
+  position: relative;
+  margin: 40px auto 0 auto;
+  width: 70%;
+}
+
+.active-itinerary-page .progress-bar::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  left: 0;
+  right: 0;
+  margin: 0 24px;
+  height: 3px;
+  background: #e5e7eb;
+  z-index: 0;
+}
+
+.active-itinerary-page .progress-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.active-itinerary-page .progress-step .step-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: #dcdcdc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.active-itinerary-page .progress-step.active .step-circle {
+  background: #4b7cff;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.active-itinerary-page .progress-step.completed .step-circle {
+  background: #9eb7ff;
+  color: #ffffff;
+}
+
+.active-itinerary-page .progress-step .step-label {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #4b5563;
+  text-align: center;
+}
