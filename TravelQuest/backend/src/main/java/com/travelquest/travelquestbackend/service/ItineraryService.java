@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ItineraryService {
@@ -135,7 +136,7 @@ public class ItineraryService {
             throw new RuntimeException("Only tourist users can join an itinerary");
         }
 
-        boolean alreadyJoined = itineraryParticipantRepository.existsByItineraryAndTourist(itinerary, user);
+        boolean alreadyJoined = itineraryParticipantRepository.existsByItineraryAndTourist(itinerary, user.getId());
         if (alreadyJoined) {
             throw new RuntimeException("You already joined this itinerary");
         }
@@ -156,6 +157,23 @@ public class ItineraryService {
     public Itinerary getById(Long id) {
         return itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
+    }
+
+    // =====================================================
+    // GET ACTIVE ITINERARY FOR TOURIST
+    // =====================================================
+    public Itinerary getActiveItineraryForTourist(User tourist) {
+        LocalDate today = LocalDate.now();
+
+        Optional<ItineraryParticipant> activeParticipant =
+                itineraryParticipantRepository.findActiveItineraryForTourist(
+                        tourist.getId(),
+                        ItineraryStatus.APPROVED,
+                        today
+                );
+
+
+        return activeParticipant.map(ItineraryParticipant::getItinerary).orElse(null);
     }
 
     // =====================================================
