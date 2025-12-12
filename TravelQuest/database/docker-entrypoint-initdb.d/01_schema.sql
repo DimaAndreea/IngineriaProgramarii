@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS itinerary (
     itinerary_start_date DATE NOT NULL,
     itinerary_end_date   DATE NOT NULL,
     creator_id   BIGINT NOT NULL,
+    participants TEXT DEFAULT '',
 
     CONSTRAINT fk_itinerary_creator
         FOREIGN KEY (creator_id) REFERENCES users(user_id)
