@@ -36,7 +36,6 @@ public class Itinerary {
     @Column(name = "status", nullable = false)
     private ItineraryStatus status;
 
-
     @Column(name = "itinerary_start_date", nullable = false)
     private LocalDate startDate;
 
@@ -50,6 +49,19 @@ public class Itinerary {
     @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ItineraryLocation> locations = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<ItineraryParticipant> participants = new ArrayList<>();
+
+    public List<ItineraryParticipant> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<ItineraryParticipant> participants) {
+        this.participants = participants;
+    }
 
     @PrePersist
     public void prePersist() {

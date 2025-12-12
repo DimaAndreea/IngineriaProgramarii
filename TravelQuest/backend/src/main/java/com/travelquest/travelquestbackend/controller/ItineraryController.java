@@ -7,6 +7,8 @@ import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.service.ItineraryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -61,6 +63,31 @@ public class ItineraryController {
 
         service.delete(id, user);
     }
+
+    // =========================
+    // JOIN ITINERARY – TOURIST
+    // =========================
+    @PostMapping("/{id}/join")
+    public ResponseEntity<String> joinItinerary(@PathVariable("id") Long itineraryId,
+                                                HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        try {
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("You must be logged in to join an itinerary");
+            }
+
+            String message = service.joinItinerary(itineraryId, user);
+            return ResponseEntity.ok(message);
+
+        } catch (RuntimeException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + ex.getMessage());
+        }
+    }
+
 
     // ======================
     // ADMIN — GET ALL ITINERARIES

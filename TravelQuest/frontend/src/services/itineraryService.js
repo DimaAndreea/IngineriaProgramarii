@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 const BASE = `${API_BASE_URL}/api/itineraries`;
 
 async function request(url, options = {}) {
@@ -12,35 +11,29 @@ async function request(url, options = {}) {
     ...options,
   });
 
+  const contentType = res.headers.get("content-type");
+
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Request failed");
+    const errorText = await res.text();
+    throw new Error(errorText || "Request failed");
   }
 
-  const contentType = res.headers.get("content-type");
   if (!contentType || !contentType.includes("application/json")) {
-    return null;
+    return await res.text(); // mesaj simplu de succes
   }
 
   return res.json();
 }
 
+// ======================
+// CRUD FUNCTIONS
+// ======================
 export function getPendingItineraries() {
   return request(`${BASE}/pending`);
 }
 
-export function approveItinerary(id) {
-  return request(`${BASE}/${id}/approve`, {
-    method: "PATCH",
-    credentials: "include",
-  });
-}
-
-export function rejectItinerary(id) {
-  return request(`${BASE}/${id}/reject`, {
-    method: "PATCH",
-    credentials: "include",
-  });
+export function getItineraryById(id) {
+  return request(`${BASE}/${id}`);
 }
 
 export function createItinerary(data) {
@@ -48,33 +41,20 @@ export function createItinerary(data) {
 }
 
 export function updateItinerary(id, data) {
-  return request(`${BASE}/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+  return request(`${BASE}/${id}`, { method: "PUT", body: JSON.stringify(data) });
 }
 
 export function deleteItinerary(id) {
   return request(`${BASE}/${id}`, { method: "DELETE" });
 }
 
-export function getGuideItineraries(id) {
-  return request(`${BASE}/guide/${id}`);
+export function joinItinerary(id) {
+  return request(`${BASE}/${id}/join`, { method: "POST" });
 }
 
-export function getPublicItineraries() {
-  return request(`${BASE}/public`);
-}
-
-export function getItineraryById(id) {
-  return request(`${BASE}/${id}`);
-}
-
-// used for admin
-export function getAllItineraries() {
-  return request(BASE);
-}
-
+// ======================
+// FILTER FUNCTION
+// ======================
 export function filterItineraries(filter, userId) {
   return request(`${BASE}/filter`, {
     method: "POST",
@@ -86,23 +66,42 @@ export function filterItineraries(filter, userId) {
   });
 }
 
-export function joinItinerary(id) {
-  return request(`${BASE}/${id}/join`, {
-    method: "POST",
-  });
-}
-
-/* ---------------- ACTIVE ITINERARY (GUIDE VIEW) ---------------- */
-
-// backend: GET /api/itineraries/active -> lista de itinerarii active pt ghidul curent
+// ======================
+// ACTIVE ITINERARY / GUIDE FUNCTIONS
+// ======================
 export function getActiveItinerariesForGuide() {
   return request(`${BASE}/active`);
 }
 
-// backend: PATCH /api/itineraries/{itineraryId}/submissions/{submissionId}
 export function updateSubmissionStatus(itineraryId, submissionId, status) {
   return request(`${BASE}/${itineraryId}/submissions/${submissionId}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
   });
+}
+
+// ======================
+// ADMIN ACTIONS
+// ======================
+export function approveItinerary(id) {
+  return request(`${BASE}/${id}/approve`, { method: "PATCH" });
+}
+
+export function rejectItinerary(id) {
+  return request(`${BASE}/${id}/reject`, { method: "PATCH" });
+}
+
+// ======================
+// OPTIONAL GETTERS
+// ======================
+export function getAllItineraries() {
+  return request(BASE);
+}
+
+export function getGuideItineraries(guideId) {
+  return request(`${BASE}/guide/${guideId}`);
+}
+
+export function getPublicItineraries() {
+  return request(`${BASE}/public`);
 }

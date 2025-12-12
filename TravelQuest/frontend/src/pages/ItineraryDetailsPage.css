@@ -244,3 +244,75 @@
   background: #ffcccc;
   transform: translateY(-2px);
 }
+
+/* JOIN MESSAGE */
+.join-success {
+  color: #2f7a39;
+  background-color: #dfffe5;
+  border: 1px solid #2f7a39;
+  padding: 10px 15px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.join-error {
+  color: #c54a4a;
+  background-color: #ffe1e1;
+  border: 1px solid #c54a4a;
+  padding: 10px 15px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* LOADING & ERROR MESSAGES */
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+  margin: 20px 0;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.loading {
+  color: #2f7a39;
+  background-color: #dfffe5;
+  border: 1px solid #2f7a39;
+}
+
+.error {
+  color: #c54a4a;
+  background-color: #ffe1e1;
+  border: 1px solid #c54a4a;
+}
+
+/* GENERAL SUCCESS MESSAGE */
+.success {
+  color: #2f7a39;
+  background-color: #e1f7df;
+  border: 1px solid #2f7a39;
+  padding: 10px 15px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* INFO MESSAGE */
+.info {
+  color: #3256e0;
+  background-color: #e6edff;
+  border: 1px solid #3256e0;
+  padding: 10px 15px;
+  border-radius: 12px;
+  margin-top: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+}
