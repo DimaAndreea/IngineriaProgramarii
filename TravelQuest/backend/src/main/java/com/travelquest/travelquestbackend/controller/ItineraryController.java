@@ -4,12 +4,14 @@ import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.Itinerary;
 import com.travelquest.travelquestbackend.model.ItineraryStatus;
 import com.travelquest.travelquestbackend.model.User;
+import com.travelquest.travelquestbackend.model.UserRole;
 import com.travelquest.travelquestbackend.service.ItineraryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -23,140 +25,138 @@ public class ItineraryController {
     }
 
     // ======================
-    // CREATE
+    // CREATE ITINERARY
     // ======================
     @PostMapping
-    public Itinerary create(@RequestBody ItineraryRequest req, HttpServletRequest request) {
-
+    public ResponseEntity<Itinerary> create(@RequestBody ItineraryRequest req, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
-            throw new RuntimeException("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        return service.create(req, user);
+        Itinerary created = service.create(req, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     // ======================
-    // UPDATE
+    // UPDATE ITINERARY
     // ======================
     @PutMapping("/{id}")
-    public Itinerary update(@PathVariable Long id, @RequestBody ItineraryRequest req, HttpServletRequest request) {
-
+    public ResponseEntity<Itinerary> update(@PathVariable Long id, @RequestBody ItineraryRequest req, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
-            throw new RuntimeException("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        return service.update(id, req, user);
+        Itinerary updated = service.update(id, req, user);
+        return ResponseEntity.ok(updated);
     }
 
     // ======================
-    // DELETE
+    // DELETE ITINERARY
     // ======================
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id, HttpServletRequest request) {
-
+    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute("user");
         if (user == null) {
-            throw new RuntimeException("Not logged in");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
         service.delete(id, user);
+        return ResponseEntity.noContent().build();
     }
 
-    // =========================
+    // ======================
     // JOIN ITINERARY – TOURIST
-    // =========================
+    // ======================
     @PostMapping("/{id}/join")
-    public ResponseEntity<String> joinItinerary(@PathVariable("id") Long itineraryId,
-                                                HttpServletRequest request) {
+    public ResponseEntity<String> joinItinerary(@PathVariable("id") Long itineraryId, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("You must be logged in to join an itinerary");
+        }
         try {
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("You must be logged in to join an itinerary");
-            }
-
             String message = service.joinItinerary(itineraryId, user);
             return ResponseEntity.ok(message);
-
         } catch (RuntimeException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + ex.getMessage());
         }
     }
 
-
     // ======================
-    // ADMIN — GET ALL ITINERARIES
-    // ======================
-    @GetMapping
-    public List<Itinerary> getAll(HttpServletRequest request) {
-
-        User user = (User) request.getSession().getAttribute("user");
-
-        if (user == null || !"ADMIN".equals(user.getRole().name())) {
-            throw new RuntimeException("Only admin can view all itineraries.");
-        }
-
-        return service.getAll();
-    }
-
-    // ======================
-    // ADMIN — GET ALL PENDING
-    // ======================
-    @GetMapping("/pending")
-    public List<Itinerary> pending() {
-        return service.getPending();
-    }
-
-    // ======================
-    // GET ONE (VISIBILITY RULE APPLIED)
+    // GET ITINERARY BY ID (WITH VISIBILITY CHECK)
     // ======================
     @GetMapping("/{id}")
-    public Itinerary getById(@PathVariable Long id, HttpServletRequest request) {
-
+    public ResponseEntity<Itinerary> getById(@PathVariable Long id, HttpServletRequest request) {
         Itinerary it = service.getById(id);
-
         User user = (User) request.getSession().getAttribute("user");
 
-        boolean isCreator = (user != null && it.getCreator().getId().equals(user.getId()));
-        boolean isAdmin = (user != null && user.getRole().name().equals("ADMIN"));
+        boolean isCreator = user != null && it.getCreator().getId().equals(user.getId());
+        boolean isAdmin = user != null && user.getRole() == UserRole.ADMIN;
 
-        if (isAdmin) return it;
+        if (isAdmin || it.getStatus() == ItineraryStatus.APPROVED || isCreator) {
+            return ResponseEntity.ok(it);
+        }
 
-        if (it.getStatus() == ItineraryStatus.APPROVED) return it;
-
-        if (isCreator) return it;
-
-        throw new RuntimeException("You are not allowed to view this itinerary.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     // ======================
-    // OTHER GETTERS
+    // GET ACTIVE ITINERARY FOR TOURIST
+    // ======================
+    @GetMapping("/active/tourist")
+    public ResponseEntity<Itinerary> getActiveItineraryForTourist(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null || user.getRole() != UserRole.TOURIST) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Obținem itinerariul activ
+        Itinerary activeItinerary = service.getActiveItineraryForTourist(user);
+
+        // Returnăm null dacă nu există
+        if (activeItinerary == null) {
+            return ResponseEntity.ok(null);
+        }
+
+        return ResponseEntity.ok(activeItinerary);
+    }
+
+
+    // ======================
+    // GET GUIDE ITINERARIES
     // ======================
     @GetMapping("/guide/{id}")
-    public List<Itinerary> guideItineraries(@PathVariable Long id) {
-        return service.getGuideItineraries(id);
-    }
-
-    @GetMapping("/public")
-    public List<Itinerary> publicList() {
-        return service.getPublic();
+    public ResponseEntity<List<Itinerary>> guideItineraries(@PathVariable Long id) {
+        List<Itinerary> itineraries = service.getGuideItineraries(id);
+        return ResponseEntity.ok(itineraries);
     }
 
     // ======================
-    // ADMIN ACTIONS
+    // GET PUBLIC ITINERARIES
+    // ======================
+    @GetMapping("/public")
+    public ResponseEntity<List<Itinerary>> publicList() {
+        return ResponseEntity.ok(service.getPublic());
+    }
+
+    // ======================
+    // GET PENDING ITINERARIES (ADMIN)
+    // ======================
+    @GetMapping("/pending")
+    public ResponseEntity<List<Itinerary>> pending() {
+        return ResponseEntity.ok(service.getPending());
+    }
+
+    // ======================
+    // ADMIN ACTIONS — APPROVE / REJECT
     // ======================
     @PatchMapping("/{id}/approve")
-    public Itinerary approve(@PathVariable Long id) {
-        return service.approve(id);
+    public ResponseEntity<Itinerary> approve(@PathVariable Long id) {
+        return ResponseEntity.ok(service.approve(id));
     }
 
     @PatchMapping("/{id}/reject")
-    public Itinerary reject(@PathVariable Long id) {
-        return service.reject(id);
+    public ResponseEntity<Itinerary> reject(@PathVariable Long id) {
+        return ResponseEntity.ok(service.reject(id));
     }
 }

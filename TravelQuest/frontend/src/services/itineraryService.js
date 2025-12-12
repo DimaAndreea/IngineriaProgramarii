@@ -67,10 +67,14 @@ export function filterItineraries(filter, userId) {
 }
 
 // ======================
-// ACTIVE ITINERARY / GUIDE FUNCTIONS
+// ACTIVE ITINERARY FUNCTIONS
 // ======================
 export function getActiveItinerariesForGuide() {
   return request(`${BASE}/active`);
+}
+
+export function getActiveItineraryForTourist() {
+  return request(`${BASE}/active/tourist`);
 }
 
 export function updateSubmissionStatus(itineraryId, submissionId, status) {
@@ -79,6 +83,25 @@ export function updateSubmissionStatus(itineraryId, submissionId, status) {
     body: JSON.stringify({ status }),
   });
 }
+
+export function uploadSubmission(itineraryId, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("itineraryId", itineraryId);
+
+  return fetch(`${BASE}/submissions`, {
+    method: "POST",
+    body: formData,
+    credentials: "include",
+  }).then(async res => {
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || "Failed to upload submission.");
+    }
+    return res.json();
+  });
+}
+
 
 // ======================
 // ADMIN ACTIONS
