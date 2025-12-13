@@ -27,47 +27,70 @@ public class ItineraryService {
     }
 
     // =====================================================
-    // CREATE ITINERARY
+    // CREATE
     // =====================================================
     public Itinerary create(ItineraryRequest req, User creator) {
+
         if (creator == null) {
             throw new EntityNotFoundException("Creator not found in session");
         }
 
+        // 1. Parsăm datele și verificăm că intervalul e valid
+        LocalDate startDate = LocalDate.parse(req.getStartDate());
+        LocalDate endDate = LocalDate.parse(req.getEndDate());
+
+        if (endDate.isBefore(startDate)) {
+            throw new RuntimeException("End date cannot be before start date");
+        }
+
+        // 2. Verificăm dacă ghidul are deja un itinerariu care se suprapune
+        boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuide(
+                creator.getId(),
+                startDate,
+                endDate
+        );
+
+        if (overlaps) {
+            throw new RuntimeException("You already have another itinerary in this time interval.");
+        }
+
+        // 3. Creăm itinerariul doar dacă nu există suprapuneri
         Itinerary itinerary = new Itinerary();
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
-        itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
-        itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
+        itinerary.setStartDate(startDate);
+        itinerary.setEndDate(endDate);
         itinerary.setStatus(ItineraryStatus.PENDING);
         itinerary.setCreator(creator);
 
-        req.getLocations().forEach(locDto -> {
+        for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
+
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
             loc.setCity(locDto.getCity());
 
-            locDto.getObjectives().forEach(objName -> {
+            for (String objName : locDto.getObjectives()) {
                 ItineraryObjective obj = new ItineraryObjective();
                 obj.setLocation(loc);
                 obj.setName(objName);
                 loc.getObjectives().add(obj);
-            });
+            }
 
             itinerary.getLocations().add(loc);
-        });
+        }
 
         return itineraryRepository.save(itinerary);
     }
 
     // =====================================================
-    // UPDATE ITINERARY
+    // UPDATE
     // =====================================================
     public Itinerary update(Long id, ItineraryRequest req, User loggedUser) {
+
         Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
@@ -79,30 +102,51 @@ public class ItineraryService {
             throw new RuntimeException("You cannot edit an itinerary that has been approved or rejected");
         }
 
+        LocalDate startDate = LocalDate.parse(req.getStartDate());
+        LocalDate endDate = LocalDate.parse(req.getEndDate());
+
+        if (endDate.isBefore(startDate)) {
+            throw new RuntimeException("End date cannot be before start date");
+        }
+
+        // verificăm suprapunerea cu ALTE itinerarii ale aceluiași ghid
+        boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuideExcludingItinerary(
+                loggedUser.getId(),
+                id,
+                startDate,
+                endDate
+        );
+
+        if (overlaps) {
+            throw new RuntimeException("You already have another itinerary in this time interval.");
+        }
+
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
         itinerary.setCategory(req.getCategory());
         itinerary.setPrice(req.getPrice());
         itinerary.setImageBase64(req.getImageBase64());
-        itinerary.setStartDate(LocalDate.parse(req.getStartDate()));
-        itinerary.setEndDate(LocalDate.parse(req.getEndDate()));
+        itinerary.setStartDate(startDate);
+        itinerary.setEndDate(endDate);
 
         itinerary.getLocations().clear();
-        req.getLocations().forEach(locDto -> {
+
+        for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
+
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
             loc.setCity(locDto.getCity());
 
-            locDto.getObjectives().forEach(name -> {
+            for (String name : locDto.getObjectives()) {
                 ItineraryObjective obj = new ItineraryObjective();
                 obj.setLocation(loc);
                 obj.setName(name);
                 loc.getObjectives().add(obj);
-            });
+            }
 
             itinerary.getLocations().add(loc);
-        });
+        }
 
         return itineraryRepository.save(itinerary);
     }
@@ -210,5 +254,19 @@ public class ItineraryService {
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
         itinerary.setStatus(ItineraryStatus.REJECTED);
         return itineraryRepository.save(itinerary);
+    }
+
+    // =====================================================
+    // GUIDE — ACTIVE ITINERARIES
+    // =====================================================
+    public List<Itinerary> getActiveItinerariesForGuide(User guide) {
+
+        if (guide == null) {
+            throw new RuntimeException("User not authenticated.");
+        }
+
+        LocalDate today = LocalDate.now(); // poți folosi și cu ZoneId dacă vrei
+
+        return itineraryRepository.findActiveItinerariesForGuide(guide.getId(), today);
     }
 }
