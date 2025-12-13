@@ -67,7 +67,7 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
       AND i.startDate <= :today
       AND i.endDate >= :today
       AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
-""")
+    """)
     List<Itinerary> findActiveItinerariesForTourist(
             @Param("touristId") Long touristId,
             @Param("today") LocalDate today
