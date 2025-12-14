@@ -1,6 +1,6 @@
 package com.travelquest.travelquestbackend.controller;
 
-import com.travelquest.travelquestbackend.model.ItinerarySubmission;
+import com.travelquest.travelquestbackend.model.ObjectiveSubmission;
 import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.model.UserRole;
 import com.travelquest.travelquestbackend.service.ItinerarySubmissionService;
@@ -25,6 +25,7 @@ public class ItinerarySubmissionController {
     @PostMapping("/{id}/submit-photo")
     public ResponseEntity<?> submitPhoto(
             @PathVariable("id") Long itineraryId,
+            @RequestParam("objectiveId") Long objectiveId,
             @RequestParam("file") MultipartFile file,
             HttpServletRequest request
     ) {
@@ -34,9 +35,13 @@ public class ItinerarySubmissionController {
                     .body("You must be logged in as a tourist to submit photos");
         }
 
+        System.out.println("Request has file? " + (file != null));
+        System.out.println("objectiveId: " + objectiveId);
+
+
         try {
-            ItinerarySubmission submission = service.submitPhoto(itineraryId, user, file);
-            List<ItinerarySubmission> allSubmissions = service.getSubmissionsForTourist(itineraryId, user);
+            ObjectiveSubmission submission = service.submitPhoto(itineraryId, objectiveId, user, file);
+            List<ObjectiveSubmission> allSubmissions = service.getSubmissionsForTourist(itineraryId, user);
             return ResponseEntity.ok(allSubmissions);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -44,5 +49,7 @@ public class ItinerarySubmissionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
+
     }
+
 }

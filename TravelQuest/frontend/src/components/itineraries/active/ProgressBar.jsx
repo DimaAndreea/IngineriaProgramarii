@@ -20,7 +20,7 @@ export default function ProgressBar({ stages, currentStage }) {
                         >
                             {index + 1}
                         </div>
-                        <span className="step-label">{stage}</span>
+                        <span className="step-label">{stage.city}</span>
                     </div>
                 ))}
             </div>

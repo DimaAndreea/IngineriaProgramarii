@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 
 const BASE = `${API_BASE_URL}/api/itineraries`;
 

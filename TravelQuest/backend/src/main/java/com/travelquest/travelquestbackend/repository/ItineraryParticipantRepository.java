@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface ItineraryParticipantRepository extends JpaRepository<ItineraryParticipant, Long> {
@@ -35,7 +36,25 @@ public interface ItineraryParticipantRepository extends JpaRepository<ItineraryP
     """)
     Optional<ItineraryParticipant> findActiveItineraryForTourist(
             @Param("touristId") Long touristId,
-            @Param("status") ItineraryStatus status,
-            @Param("today") LocalDate today
+            @Param("status") com.travelquest.travelquestbackend.model.ItineraryStatus status,
+            @Param("today") java.time.LocalDate today
+    );
+
+    // ===========================
+    // Submissions for a tourist in a specific itinerary
+    // ===========================
+    @Query("""
+        SELECT os
+        FROM ObjectiveSubmission os
+        JOIN os.objective obj
+        JOIN obj.location loc
+        JOIN loc.itinerary i
+        WHERE os.tourist.id = :touristId
+          AND i.id = :itineraryId
+    """)
+    List<com.travelquest.travelquestbackend.model.ObjectiveSubmission> findSubmissionsForTourist(
+            @Param("touristId") Long touristId,
+            @Param("itineraryId") Long itineraryId
     );
 }
+

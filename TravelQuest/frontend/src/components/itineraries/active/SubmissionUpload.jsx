@@ -18,26 +18,26 @@ export default function SubmissionUpload({ mission, onSubmit, existingSubmission
   };
 
   return (
-    <div className="submission-card">
-      <p><strong>{mission.text}</strong></p>
+      <div className="submission-card">
+        <p><strong>{mission.text}</strong></p>
 
-      {preview && (
-        <img className="submission-preview" src={preview} alt="preview" />
-      )}
+        {preview && (
+            <img className="submission-preview" src={preview} alt="preview" />
+        )}
 
-      <input type="file" accept="image/*" onChange={handleFile} />
+        <input type="file" accept="image/*" onChange={handleFile} />
 
-      {!existingSubmission && (
-        <button className="submit-btn" onClick={handleSend}>
-          Send submission
-        </button>
-      )}
+        {!existingSubmission && (
+            <button className="submit-btn" onClick={handleSend}>
+              Send submission
+            </button>
+        )}
 
-      {existingSubmission && (
-        <p className={`submission-status ${existingSubmission.status}`}>
-          Status: {existingSubmission.status}
-        </p>
-      )}
-    </div>
+        {existingSubmission && (
+            <p className={`submission-status ${existingSubmission.status}`}>
+              Status: {existingSubmission.status}
+            </p>
+        )}
+      </div>
   );
 }
