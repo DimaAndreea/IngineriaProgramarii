@@ -74,7 +74,7 @@ export default function ActiveItineraryPage() {
 
         // misiuni – presupunem că vin pe locații
         const missionsPerLocation = Array.isArray(active.locations)
-            ? active.locations.map((loc) => loc.missions || [])
+            ? active.locations.map((loc) => loc.objectives || [])
             : [];
         setMissions(missionsPerLocation);
 

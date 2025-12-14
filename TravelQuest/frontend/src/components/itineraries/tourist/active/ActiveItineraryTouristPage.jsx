@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getActiveItineraryForTourist } from "../../../../services/activeItineraryTouristService";
 import { uploadSubmission } from "../../../../services/submissionService";
 
@@ -51,11 +51,43 @@ export default function ActiveItineraryTouristPage() {
     setSubmitSuccess("");
   };
 
-  const goNext = () => setCurrentStageIndex(prev => Math.min(prev + 1, itinerary.locations.length - 1));
-  const goPrev = () => setCurrentStageIndex(prev => Math.max(prev - 1, 0));
+  const goNext = () =>
+    setCurrentStageIndex((prev) =>
+      Math.min(prev + 1, Math.max((itinerary?.locations?.length ?? 1) - 1, 0))
+    );
+
+  const goPrev = () => setCurrentStageIndex((prev) => Math.max(prev - 1, 0));
+
+  // Map: objectiveId -> [submissions]
+  const submissionsByMission = useMemo(() => {
+    return (submissions || []).reduce((acc, sub) => {
+      const key =
+        sub.objectiveId ??
+        sub.missionId ??
+        sub.objective?.id ??
+        sub.mission?.id;
+
+      if (!key) return acc;
+
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(sub);
+      return acc;
+    }, {});
+  }, [submissions]);
 
   const openSubmissionModal = (mission) => {
     clearSubmitMessages();
+
+    const objectiveId =
+      mission?.id ?? mission?.objectiveId ?? mission?.objective_id;
+
+    const alreadySubmitted = !!submissionsByMission[objectiveId]?.length;
+
+    if (alreadySubmitted) {
+      setSubmitError("You have already submitted a photo for this mission.");
+      return;
+    }
+
     setSelectedMission(mission);
   };
 
@@ -63,65 +95,107 @@ export default function ActiveItineraryTouristPage() {
 
   const handleSubmitPhoto = async (objectiveId, file) => {
     clearSubmitMessages();
+
     try {
-      const updatedSubmissions = await uploadSubmission(itinerary.id, objectiveId, file);
-      setSubmissions(updatedSubmissions);
+      const updated = await uploadSubmission(itinerary.id, objectiveId, file);
+
+      // backend poate întoarce: listă completă SAU un singur submission
+      if (Array.isArray(updated)) {
+        setSubmissions(updated);
+      } else if (updated) {
+        setSubmissions((prev) => [...prev, updated]);
+      }
+
       setSubmitSuccess("Submission sent successfully!");
       setSelectedMission(null);
     } catch (err) {
       console.error("Failed to submit photo:", err);
-      setSubmitError("Failed to submit photo. Please try again.");
+      // arată mesajul real din backend dacă există
+      setSubmitError(err?.message || "Failed to submit photo. Please try again.");
     }
   };
 
-  if (loading) return <div className="active-itinerary-page"><h1 className="page-title">Active itinerary</h1><p>Loading active itinerary...</p></div>;
-  if (loadError) return <div className="active-itinerary-page"><h1 className="page-title">Active itinerary</h1><p className="error-message">{loadError}</p></div>;
-  if (!itinerary) return <div className="active-itinerary-page"><h1 className="page-title">Active itinerary</h1><p>No active itinerary available.</p></div>;
+  if (loading)
+    return (
+      <div className="active-itinerary-page">
+        <h1 className="page-title">Active itinerary</h1>
+        <p>Loading active itinerary...</p>
+      </div>
+    );
+
+  if (loadError)
+    return (
+      <div className="active-itinerary-page">
+        <h1 className="page-title">Active itinerary</h1>
+        <p className="error-message">{loadError}</p>
+      </div>
+    );
+
+  if (!itinerary)
+    return (
+      <div className="active-itinerary-page">
+        <h1 className="page-title">Active itinerary</h1>
+        <p>No active itinerary available.</p>
+      </div>
+    );
 
   const { title, locations = [] } = itinerary;
   const currentLocation = locations[currentStageIndex] || {};
-  const currentMissions = currentLocation.missions || [];
 
-  // organizează submissions pe obiectiv
-  const submissionsByMission = submissions.reduce((acc, sub) => {
-    if (!acc[sub.objectiveId]) acc[sub.objectiveId] = [];
-    acc[sub.objectiveId].push(sub);
-    return acc;
-  }, {});
+  // suportă ambele: missions sau objectives
+  const currentMissions =
+    currentLocation.missions || currentLocation.objectives || [];
 
   return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">{title || "Active itinerary"}</h1>
+    <div className="active-itinerary-page">
+      <h1 className="page-title">{title || "Active itinerary"}</h1>
 
-        <ProgressBar stages={locations} currentStage={currentStageIndex} />
+      <ProgressBar stages={locations} currentStage={currentStageIndex} />
 
-        <div className="nav-buttons">
-          <button className="nav-btn prev" onClick={goPrev} disabled={currentStageIndex === 0}>← Previous</button>
-          <button className="nav-btn next" onClick={goNext} disabled={currentStageIndex === locations.length - 1}>Next →</button>
-        </div>
+      <div className="nav-buttons">
+        <button
+          className="nav-btn prev"
+          onClick={goPrev}
+          disabled={currentStageIndex === 0}
+        >
+          ← Previous
+        </button>
 
-        {(submitError || submitSuccess) && (
-            <div style={{ marginTop: 10 }}>
-              {submitError && <p className="error-message">{submitError}</p>}
-              {submitSuccess && <p style={{ color: "#16a34a", fontWeight: 500 }}>{submitSuccess}</p>}
-            </div>
-        )}
-
-        <div className="stage-content">
-          <MissionListTourist
-              missions={currentMissions}
-              submissionsByMission={submissionsByMission}
-              onMakeSubmission={openSubmissionModal}
-          />
-        </div>
-
-        {selectedMission && (
-            <SubmissionModal
-                mission={selectedMission}
-                onClose={closeSubmissionModal}
-                onSubmit={handleSubmitPhoto}
-            />
-        )}
+        <button
+          className="nav-btn next"
+          onClick={goNext}
+          disabled={currentStageIndex === locations.length - 1}
+        >
+          Next →
+        </button>
       </div>
+
+      {(submitError || submitSuccess) && (
+        <div style={{ marginTop: 10 }}>
+          {submitError && <p className="error-message">{submitError}</p>}
+          {submitSuccess && (
+            <p style={{ color: "#16a34a", fontWeight: 500 }}>
+              {submitSuccess}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="stage-content">
+        <MissionListTourist
+          missions={currentMissions}
+          submissionsByMission={submissionsByMission}
+          onMakeSubmission={openSubmissionModal}
+        />
+      </div>
+
+      {selectedMission && (
+        <SubmissionModal
+          mission={selectedMission}
+          onClose={closeSubmissionModal}
+          onSubmit={handleSubmitPhoto}
+        />
+      )}
+    </div>
   );
 }
