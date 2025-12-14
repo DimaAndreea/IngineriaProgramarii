@@ -8,10 +8,12 @@ import HomePage from "./pages/HomePage";
 import Navbar from "./components/layouts/Navbar";
 
 import ItinerariesPage from "./pages/ItinerariesPage";
-import ActivePage from "./pages/ActiveItineraryPage";
+import ActiveGuidePage from "./pages/ActiveItineraryPage"; 
 import MissionsPage from "./pages/MissionsPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import ItineraryDetailsPage from "./pages/ItineraryDetailsPage";
+
+import ActiveItineraryTouristPage from "./components/itineraries/tourist/active/ActiveItineraryTouristPage.jsx";
 
 function ProtectedLayout({ children }) {
   return (
@@ -68,13 +70,25 @@ export default function App() {
             }
           />
 
-          {/* ACTIVE */}
+          {/* ACTIVE ITINERARY FOR GUIDE */}
           <Route
             path="/active"
             element={
-              <ProtectedRoute allowedRoles={["guide", "tourist"]}>
+              <ProtectedRoute allowedRoles={["guide"]}>
                 <ProtectedLayout>
-                  <ActivePage />
+                  <ActiveGuidePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ACTIVE ITINERARY FOR TOURIST */}
+          <Route
+            path="/tourist/active"
+            element={
+              <ProtectedRoute allowedRoles={["tourist"]}>
+                <ProtectedLayout>
+                  <ActiveItineraryTouristPage />
                 </ProtectedLayout>
               </ProtectedRoute>
             }
@@ -104,8 +118,9 @@ export default function App() {
             }
           />
 
-          {/* CATCH-ALL → LOGIN */}
+          {/* CATCH-ALL -> LOGIN */}
           <Route path="*" element={<LoginPage />} />
+
         </Routes>
       </AuthProvider>
     </Router>

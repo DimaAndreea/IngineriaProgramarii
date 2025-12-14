@@ -1,27 +1,32 @@
 package com.travelquest.travelquestbackend.service;
 
-import com.travelquest.travelquestbackend.dto.ActiveItinerarySummaryDto;
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.*;
-import com.travelquest.travelquestbackend.repository.ItineraryRepository;
-import com.travelquest.travelquestbackend.repository.UserRepository;
+import com.travelquest.travelquestbackend.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import com.travelquest.travelquestbackend.dto.ActiveItineraryParticipantDto;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ItineraryService {
 
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
+    private final ItineraryParticipantRepository itineraryParticipantRepository;
+
 
     public ItineraryService(ItineraryRepository itineraryRepository,
-                            UserRepository userRepository) {
+                            UserRepository userRepository,
+                            ItineraryParticipantRepository itineraryParticipantRepository) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
+        this.itineraryParticipantRepository = itineraryParticipantRepository;
     }
 
     // =====================================================
@@ -116,7 +121,7 @@ public class ItineraryService {
         );
 
         if (overlaps) {
-            throw new RuntimeException("You already have another itinerary in this time interval.");
+            throw new com.travelquest.travelquestbackend.exceptions.ItineraryOverlapException("You already have another itinerary in this time interval.");
         }
 
         itinerary.setTitle(req.getTitle());
@@ -149,32 +154,93 @@ public class ItineraryService {
         return itineraryRepository.save(itinerary);
     }
 
-
     // =====================================================
-    // DELETE
+    // DELETE ITINERARY
     // =====================================================
     public void delete(Long id, User loggedUser) {
-
-        Itinerary it = itineraryRepository.findById(id)
+        Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
-        if (!it.getCreator().getId().equals(loggedUser.getId())) {
+        if (!itinerary.getCreator().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("You cannot delete someone else's itinerary");
         }
 
-        itineraryRepository.delete(it);
+        itineraryRepository.delete(itinerary);
     }
 
     // =====================================================
-    // GET ONE 
+    // TOURIST — JOIN ITINERARY
     // =====================================================
-    public Itinerary getById(Long id) {
-        return itineraryRepository.findById(id)
+    public String joinItinerary(Long itineraryId, User user) {
+        Itinerary itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
+
+        if (itinerary.getStatus() != ItineraryStatus.APPROVED) {
+            throw new RuntimeException("Cannot join a non-approved itinerary");
+        }
+
+        if (user.getRole() != UserRole.TOURIST) {
+            throw new RuntimeException("Only tourist users can join an itinerary");
+        }
+
+        boolean alreadyJoined = itineraryParticipantRepository.existsByItineraryAndTourist(itinerary, user.getId());
+        if (alreadyJoined) {
+            throw new RuntimeException("You already joined this itinerary");
+        }
+
+        ItineraryParticipant participant = new ItineraryParticipant();
+        participant.setItinerary(itinerary);
+        participant.setTourist(user);
+        participant.setJoinedAt(ZonedDateTime.now());
+
+        itineraryParticipantRepository.save(participant);
+
+        return "TOUR JOINED! Welcome to the adventure, " + user.getUsername() + " 🎉";
     }
 
     // =====================================================
-    // OTHER GETTERS
+    // GET ITINERARY BY ID
+    // =====================================================
+    @Transactional(readOnly = true)
+    public Itinerary getActiveItineraryForTourist(User tourist) {
+        LocalDate today = LocalDate.now();
+
+        Optional<ItineraryParticipant> activeParticipant =
+                itineraryParticipantRepository.findActiveItineraryForTourist(
+                        tourist.getId(),
+                        ItineraryStatus.APPROVED,
+                        today
+                );
+
+        if (activeParticipant.isEmpty()) {
+            return null;
+        }
+
+        Long itineraryId = activeParticipant.get().getItinerary().getId();
+
+        Itinerary it = itineraryRepository.findByIdWithLocations(itineraryId)
+                .orElse(null);
+
+        if (it == null) {
+            return null;
+        }
+
+        // Forțăm încărcarea objectives pentru fiecare location (evită multiple-bag fetch)
+        if (it.getLocations() != null) {
+            it.getLocations().forEach(loc -> {
+                if (loc.getObjectives() != null) {
+                    loc.getObjectives().size(); // initialize lazy collection
+                }
+            });
+        }
+
+        return it;
+    }
+
+
+
+    // =====================================================
+    // GET PUBLIC/PENDING/ALL ITINERARIES
     // =====================================================
     public List<Itinerary> getGuideItineraries(Long guideId) {
         return itineraryRepository.findByCreatorId(guideId);
@@ -188,25 +254,25 @@ public class ItineraryService {
         return itineraryRepository.findByStatus(ItineraryStatus.PENDING);
     }
 
-    // =======================
-    // ADMIN — GET ALL
-    // =======================
     public List<Itinerary> getAll() {
         return itineraryRepository.findAll();
     }
 
+    // =====================================================
+    // APPROVE / REJECT ITINERARY (ADMIN)
+    // =====================================================
     public Itinerary approve(Long id) {
-        Itinerary it = itineraryRepository.findById(id)
+        Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
-        it.setStatus(ItineraryStatus.APPROVED);
-        return itineraryRepository.save(it);
+        itinerary.setStatus(ItineraryStatus.APPROVED);
+        return itineraryRepository.save(itinerary);
     }
 
     public Itinerary reject(Long id) {
-        Itinerary it = itineraryRepository.findById(id)
+        Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
-        it.setStatus(ItineraryStatus.REJECTED);
-        return itineraryRepository.save(it);
+        itinerary.setStatus(ItineraryStatus.REJECTED);
+        return itineraryRepository.save(itinerary);
     }
 
     // =====================================================
@@ -222,4 +288,34 @@ public class ItineraryService {
 
         return itineraryRepository.findActiveItinerariesForGuide(guide.getId(), today);
     }
+
+    // =====================================================
+    // GET ACTIVE ITINERARY PARTICIPANTS FOR ITINERARY
+    // =====================================================
+    public List<ActiveItineraryParticipantDto> getActiveItineraryParticipants(Long itineraryId, User guide) {
+
+        Itinerary it = itineraryRepository.findById(itineraryId)
+                .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+
+        // doar creatorul (ghidul autentificat)
+        if (!it.getCreator().getId().equals(guide.getId())) {
+            throw new RuntimeException("Forbidden");
+        }
+
+        // doar APPROVED + în interval activ
+        LocalDate today = LocalDate.now();
+        if (it.getStatus() != ItineraryStatus.APPROVED
+                || today.isBefore(it.getStartDate())
+                || today.isAfter(it.getEndDate())) {
+            throw new RuntimeException("Itinerary is not active");
+        }
+
+        return itineraryParticipantRepository.findByItinerary_Id(itineraryId).stream()
+                .map(p -> new ActiveItineraryParticipantDto(
+                        p.getTourist().getUsername(),
+                        p.getTourist().getLevel()
+                ))
+                .toList();
+    }
 }
+

@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
@@ -58,4 +59,30 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
             @Param("newStartDate") LocalDate newStartDate,
             @Param("newEndDate") LocalDate newEndDate
     );
+
+    @Query("""
+        SELECT i
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :touristId
+                AND i.startDate <= :today
+                AND i.endDate >= :today
+                AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+    """)
+        List<Itinerary> findActiveItinerariesForTourist(
+                @Param("touristId") Long touristId,
+                @Param("today") LocalDate today
+    );
+    
+    @Query("""
+        SELECT DISTINCT i
+        FROM Itinerary i
+        LEFT JOIN FETCH i.locations l
+        WHERE i.id = :itineraryId
+""")
+        Optional<Itinerary> findByIdWithLocations(@Param("itineraryId") Long itineraryId
+);
+
+
+
 }

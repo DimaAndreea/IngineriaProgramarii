@@ -1,0 +1,116 @@
+.tourist-mission-list {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.tourist-mission-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 22px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.tourist-mission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tourist-mission-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tourist-submission-badge {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #4b5563;
+  white-space: nowrap;
+}
+
+.tourist-submission-badge.no-submission {
+  background: #f3f4ff;
+  color: #4f46e5;
+}
+
+.tourist-submission-badge.pending {
+  background: #fff7ed;
+  color: #c05621;
+}
+
+.tourist-submission-badge.approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.tourist-submission-badge.rejected {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tourist-submission-preview {
+  margin-top: 10px;
+  max-width: 260px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+.tourist-submission-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  display: block;
+}
+
+.tourist-mission-actions {
+  margin-top: 14px;
+}
+
+.make-submission-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #ffffff;
+
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transition: all 0.22s ease;
+}
+
+.make-submission-btn:hover {
+  background: linear-gradient(135deg, #4338ca, #4f46e5);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+}
+
+.make-submission-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: default;
+  box-shadow: none;
+  transform: none;
+}
+
+.make-submission-btn:disabled:hover {
+  background: #e5e7eb;
+  box-shadow: none;
+}

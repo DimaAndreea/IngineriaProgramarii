@@ -45,9 +45,14 @@ export default function Navbar() {
                 <Link to="/home" className="nav-btn">Home</Link>
                 <Link to="/itineraries" className="nav-btn">Itineraries</Link>
 
-                {(role === "guide" || role === "tourist") && (
+                {role === "guide" && (
                     <Link to="/active" className="nav-btn">Active Itinerary</Link>
                 )}
+
+                {role === "tourist" && (
+                    <Link to="/tourist/active" className="nav-btn">Active Itinerary</Link>
+                )}
+
 
                 <Link to="/missions" className="nav-btn">Missions & Rewards</Link>
 
