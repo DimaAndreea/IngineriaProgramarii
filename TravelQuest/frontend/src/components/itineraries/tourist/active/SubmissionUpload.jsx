@@ -5,7 +5,7 @@ export default function SubmissionUpload({ mission, onSubmit, existingSubmission
   const [preview, setPreview] = useState(existingSubmission?.image || null);
 
   const handleFile = (e) => {
-    const f = e.target.files[0];
+    const f = e.target.files?.[0];
     if (!f) return;
 
     setFile(f);
@@ -17,13 +17,13 @@ export default function SubmissionUpload({ mission, onSubmit, existingSubmission
     onSubmit(file);
   };
 
+  const label = mission?.text ?? mission?.name ?? "";
+
   return (
     <div className="submission-card">
-      <p><strong>{mission.text}</strong></p>
+      <p><strong>{label}</strong></p>
 
-      {preview && (
-        <img className="submission-preview" src={preview} alt="preview" />
-      )}
+      {preview && <img className="submission-preview" src={preview} alt="preview" />}
 
       <input type="file" accept="image/*" onChange={handleFile} />
 
