@@ -15,6 +15,8 @@ import java.util.List;
 @Service
 public class ItinerarySubmissionService {
 
+    private static final int GUIDE_XP_PER_VALIDATION = 5;
+
     private final ItineraryRepository itineraryRepository;
     private final ItinerarySubmissionRepository submissionRepository;
     private final UserRepository userRepository;
@@ -73,7 +75,7 @@ public class ItinerarySubmissionService {
         submission.setSubmittedAt(ZonedDateTime.now());
         submission.setStatus(SubmissionStatus.PENDING);
 
-        // IMPORTANT: compatibilitate + siguranță (XP se acordă doar la APPROVED)
+        // XP turist se acordă doar la APPROVED
         submission.setXpGranted(false);
 
         return submissionRepository.save(submission);
@@ -96,7 +98,6 @@ public class ItinerarySubmissionService {
         Itinerary itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
-        // Optional: doar creatorul itinerariului poate vedea
         if (!itinerary.getCreator().getId().equals(guide.getId())) {
             throw new RuntimeException("Forbidden: not your itinerary");
         }
@@ -117,7 +118,6 @@ public class ItinerarySubmissionService {
         Itinerary itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
-        // Optional: doar creatorul itinerariului poate valida
         if (!itinerary.getCreator().getId().equals(guide.getId())) {
             throw new RuntimeException("Forbidden: not your itinerary");
         }
@@ -125,13 +125,11 @@ public class ItinerarySubmissionService {
         ObjectiveSubmission submission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new EntityNotFoundException("Submission not found"));
 
-        // Safety: submission să fie din itinerariul corect
         Long submissionItineraryId = submission.getObjective().getLocation().getItinerary().getId();
         if (!submissionItineraryId.equals(itineraryId)) {
             throw new RuntimeException("Submission does not belong to this itinerary");
         }
 
-        // Safety: ghidul din submission să fie ghidul logat
         if (!submission.getGuide().getId().equals(guide.getId())) {
             throw new RuntimeException("Forbidden: submission not assigned to you");
         }
@@ -140,7 +138,11 @@ public class ItinerarySubmissionService {
             throw new RuntimeException("Invalid status");
         }
 
-        // Idempotent: dacă e deja în statusul cerut, nu facem update inutil
+        // ✅ dăm +5 XP ghidului doar la prima validare (PENDING -> APPROVED/REJECTED)
+        boolean isFirstValidation = (submission.getStatus() == SubmissionStatus.PENDING)
+                && (newStatus == SubmissionStatus.APPROVED || newStatus == SubmissionStatus.REJECTED);
+
+        // Idempotent: dacă e deja statusul cerut, nu facem update inutil
         if (submission.getStatus() == newStatus) {
             return submission;
         }
@@ -149,26 +151,26 @@ public class ItinerarySubmissionService {
         submission.setValidatedAt(ZonedDateTime.now());
 
         // =========================
-        // XP GRANT (DOAR LA APPROVED)
+        // TOURIST XP (DOAR LA APPROVED)
         // =========================
         if (newStatus == SubmissionStatus.APPROVED && !submission.isXpGranted()) {
             User tourist = submission.getTourist();
-
-            // XP-ul e pe obiectiv (default 50), dar poate fi custom
             int xpReward = submission.getObjective().getXpReward();
-
-            // Defensive: nu permitem XP negativ
             if (xpReward > 0) {
                 tourist.setXp(tourist.getXp() + xpReward);
                 userRepository.save(tourist);
             }
-
-            // marcăm faptul că XP a fost acordat (ca să nu dăm de 2 ori)
             submission.setXpGranted(true);
         }
 
-        // Dacă e REJECTED -> nu dăm XP și nu atingem xpGranted (rămâne false)
-        // (dacă vrei să permiți re-approve ulterior, e perfect așa)
+        // =========================
+        // GUIDE XP (LA ORICE VALIDARE)
+        // =========================
+        if (isFirstValidation) {
+            User guideEntity = submission.getGuide();
+            guideEntity.setXp(guideEntity.getXp() + GUIDE_XP_PER_VALIDATION);
+            userRepository.save(guideEntity);
+        }
 
         return submissionRepository.save(submission);
     }
