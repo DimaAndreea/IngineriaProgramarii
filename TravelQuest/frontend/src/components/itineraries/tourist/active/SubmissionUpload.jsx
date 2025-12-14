@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function SubmissionUpload({ mission, onSubmit, existingSubmission }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(existingSubmission?.image || null);
 
+  useEffect(() => {
+    return () => {
+      if (preview && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
   const handleFile = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
+
+    if (preview && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
 
     setFile(f);
     setPreview(URL.createObjectURL(f));
