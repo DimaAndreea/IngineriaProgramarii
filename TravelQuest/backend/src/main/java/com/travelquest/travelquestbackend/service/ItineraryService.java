@@ -201,6 +201,15 @@ public class ItineraryService {
     // =====================================================
     // GET ITINERARY BY ID
     // =====================================================
+
+    public Itinerary getById(Long id) {
+    return itineraryRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Itinerary not found"));
+    }
+
+    // =====================================================
+    // GET ITINERARY BY ID
+    // =====================================================
     @Transactional(readOnly = true)
     public Itinerary getActiveItineraryForTourist(User tourist) {
         LocalDate today = LocalDate.now();
