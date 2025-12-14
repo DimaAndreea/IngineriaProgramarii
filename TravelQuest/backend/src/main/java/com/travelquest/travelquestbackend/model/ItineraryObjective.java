@@ -20,6 +20,9 @@ public class ItineraryObjective {
     @Column(name = "objective_name")
     private String name;
 
+    @Column(name = "xp_reward", nullable = false)
+    private int xpReward = 50;
+
     // GETTERS & SETTERS
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -29,4 +32,7 @@ public class ItineraryObjective {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public int getXpReward() { return xpReward; }
+    public void setXpReward(int xpReward) { this.xpReward = xpReward; }
 }

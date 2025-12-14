@@ -3,8 +3,10 @@ package com.travelquest.travelquestbackend.service;
 import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
 import com.travelquest.travelquestbackend.repository.ItinerarySubmissionRepository;
+import com.travelquest.travelquestbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -15,13 +17,16 @@ public class ItinerarySubmissionService {
 
     private final ItineraryRepository itineraryRepository;
     private final ItinerarySubmissionRepository submissionRepository;
+    private final UserRepository userRepository;
 
     public ItinerarySubmissionService(
             ItineraryRepository itineraryRepository,
-            ItinerarySubmissionRepository submissionRepository
+            ItinerarySubmissionRepository submissionRepository,
+            UserRepository userRepository
     ) {
         this.itineraryRepository = itineraryRepository;
         this.submissionRepository = submissionRepository;
+        this.userRepository = userRepository;
     }
 
     // =========================
@@ -68,6 +73,9 @@ public class ItinerarySubmissionService {
         submission.setSubmittedAt(ZonedDateTime.now());
         submission.setStatus(SubmissionStatus.PENDING);
 
+        // IMPORTANT: compatibilitate + siguranță (XP se acordă doar la APPROVED)
+        submission.setXpGranted(false);
+
         return submissionRepository.save(submission);
     }
 
@@ -99,6 +107,7 @@ public class ItinerarySubmissionService {
     // =========================
     // GUIDE VALIDATE
     // =========================
+    @Transactional
     public ObjectiveSubmission updateSubmissionStatus(Long itineraryId, Long submissionId, User guide, SubmissionStatus newStatus) {
 
         if (guide == null || guide.getRole() != UserRole.GUIDE) {
@@ -131,8 +140,36 @@ public class ItinerarySubmissionService {
             throw new RuntimeException("Invalid status");
         }
 
+        // Idempotent: dacă e deja în statusul cerut, nu facem update inutil
+        if (submission.getStatus() == newStatus) {
+            return submission;
+        }
+
         submission.setStatus(newStatus);
         submission.setValidatedAt(ZonedDateTime.now());
+
+        // =========================
+        // XP GRANT (DOAR LA APPROVED)
+        // =========================
+        if (newStatus == SubmissionStatus.APPROVED && !submission.isXpGranted()) {
+            User tourist = submission.getTourist();
+
+            // XP-ul e pe obiectiv (default 50), dar poate fi custom
+            int xpReward = submission.getObjective().getXpReward();
+
+            // Defensive: nu permitem XP negativ
+            if (xpReward > 0) {
+                tourist.setXp(tourist.getXp() + xpReward);
+                userRepository.save(tourist);
+            }
+
+            // marcăm faptul că XP a fost acordat (ca să nu dăm de 2 ori)
+            submission.setXpGranted(true);
+        }
+
+        // Dacă e REJECTED -> nu dăm XP și nu atingem xpGranted (rămâne false)
+        // (dacă vrei să permiți re-approve ulterior, e perfect așa)
+
         return submissionRepository.save(submission);
     }
 }

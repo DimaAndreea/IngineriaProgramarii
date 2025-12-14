@@ -1,5 +1,7 @@
 package com.travelquest.travelquestbackend.model;
 
+import java.time.ZonedDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -28,11 +30,22 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private int level;
-    private int xp;
+    @Column(nullable = false)
+    private int level = 1;
+
+    @Column(nullable = false)
+    private int xp = 0;
 
     @Column(name = "travel_coins")
     private int travelCoins;
+
+    @Column(name = "created_at")
+    private ZonedDateTime createdAt;
+
+    //USER <-> BADGE (prin USER_BADGE)
+    @ManyToOne
+    @JoinColumn(name = "selected_badge_id")
+    private Badge selectedBadge;
 
     public User() {
     }
@@ -122,5 +135,13 @@ public class User {
 
     public void setTravelCoins(int travelCoins) {
         this.travelCoins = travelCoins;
+    }
+
+    public Badge getSelectedBadge() { 
+        return selectedBadge; 
+    }
+
+    public void setSelectedBadge(Badge selectedBadge) { 
+        this.selectedBadge = selectedBadge; 
     }
 }
