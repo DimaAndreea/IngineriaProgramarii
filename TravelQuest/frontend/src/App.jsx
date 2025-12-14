@@ -15,6 +15,7 @@ import ItineraryDetailsPage from "./pages/ItineraryDetailsPage";
 
 import ActiveItineraryTouristPage from "./components/itineraries/tourist/active/ActiveItineraryTouristPage.jsx";
 import GuideProfilePage from "./pages/GuideProfilePage";
+import TouristProfilePage from "./pages/TouristProfilePage";
 
 function ProtectedLayout({ children }) {
   return (
@@ -129,6 +130,19 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* TOURIST PROFILE */}
+          <Route
+            path="/profile/tourist"
+            element={
+              <ProtectedRoute allowedRoles={["tourist"]}>
+                <ProtectedLayout>
+                  <TouristProfilePage />
+                </ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
 
           {/* CATCH-ALL -> LOGIN */}
           <Route path="*" element={<LoginPage />} />

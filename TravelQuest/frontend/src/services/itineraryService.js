@@ -1,7 +1,45 @@
 const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 const BASE = `${API_BASE_URL}/api/itineraries`;
 
+/* =========================
+   TOURIST ENROLLMENTS (FRONTEND-ONLY)
+   - salvăm id-urile itinerariilor la care turistul a dat Join
+   - folosit pentru pagina Profile Tourist (fără backend)
+========================= */
+const ENROLLMENTS_KEY = "tourist_enrollments_v1";
+
+function readEnrollments() {
+  try {
+    return JSON.parse(localStorage.getItem(ENROLLMENTS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeEnrollments(list) {
+  localStorage.setItem(ENROLLMENTS_KEY, JSON.stringify(list));
+}
+
+function addEnrollmentLocal(itineraryId) {
+  const id = Number(itineraryId);
+  const list = readEnrollments().map(Number);
+  if (!list.includes(id)) {
+    writeEnrollments([...list, id]);
+  }
+}
+
+// (opțional) dacă vrei să expui utilitarele:
+export function getLocalEnrollments() {
+  return readEnrollments().map(Number);
+}
+export function clearLocalEnrollments() {
+  localStorage.removeItem(ENROLLMENTS_KEY);
+}
+
+/* =========================
+   REQUEST HELPER
+========================= */
 async function request(url, options = {}) {
   const res = await fetch(url, {
     credentials: "include",
@@ -25,6 +63,9 @@ async function request(url, options = {}) {
   return res.json();
 }
 
+/* =========================
+   ITINERARIES
+========================= */
 export function getPendingItineraries() {
   return request(`${BASE}/pending`);
 }
@@ -86,20 +127,27 @@ export function filterItineraries(filter, userId) {
   });
 }
 
-export function joinItinerary(id) {
-  return request(`${BASE}/${id}/join`, {
+/* =========================
+   JOIN (TOURIST)
+========================= */
+export async function joinItinerary(id) {
+  const result = await request(`${BASE}/${id}/join`, {
     method: "POST",
   });
+
+  // ✅ salvăm în “istoricul înscrierilor” (frontend-only)
+  addEnrollmentLocal(id);
+
+  return result;
 }
 
-/* ---------------- ACTIVE ITINERARY (GUIDE VIEW) ---------------- */
-
-// backend: GET /api/itineraries/active -> lista de itinerarii active pt ghidul curent
+/* =========================
+   ACTIVE ITINERARY (GUIDE)
+========================= */
 export function getActiveItinerariesForGuide() {
   return request(`${BASE}/active/guide`);
 }
 
-// backend: PATCH /api/itineraries/{itineraryId}/submissions/{submissionId}
 export function updateSubmissionStatus(itineraryId, submissionId, status) {
   return request(`${BASE}/${itineraryId}/submissions/${submissionId}`, {
     method: "PATCH",
@@ -111,9 +159,14 @@ export function getMyItineraries(userId) {
   return getGuideItineraries(userId);
 }
 
-
-// backend: GET /api/itineraries/{itineraryId}/submissions
 export function getSubmissionsForGuide(itineraryId) {
   return request(`${BASE}/${itineraryId}/submissions`);
 }
 
+/* =========================
+   ACTIVE ITINERARY (TOURIST)
+   (dacă ai deja endpoint-ul în backend; îl folosești în Profile Tourist)
+========================= */
+export function getActiveItineraryForTourist() {
+  return request(`${BASE}/active/tourist`);
+}

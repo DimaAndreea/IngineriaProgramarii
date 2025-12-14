@@ -4,13 +4,12 @@ import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
 
 export default function UserMenu() {
-  const { logout } = useAuth();
+  const { role, logout } = useAuth(); // ✅ role e direct în context
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // close dropdown when clicking outside
   useEffect(() => {
     const handler = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
@@ -24,7 +23,14 @@ export default function UserMenu() {
 
   const goProfile = () => {
     setOpen(false);
-    navigate("/profile/guide");
+
+    const r = (role || "").toLowerCase();
+
+    if (r === "guide") return navigate("/profile/guide");
+    if (r === "tourist") return navigate("/profile/tourist");
+    if (r === "admin") return navigate("/admin");
+
+    return navigate("/home");
   };
 
   const handleLogout = () => {
