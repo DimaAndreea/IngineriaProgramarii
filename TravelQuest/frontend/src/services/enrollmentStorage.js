@@ -1,38 +1,57 @@
-const KEY = "tourist_enrollments_v1";
+const KEY = "travelquest_enrollments_v1";
 
-function read() {
+function safeParse(json) {
   try {
-    return JSON.parse(localStorage.getItem(KEY) || "[]");
+    return JSON.parse(json);
   } catch {
-    return [];
+    return null;
   }
-}
-
-function write(list) {
-  localStorage.setItem(KEY, JSON.stringify(list));
 }
 
 /**
- * Salvează un itinerariu la care turistul s-a înscris.
- * id: number/string
+ * Structură:
+ * {
+ *   "<userId>": {
+ *      "<itineraryId>": true
+ *   }
+ * }
  */
-export function addEnrollment(itineraryId) {
-  const id = Number(itineraryId);
-  const list = read();
-  if (!list.includes(id)) {
-    write([...list, id]);
+function readAll() {
+  const raw = localStorage.getItem(KEY);
+  const data = safeParse(raw);
+  return data && typeof data === "object" ? data : {};
+}
+
+function writeAll(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+export function isJoined(userId, itineraryId) {
+  if (!userId || !itineraryId) return false;
+  const all = readAll();
+  return !!all[String(userId)]?.[String(itineraryId)];
+}
+
+export function markJoined(userId, itineraryId) {
+  if (!userId || !itineraryId) return;
+  const all = readAll();
+  const uid = String(userId);
+  const iid = String(itineraryId);
+
+  if (!all[uid]) all[uid] = {};
+  all[uid][iid] = true;
+
+  writeAll(all);
+}
+
+export function unmarkJoined(userId, itineraryId) {
+  if (!userId || !itineraryId) return;
+  const all = readAll();
+  const uid = String(userId);
+  const iid = String(itineraryId);
+
+  if (all[uid]) {
+    delete all[uid][iid];
+    writeAll(all);
   }
-}
-
-export function getEnrollments() {
-  return read().map(Number);
-}
-
-export function removeEnrollment(itineraryId) {
-  const id = Number(itineraryId);
-  write(read().filter((x) => Number(x) !== id));
-}
-
-export function clearEnrollments() {
-  localStorage.removeItem(KEY);
 }

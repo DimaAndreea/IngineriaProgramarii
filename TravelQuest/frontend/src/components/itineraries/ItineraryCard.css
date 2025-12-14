@@ -230,3 +230,42 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(195, 48, 48, 0.28);
 }
+
+/* disabled join */
+.soft-btn.disabled {
+  background: #e5e7eb;
+  color: #6b7280;
+  box-shadow: none;
+  cursor: not-allowed;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.soft-btn.disabled:hover {
+  transform: none;
+  background: #e5e7eb;
+}
+
+/* mic feedback sub buton */
+.card-join-msg {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  
+}
+
+.card-join-msg.success {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.card-join-msg.error {
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
