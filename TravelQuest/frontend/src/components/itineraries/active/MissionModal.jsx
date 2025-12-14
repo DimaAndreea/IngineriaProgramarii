@@ -11,7 +11,10 @@ export default function MissionModal({
 }) {
   if (!submission || !participant || !mission) return null;
 
-  const { status, submittedAt, reviewedAt, image, id } = submission;
+  // ✅ backend fields
+  const { status, submittedAt, validatedAt, submissionBase64, id } = submission;
+
+  // în unele locuri participant poate fi { tourist: {...} }
   const t = participant.tourist ?? participant;
 
   const formatDate = (iso) => {
@@ -25,7 +28,8 @@ export default function MissionModal({
     });
   };
 
-  const isFinal = status === "approved" || status === "rejected";
+  // ✅ status is enum: PENDING / APPROVED / REJECTED
+  const isFinal = status === "APPROVED" || status === "REJECTED";
 
   return (
     <div className="mission-modal-overlay">
@@ -48,10 +52,9 @@ export default function MissionModal({
           <strong>Submitted at:</strong> {formatDate(submittedAt)}
         </div>
 
-        {reviewedAt && (
+        {validatedAt && (
           <div className="mission-modal-section">
-            <strong>{status === "approved" ? "Validated at:" : "Reviewed at:"}</strong>{" "}
-            {formatDate(reviewedAt)}
+            <strong>Validated at:</strong> {formatDate(validatedAt)}
           </div>
         )}
 
@@ -60,7 +63,11 @@ export default function MissionModal({
         </div>
 
         <div className="mission-modal-image-wrapper">
-          <img src={image} alt="submission" />
+          {submissionBase64 ? (
+            <img src={submissionBase64} alt="submission" />
+          ) : (
+            <p className="mission-modal-status-info">No image available.</p>
+          )}
         </div>
 
         {!isFinal ? (
@@ -74,9 +81,9 @@ export default function MissionModal({
           </div>
         ) : (
           <p className="mission-modal-status-info">
-            {status === "approved"
-              ? "✓ This submission has been validated."
-              : "✖ This submission has already been reviewed."}
+            {status === "APPROVED"
+              ? "✓ This submission has been approved."
+              : "✖ This submission has been rejected."}
           </p>
         )}
       </div>
