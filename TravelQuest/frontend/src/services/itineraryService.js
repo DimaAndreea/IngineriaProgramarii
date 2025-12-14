@@ -106,3 +106,7 @@ export function updateSubmissionStatus(itineraryId, submissionId, status) {
     body: JSON.stringify({ status }),
   });
 }
+
+export function getMyItineraries(userId) {
+  return getGuideItineraries(userId);
+}
