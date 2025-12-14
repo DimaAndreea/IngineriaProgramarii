@@ -8,15 +8,15 @@ export default function ParticipantsList({ participants = [] }) {
 
             <div className="participants-list">
                 {participants.map(p => (
-                    <div className="participant-item" key={p.username}>
+                    <div className="participant-item" key={p.id}>
                         <img
                             src={p.avatar}
-                            alt={p.username}
+                            alt={p.name}
                             className="participant-avatar"
                         />
 
                         <div className="participant-info">
-                            <span className="participant-name">{p.username}</span>
+                            <span className="participant-name">{p.name}</span>
                             <span className="participant-role">Tourist</span>
                             <span className="participant-level">
                                 Level {p.level}

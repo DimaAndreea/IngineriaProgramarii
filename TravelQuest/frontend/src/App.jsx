@@ -8,7 +8,7 @@ import HomePage from "./pages/HomePage";
 import Navbar from "./components/layouts/Navbar";
 
 import ItinerariesPage from "./pages/ItinerariesPage";
-import ActiveGuidePage from "./pages/ActiveItineraryPage"; 
+import ActiveGuidePage from "./pages/ActiveItinerarySubmission.jsx";
 import MissionsPage from "./pages/MissionsPage.jsx";
 import AdminPanelPage from "./pages/AdminPanelPage";
 import ItineraryDetailsPage from "./pages/ItineraryDetailsPage";
