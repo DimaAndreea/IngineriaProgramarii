@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import ItineraryCard from "../components/itineraries/ItineraryCard";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
@@ -22,6 +22,8 @@ export default function ItinerariesPage() {
   const isTourist = role === "tourist";
 
   const locationURL = useLocation();
+  const navigate = useNavigate();
+  
   const globalSearch =
     new URLSearchParams(locationURL.search).get("search") || "";
 
@@ -29,6 +31,19 @@ export default function ItinerariesPage() {
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+    // dacă venim din profile cu state.openEdit, deschidem modalul direct
+  useEffect(() => {
+    const editIt = locationURL.state?.openEdit;
+    if (editIt) {
+      setSelected(editIt);
+      setShowModal(true);
+
+      // curățăm state-ul ca să nu se redeschidă la refresh/back
+      navigate("/itineraries", { replace: true, state: null });
+    }
+  }, [locationURL.state, navigate]);
+
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
