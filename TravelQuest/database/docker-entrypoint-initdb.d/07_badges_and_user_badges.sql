@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS badge (
     code        VARCHAR(100) NOT NULL UNIQUE,
     name        VARCHAR(255) NOT NULL,
     description TEXT,
-    min_level   INT NOT NULL                -- minimum level requierd to unlock the badge
+    min_level   INT NOT NULL,                -- minimum level requierd to unlock the badge
+    role        VARCHAR(20) NOT NULL DEFAULT 'TOURIST'
 );
 
 -- ===========================================
@@ -32,10 +33,14 @@ CREATE TABLE IF NOT EXISTS user_badge (
 -- BADGE INSERTS
 -- ON CONFLICT prevents data duplication
 -- ===========================================
-INSERT INTO badge (code, name, description, min_level)
+INSERT INTO badge (code, name, description, min_level, role)
 VALUES
-    ('FIRST_STEPS',        'First Steps',        'Reached level 3 as a traveler.',          3),
-    ('CASUAL_TRAVELER',    'Casual Traveler',    'Reached level 5 as a traveler.',          5),
-    ('FANATIC_TRAVELER',   'Fanatic Traveler',   'Reached level 10 as a traveler.',        10),
-    ('RACE_AROUND_WORLD',  'Race around the world', 'Reached level 20 as a traveler.',    20)
+    ('T_FIRST_STEPS', 'First Steps', 'Reached level 3 as a tourist.', 3, 'TOURIST'),
+    ('T_CASUAL_TRAVELER', 'Casual Traveler', 'Reached level 5 as a tourist.', 5, 'TOURIST'),
+    ('T_FANATIC_TRAVELER', 'Fanatic Traveler', 'Reached level 10 as a tourist.', 10, 'TOURIST'),
+    ('T_RACE_AROUND_WORLD', 'Race around the world', 'Reached level 20 as a tourist.', 20, 'TOURIST'),
+    ('G_NOVICE_GUIDE', 'Novice Guide', 'Reached level 3 as a guide.', 3, 'GUIDE'),
+    ('G_DESTINATION_COUNSELOR', 'Destination Counselor', 'Reached level 5 as a guide.', 5, 'GUIDE'),
+    ('G_ASTONISHING_GUIDE', 'Astonishing Guide', 'Reached level 10 as a guide.', 10, 'GUIDE'),
+    ('G_WORLD_EXPERT', 'World Expert', 'Reached level 20 as a guide.', 20, 'GUIDE')
 ON CONFLICT (code) DO NOTHING;

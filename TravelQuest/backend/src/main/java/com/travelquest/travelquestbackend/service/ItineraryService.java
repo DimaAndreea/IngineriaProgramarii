@@ -9,6 +9,7 @@ import com.travelquest.travelquestbackend.repository.ItinerarySubmissionReposito
 import com.travelquest.travelquestbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -16,6 +17,8 @@ import java.util.List;
 
 @Service
 public class ItineraryService {
+
+    private static final int GUIDE_XP_PER_JOIN = 25;
 
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
@@ -166,6 +169,7 @@ public class ItineraryService {
     // =====================================================
     // TOURIST — JOIN ITINERARY
     // =====================================================
+    @Transactional
     public String joinItinerary(Long itineraryId, User user) {
         Itinerary itinerary = itineraryRepository.findById(itineraryId)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
@@ -189,6 +193,15 @@ public class ItineraryService {
         participant.setJoinedAt(ZonedDateTime.now());
 
         itineraryParticipantRepository.save(participant);
+
+        // =========================
+        // GUIDE XP (+25) LA INSCRIERE NOUA
+        // =========================
+        User guide = itinerary.getCreator();
+        if (guide != null && guide.getRole() == UserRole.GUIDE) {
+            guide.setXp(guide.getXp() + GUIDE_XP_PER_JOIN);
+            userRepository.save(guide);
+        }
 
         return "TOUR JOINED! Welcome to the adventure, " + user.getUsername() + " 🎉";
     }

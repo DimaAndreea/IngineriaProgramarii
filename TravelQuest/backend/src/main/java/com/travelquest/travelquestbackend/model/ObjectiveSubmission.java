@@ -38,6 +38,9 @@ public class ObjectiveSubmission {
     @Column(name = "validated_at")
     private ZonedDateTime validatedAt;
 
+    @Column(name = "xp_granted", nullable = false)
+    private boolean xpGranted = false;
+
     // Getters & Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -63,6 +66,9 @@ public class ObjectiveSubmission {
     public ZonedDateTime getValidatedAt() { return validatedAt; }
     public void setValidatedAt(ZonedDateTime validatedAt) { this.validatedAt = validatedAt; }
 
+    public boolean isXpGranted() { return xpGranted; }
+    public void setXpGranted(boolean xpGranted) { this.xpGranted = xpGranted; }
+
     @Override
     public String toString() {
         String preview = submissionBase64 == null ? "null"
@@ -72,6 +78,8 @@ public class ObjectiveSubmission {
                 ", tourist=" + (tourist != null ? tourist.getUsername() : "null") +
                 ", objectiveId=" + (objective != null ? objective.getId() : "null") +
                 ", guide=" + (guide != null ? guide.getUsername() : "null") +
+                ", xpReward=" + (objective != null ? objective.getXpReward() : "null") +
+                ", xpGranted=" + xpGranted +
                 ", submissionBase64='" + preview + '\'' +
                 ", status=" + status +
                 ", submittedAt=" + submittedAt +
