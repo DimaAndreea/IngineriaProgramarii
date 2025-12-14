@@ -131,5 +131,16 @@ Verifica daca conexiunea se leaga corect:
 
   ```console
   \q
-  
+
+---
+
+## Comenzi pentru rularea fisierelor noi:
+docker exec -it travelquest-postgres psql -U travelquest -d travelquest_dev -f /docker-entrypoint-initdb.d/06_itinerary_objective_xp_reward.sql
+
+docker exec -it travelquest-postgres psql -U travelquest -d travelquest_dev -f /docker-entrypoint-initdb.d/07_badges_and_user_badges.sql
+
+docker exec -it travelquest-postgres psql -U travelquest -d travelquest_dev -f /docker-entrypoint-initdb.d/08_users_selected_badge.sql
+
+docker exec -it travelquest-postgres psql -U travelquest -d travelquest_dev -f /docker-entrypoint-initdb.d/09_objective_submission_xp_granted.sql
+
 ---
