@@ -1,0 +1,388 @@
+/* full page background + spacing like guide page */
+.tourist-profile-page {
+  padding: 22px 18px 60px;
+}
+
+.tourist-profile-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 22px;
+  align-items: start;
+}
+
+/* LEFT CARD */
+.tourist-left-card {
+  background: #fff;
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+}
+
+.tourist-profile-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.tourist-profile-subtitle {
+  margin: 6px 0 14px;
+  color: #6b7280;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.tourist-role-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #1e40af;
+  font-weight: 800;
+  font-size: 13px;
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  margin-bottom: 14px;
+}
+
+/* summary box (în loc de rating) */
+.tourist-summary-box {
+  background: #f4fbf1;
+  border: 1px solid rgba(16, 185, 129, 0.20);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.tourist-summary-label {
+  font-size: 12px;
+  font-weight: 900;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.tourist-summary-main {
+  margin-top: 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+}
+
+.tourist-summary-number {
+  font-size: 32px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.tourist-summary-muted {
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.tourist-summary-row {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tourist-summary-chip {
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 700;
+  color: #374151;
+  font-size: 12px;
+}
+
+.tourist-summary-divider {
+  margin: 14px auto 0;
+  height: 4px;
+  width: 70%;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.08);
+}
+
+/* details rows */
+.tourist-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tourist-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  background: #fbfcff;
+}
+
+.tourist-detail-key {
+  color: #6b7280;
+  font-weight: 800;
+}
+
+.tourist-detail-value {
+  color: #111827;
+  font-weight: 900;
+}
+
+/* RIGHT CARD */
+.tourist-right-card {
+  position: relative;
+  background: #fff;
+  border-radius: 22px;
+  padding: 18px 18px 24px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.tourist-right-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.tourist-right-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.tourist-right-meta {
+  margin-top: 2px;
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.dot {
+  margin: 0 8px;
+  color: #cbd5e1;
+}
+
+.tourist-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tourist-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid rgba(17, 24, 39, 0.10);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  padding: 10px 14px;
+  min-width: 320px;
+}
+
+.tourist-search-icon {
+  opacity: 0.65;
+  font-size: 14px;
+}
+
+.tourist-search input {
+  border: 0;
+  outline: none;
+  width: 100%;
+  font-weight: 700;
+  color: #111827;
+  background: transparent;
+}
+
+.tourist-viewall-btn {
+  border: 0;
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 900;
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.tourist-viewall-btn:hover {
+  background: #e5e7eb;
+}
+
+/* tabs */
+.tourist-tabs {
+  margin-top: 8px;
+  display: inline-flex;
+  gap: 8px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 6px;
+}
+
+.tourist-tab {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  color: #6b7280;
+}
+
+.tourist-tab.active {
+  background: #fff;
+  color: #111827;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+}
+
+/* list cards (look like guide itinerary cards) */
+.tourist-itinerary-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tourist-itinerary-card {
+  background: #fff;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+  width: 420px; /* similar ca în screenshot-ul ghidului */
+}
+
+.tourist-itinerary-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.tourist-itinerary-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #111827;
+}
+
+/* pills – reuse vibe */
+.pill {
+  font-size: 12px;
+  font-weight: 900;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.pill-active {
+  background: #dcfce7;
+  color: #166534;
+  border-color: rgba(22, 101, 52, 0.20);
+}
+
+.pill-history {
+  background: #e5e7eb;
+  color: #111827;
+  border-color: rgba(17, 24, 39, 0.12);
+}
+
+.tourist-itinerary-meta {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+  font-weight: 700;
+}
+
+.tourist-itinerary-dates {
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.tourist-itinerary-actions {
+  margin-top: 12px;
+}
+
+/* blue button like guide “View” */
+.tourist-blue-btn {
+  border: 0;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 900;
+  padding: 10px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.tourist-blue-btn:hover {
+  background: #1d4ed8;
+}
+
+/* states */
+.tourist-muted {
+  margin: 14px 0 0;
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.tourist-error {
+  margin: 14px 0 0;
+  color: #b91c1c;
+  font-weight: 800;
+}
+
+.tourist-empty {
+  margin-top: 16px;
+  color: #6b7280;
+  font-weight: 800;
+}
+
+/* subtle glow like guide page background shadow */
+.tourist-right-glow {
+  position: absolute;
+  inset: -60px -80px auto -80px;
+  height: 220px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(99, 102, 241, 0.22),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+
+/* responsive */
+@media (max-width: 980px) {
+  .tourist-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tourist-search {
+    min-width: 220px;
+  }
+
+  .tourist-itinerary-card {
+    width: 100%;
+  }
+
+  .tourist-right-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tourist-right-actions {
+    justify-content: space-between;
+  }
+}
