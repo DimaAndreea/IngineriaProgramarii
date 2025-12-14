@@ -1,41 +1,21 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
-const BASE = `${API_BASE_URL}/api/itineraries`;
+const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 
-/**
- * GET ACTIVE ITINERARY FOR TOURIST
- */
-export async function getActiveItineraryForTourist() {
-  const res = await fetch(`${BASE}/active/tourist`, {
-    credentials: "include",
-  });
+export async function uploadSubmission(itineraryId, objectiveId, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("objectiveId", objectiveId); // trebuie să fie exact ce backend așteaptă
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Failed to fetch active itinerary.");
-  }
+    const response = await fetch(`${API_BASE_URL}/api/itineraries/${itineraryId}/submit-photo`, {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+    });
 
-  return res.json();
-}
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to upload submission");
+    }
 
-/**
- * UPLOAD PHOTO SUBMISSION
- * POST /api/itineraries/{id}/submissions
- */
-export async function uploadSubmission(itineraryId, file) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await fetch(`${BASE}/${itineraryId}/submissions`, {
-    method: "POST",
-    body: formData,
-    credentials: "include",
-    // IMPORTANT: do NOT set Content-Type manually for FormData
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "Failed to upload submission.");
-  }
-
-  return res.json();
+    return await response.json();
 }

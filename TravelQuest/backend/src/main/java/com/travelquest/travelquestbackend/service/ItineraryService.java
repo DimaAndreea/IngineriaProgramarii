@@ -1,15 +1,18 @@
 package com.travelquest.travelquestbackend.service;
 
+import com.travelquest.travelquestbackend.dto.ActiveItineraryTouristDto;
 import com.travelquest.travelquestbackend.dto.ItineraryRequest;
 import com.travelquest.travelquestbackend.model.*;
-import com.travelquest.travelquestbackend.repository.*;
+import com.travelquest.travelquestbackend.repository.ItineraryParticipantRepository;
+import com.travelquest.travelquestbackend.repository.ItineraryRepository;
+import com.travelquest.travelquestbackend.repository.ItinerarySubmissionRepository;
+import com.travelquest.travelquestbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ItineraryService {
@@ -17,25 +20,26 @@ public class ItineraryService {
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
     private final ItineraryParticipantRepository itineraryParticipantRepository;
+    private final ItinerarySubmissionRepository itinerarySubmissionRepository;
 
     public ItineraryService(ItineraryRepository itineraryRepository,
                             UserRepository userRepository,
-                            ItineraryParticipantRepository itineraryParticipantRepository) {
+                            ItineraryParticipantRepository itineraryParticipantRepository,
+                            ItinerarySubmissionRepository itinerarySubmissionRepository) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
         this.itineraryParticipantRepository = itineraryParticipantRepository;
+        this.itinerarySubmissionRepository = itinerarySubmissionRepository;
     }
 
     // =====================================================
-    // CREATE
+    // CREATE ITINERARY
     // =====================================================
     public Itinerary create(ItineraryRequest req, User creator) {
-
         if (creator == null) {
             throw new EntityNotFoundException("Creator not found in session");
         }
 
-        // 1. Parsăm datele și verificăm că intervalul e valid
         LocalDate startDate = LocalDate.parse(req.getStartDate());
         LocalDate endDate = LocalDate.parse(req.getEndDate());
 
@@ -43,7 +47,6 @@ public class ItineraryService {
             throw new RuntimeException("End date cannot be before start date");
         }
 
-        // 2. Verificăm dacă ghidul are deja un itinerariu care se suprapune
         boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuide(
                 creator.getId(),
                 startDate,
@@ -54,7 +57,6 @@ public class ItineraryService {
             throw new RuntimeException("You already have another itinerary in this time interval.");
         }
 
-        // 3. Creăm itinerariul doar dacă nu există suprapuneri
         Itinerary itinerary = new Itinerary();
         itinerary.setTitle(req.getTitle());
         itinerary.setDescription(req.getDescription());
@@ -67,7 +69,6 @@ public class ItineraryService {
         itinerary.setCreator(creator);
 
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
-
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
@@ -87,10 +88,9 @@ public class ItineraryService {
     }
 
     // =====================================================
-    // UPDATE
+    // UPDATE ITINERARY
     // =====================================================
     public Itinerary update(Long id, ItineraryRequest req, User loggedUser) {
-
         Itinerary itinerary = itineraryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
@@ -99,7 +99,7 @@ public class ItineraryService {
         }
 
         if (itinerary.getStatus() != ItineraryStatus.PENDING) {
-            throw new RuntimeException("You cannot edit an itinerary that has been approved or rejected");
+            throw new RuntimeException("Cannot edit an approved/rejected itinerary");
         }
 
         LocalDate startDate = LocalDate.parse(req.getStartDate());
@@ -109,7 +109,6 @@ public class ItineraryService {
             throw new RuntimeException("End date cannot be before start date");
         }
 
-        // verificăm suprapunerea cu ALTE itinerarii ale aceluiași ghid
         boolean overlaps = itineraryRepository.existsOverlappingItineraryForGuideExcludingItinerary(
                 loggedUser.getId(),
                 id,
@@ -132,16 +131,15 @@ public class ItineraryService {
         itinerary.getLocations().clear();
 
         for (ItineraryRequest.LocationDto locDto : req.getLocations()) {
-
             ItineraryLocation loc = new ItineraryLocation();
             loc.setItinerary(itinerary);
             loc.setCountry(locDto.getCountry());
             loc.setCity(locDto.getCity());
 
-            for (String name : locDto.getObjectives()) {
+            for (String objName : locDto.getObjectives()) {
                 ItineraryObjective obj = new ItineraryObjective();
                 obj.setLocation(loc);
-                obj.setName(name);
+                obj.setName(objName);
                 loc.getObjectives().add(obj);
             }
 
@@ -159,7 +157,7 @@ public class ItineraryService {
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
 
         if (!itinerary.getCreator().getId().equals(loggedUser.getId())) {
-            throw new RuntimeException("You cannot delete someone else's itinerary");
+            throw new RuntimeException("Cannot delete someone else's itinerary");
         }
 
         itineraryRepository.delete(itinerary);
@@ -196,6 +194,45 @@ public class ItineraryService {
     }
 
     // =====================================================
+    // GET ACTIVE ITINERARY FOR TOURIST — DTO
+    // =====================================================
+    public ActiveItineraryTouristDto getActiveItineraryForTouristDto(User tourist) {
+        LocalDate today = LocalDate.now();
+
+        List<Itinerary> activeItineraries =
+                itineraryRepository.findActiveItinerariesForTourist(tourist.getId(), today);
+
+        if (activeItineraries.isEmpty()) return null;
+
+        Itinerary itinerary = activeItineraries.get(0);
+
+        // Force LAZY loading for locations & objectives
+        itinerary.getLocations().forEach(loc -> loc.getObjectives().size());
+
+        // Fetch submissions using repository instance
+        List<ObjectiveSubmission> submissions =
+                itinerarySubmissionRepository.findByItineraryAndTourist(itinerary, tourist);
+
+        ActiveItineraryTouristDto dto = ActiveItineraryTouristDto.fromItinerary(itinerary, submissions);
+
+        System.out.println("=== Active Itinerary DTO for tourist ===");
+        System.out.println(dto);
+
+        return dto;
+    }
+
+    // =====================================================
+    // GET ACTIVE ITINERARIES FOR GUIDE
+    // =====================================================
+    public List<Itinerary> getActiveItinerariesForGuide(User guide) {
+        if (guide == null) return List.of();
+
+        LocalDate today = LocalDate.now();
+        List<Itinerary> result = itineraryRepository.findActiveItinerariesForGuide(guide.getId(), today);
+        return result != null ? result : List.of();
+    }
+
+    // =====================================================
     // GET ITINERARY BY ID
     // =====================================================
     public Itinerary getById(Long id) {
@@ -204,29 +241,8 @@ public class ItineraryService {
     }
 
     // =====================================================
-    // GET ACTIVE ITINERARY FOR TOURIST
-    // =====================================================
-    public Itinerary getActiveItineraryForTourist(User tourist) {
-        LocalDate today = LocalDate.now();
-
-        Optional<ItineraryParticipant> activeParticipant =
-                itineraryParticipantRepository.findActiveItineraryForTourist(
-                        tourist.getId(),
-                        ItineraryStatus.APPROVED,
-                        today
-                );
-
-
-        return activeParticipant.map(ItineraryParticipant::getItinerary).orElse(null);
-    }
-
-    // =====================================================
     // GET PUBLIC/PENDING/ALL ITINERARIES
     // =====================================================
-    public List<Itinerary> getGuideItineraries(Long guideId) {
-        return itineraryRepository.findByCreatorId(guideId);
-    }
-
     public List<Itinerary> getPublic() {
         return itineraryRepository.findByStatus(ItineraryStatus.APPROVED);
     }
@@ -237,6 +253,10 @@ public class ItineraryService {
 
     public List<Itinerary> getAll() {
         return itineraryRepository.findAll();
+    }
+
+    public List<Itinerary> getGuideItineraries(Long guideId) {
+        return itineraryRepository.findByCreatorId(guideId);
     }
 
     // =====================================================
@@ -254,19 +274,5 @@ public class ItineraryService {
                 .orElseThrow(() -> new EntityNotFoundException("Itinerary not found"));
         itinerary.setStatus(ItineraryStatus.REJECTED);
         return itineraryRepository.save(itinerary);
-    }
-
-    // =====================================================
-    // GUIDE — ACTIVE ITINERARIES
-    // =====================================================
-    public List<Itinerary> getActiveItinerariesForGuide(User guide) {
-
-        if (guide == null) {
-            throw new RuntimeException("User not authenticated.");
-        }
-
-        LocalDate today = LocalDate.now(); // poți folosi și cu ZoneId dacă vrei
-
-        return itineraryRepository.findActiveItinerariesForGuide(guide.getId(), today);
     }
 }
