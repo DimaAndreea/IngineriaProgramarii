@@ -26,6 +26,19 @@ public interface ItinerarySubmissionRepository extends JpaRepository<ObjectiveSu
             @Param("tourist") User tourist
     );
 
+    // ✅ Obține toate submisiile pentru un ghid (istoric inclus) pentru un itinerariu
+    @Query("""
+        SELECT os
+        FROM ObjectiveSubmission os
+        WHERE os.guide = :guide
+          AND os.objective.location.itinerary = :itinerary
+        ORDER BY os.submittedAt DESC
+    """)
+    List<ObjectiveSubmission> findByItineraryAndGuide(
+            @Param("itinerary") Itinerary itinerary,
+            @Param("guide") User guide
+    );
+
     // Verifică dacă există deja o submisie pentru un turist și un obiectiv specific
     boolean existsByTouristAndObjective(User tourist, ItineraryObjective objective);
 }
