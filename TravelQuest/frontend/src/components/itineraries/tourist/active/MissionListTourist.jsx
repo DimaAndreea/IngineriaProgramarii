@@ -7,18 +7,16 @@ export default function MissionListTourist({
   onMakeSubmission,
 }) {
   const getStatusLabel = (status) => {
-    const normalizedStatus = String(status).toUpperCase();
-    if (!normalizedStatus) return "No submission yet";
-    if (normalizedStatus === "APPROVED") return "Approved";
-    if (normalizedStatus === "REJECTED") return "Rejected";
+    if (!status) return "No submission yet";
+    if (status === "approved") return "Approved";
+    if (status === "rejected") return "Rejected";
     return "Pending review";
   };
 
   const getStatusClass = (status) => {
-    const normalizedStatus = String(status).toUpperCase();
-    if (!normalizedStatus) return "no-submission";
-    if (normalizedStatus === "APPROVED") return "approved";
-    if (normalizedStatus === "REJECTED") return "rejected";
+    if (!status) return "no-submission";
+    if (status === "approved") return "approved";
+    if (status === "rejected") return "rejected";
     return "pending";
   };
 

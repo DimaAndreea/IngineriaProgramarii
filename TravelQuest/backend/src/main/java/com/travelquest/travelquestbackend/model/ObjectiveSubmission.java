@@ -12,25 +12,34 @@ public class ObjectiveSubmission {
     @Column(name = "submission_id")
     private Long id;
 
+    // Turistul care face submissia
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User tourist;
 
+    // Obiectivul pentru care se face submissia
     @ManyToOne
     @JoinColumn(name = "objective_id", nullable = false)
     private ItineraryObjective objective;
 
+    // Ghidul care validează submissia
     @ManyToOne
     @JoinColumn(name = "guide_id", nullable = false)
     private User guide;
 
-    @Column(name = "submission_base64", nullable = false, columnDefinition = "TEXT")
-    private String submissionBase64;
+    // URL-ul sau calea către fișierul trimis
+    @Column(name = "submission_url", nullable = false)
+    private String submissionUrl;
 
+    // Mapare enum Java la PostgreSQL enum
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    @org.hibernate.annotations.ColumnTransformer(write = "?::submission_status")
+    @org.hibernate.annotations.ColumnTransformer(
+            write = "?::submission_status"
+    )
     private SubmissionStatus status = SubmissionStatus.PENDING;
+
+
 
     @Column(name = "submitted_at", nullable = false)
     private ZonedDateTime submittedAt = ZonedDateTime.now();
@@ -38,7 +47,9 @@ public class ObjectiveSubmission {
     @Column(name = "validated_at")
     private ZonedDateTime validatedAt;
 
+    // ======================
     // Getters & Setters
+    // ======================
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -51,8 +62,8 @@ public class ObjectiveSubmission {
     public User getGuide() { return guide; }
     public void setGuide(User guide) { this.guide = guide; }
 
-    public String getSubmissionBase64() { return submissionBase64; }
-    public void setSubmissionBase64(String submissionBase64) { this.submissionBase64 = submissionBase64; }
+    public String getSubmissionUrl() { return submissionUrl; }
+    public void setSubmissionUrl(String submissionUrl) { this.submissionUrl = submissionUrl; }
 
     public SubmissionStatus getStatus() { return status; }
     public void setStatus(SubmissionStatus status) { this.status = status; }
@@ -63,16 +74,17 @@ public class ObjectiveSubmission {
     public ZonedDateTime getValidatedAt() { return validatedAt; }
     public void setValidatedAt(ZonedDateTime validatedAt) { this.validatedAt = validatedAt; }
 
+    // ======================
+    // toString pentru debugging
+    // ======================
     @Override
     public String toString() {
-        String preview = submissionBase64 == null ? "null"
-                : submissionBase64.substring(0, Math.min(30, submissionBase64.length())) + "...";
         return "ObjectiveSubmission{" +
                 "id=" + id +
                 ", tourist=" + (tourist != null ? tourist.getUsername() : "null") +
                 ", objectiveId=" + (objective != null ? objective.getId() : "null") +
                 ", guide=" + (guide != null ? guide.getUsername() : "null") +
-                ", submissionBase64='" + preview + '\'' +
+                ", submissionUrl='" + submissionUrl + '\'' +
                 ", status=" + status +
                 ", submittedAt=" + submittedAt +
                 ", validatedAt=" + validatedAt +

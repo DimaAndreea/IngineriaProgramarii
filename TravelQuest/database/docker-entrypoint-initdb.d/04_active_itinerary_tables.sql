@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS objective_submission (
                                                     user_id        BIGINT            NOT NULL,  -- turistul
                                                     objective_id   BIGINT            NOT NULL,  -- obiectivul (tabelul itinerary_objective)
                                                     guide_id       BIGINT            NOT NULL,  -- ghidul responsabil / validator
-                                                    submission_base64 TEXT      NOT NULL,
+                                                    submission_url VARCHAR(255)      NOT NULL,
     status         submission_status NOT NULL DEFAULT 'PENDING',
     submitted_at   TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     validated_at   TIMESTAMP WITH TIME ZONE,

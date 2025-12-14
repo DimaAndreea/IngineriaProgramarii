@@ -110,10 +110,3 @@ export function updateSubmissionStatus(itineraryId, submissionId, status) {
 export function getMyItineraries(userId) {
   return getGuideItineraries(userId);
 }
-
-
-// backend: GET /api/itineraries/{itineraryId}/submissions
-export function getSubmissionsForGuide(itineraryId) {
-  return request(`${BASE}/${itineraryId}/submissions`);
-}
-

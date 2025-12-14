@@ -1,6 +1,5 @@
 package com.travelquest.travelquestbackend.controller;
 
-import com.travelquest.travelquestbackend.dto.ObjectiveSubmissionRequest;
 import com.travelquest.travelquestbackend.model.ObjectiveSubmission;
 import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.model.UserRole;
@@ -9,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,18 +22,11 @@ public class ItinerarySubmissionController {
         this.service = service;
     }
 
-    /**
-     * Turistul trimite o imagine (base64) pentru un obiectiv.
-     * Body JSON:
-     * {
-     *   "objectiveId": 123,
-     *   "submissionBase64": "data:image/png;base64,...."
-     * }
-     */
     @PostMapping("/{id}/submit-photo")
     public ResponseEntity<?> submitPhoto(
             @PathVariable("id") Long itineraryId,
-            @RequestBody ObjectiveSubmissionRequest req,
+            @RequestParam("objectiveId") Long objectiveId,
+            @RequestParam("file") MultipartFile file,
             HttpServletRequest request
     ) {
         User user = (User) request.getSession().getAttribute("user");
@@ -42,16 +35,21 @@ public class ItinerarySubmissionController {
                     .body("You must be logged in as a tourist to submit photos");
         }
 
+        System.out.println("Request has file? " + (file != null));
+        System.out.println("objectiveId: " + objectiveId);
+
+
         try {
-            service.submitPhoto(itineraryId, req.getObjectiveId(), user, req.getSubmissionBase64());
+            ObjectiveSubmission submission = service.submitPhoto(itineraryId, objectiveId, user, file);
             List<ObjectiveSubmission> allSubmissions = service.getSubmissionsForTourist(itineraryId, user);
             return ResponseEntity.ok(allSubmissions);
-
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Unexpected error: " + e.getMessage());
         }
+
     }
+
 }
