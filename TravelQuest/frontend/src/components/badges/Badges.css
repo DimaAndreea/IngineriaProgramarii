@@ -1,0 +1,213 @@
+.badges-shell {
+  margin-top: 16px;
+}
+
+.badges-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.badges-title {
+  margin: 0;
+  font-size: 18px;
+}
+
+.badges-sub {
+  opacity: 0.85;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.badge-card {
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.badge-card.locked {
+  opacity: 0.72;
+}
+
+.badge-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-name {
+  font-weight: 700;
+  font-size: 15px;
+  flex: 1;
+}
+
+.badge-chip {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.08);
+}
+
+.badge-chip.locked {
+  background: rgba(0,0,0,0.12);
+}
+
+.badge-desc {
+  opacity: 0.9;
+  font-size: 13px;
+}
+
+.badge-meta {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.75;
+  font-size: 12px;
+}
+
+.badge-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.badge-banner {
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 150, 0, 0.12);
+}
+
+.badge-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+
+/* --- Collapsible header --- */
+.badges-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.badges-header-left {
+  min-width: 0;
+}
+
+.badges-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badges-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.badges-pill.muted {
+  opacity: 0.7;
+}
+
+.badges-header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badges-dev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+  font-size: 12px;
+  user-select: none;
+}
+
+.badges-chevron {
+  transition: transform 180ms ease;
+  opacity: 0.85;
+}
+
+.badges-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* --- Collapsible body --- */
+.badges-collapsible {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 220ms ease, opacity 180ms ease;
+  margin-top: 10px;
+}
+
+.badges-collapsible.open {
+  max-height: 2000px; /* suficient pt grid */
+  opacity: 1;
+}
+
+.badges-collapsible-inner {
+  padding-top: 6px;
+}
+
+.badges-dev-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 14px;
+  min-height: 44px;        /* important pt centrare verticală */
+  line-height: 1;          /* important */
+  text-align: center;
+
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+  font-size: 12px;
+  user-select: none;
+}
+
+/* BADGES: scroll orizontal când sunt multe */
+.badges-grid{
+  display: flex;              /* în loc de grid */
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 10px;       /* loc pt scrollbar */
+  scroll-snap-type: x mandatory;
+}
+
+.badge-card{
+  min-width: 260px;           /* ca să nu se micșoreze */
+  scroll-snap-align: start;
+}
