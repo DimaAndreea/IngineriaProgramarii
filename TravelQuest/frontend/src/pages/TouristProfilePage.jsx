@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./TouristProfilePage.css";
 
 import { useAuth } from "../context/AuthContext";
@@ -10,13 +10,7 @@ import { getMyProfile } from "../services/userService";
 /* avatar anonim */
 function AvatarIcon({ size = 64 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
       <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
       <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
@@ -24,57 +18,31 @@ function AvatarIcon({ size = 64 }) {
   );
 }
 
-/* ✅ badge icon colorat */
+/* badge icon */
 function PrettyBadgeIcon({ size = 44 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-      className="badge-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true" className="badge-icon">
       <defs>
         <linearGradient id="gold" x1="14" y1="12" x2="52" y2="52">
           <stop stopColor="#FDE68A" />
           <stop offset="0.55" stopColor="#F59E0B" />
           <stop offset="1" stopColor="#D97706" />
         </linearGradient>
-
         <linearGradient id="ribbonL" x1="8" y1="36" x2="30" y2="60">
           <stop stopColor="#60A5FA" />
           <stop offset="1" stopColor="#2563EB" />
         </linearGradient>
-
         <linearGradient id="ribbonR" x1="34" y1="36" x2="56" y2="60">
           <stop stopColor="#F472B6" />
           <stop offset="1" stopColor="#DB2777" />
         </linearGradient>
-
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow
-            dx="0"
-            dy="2"
-            stdDeviation="2"
-            floodColor="#000"
-            floodOpacity="0.18"
-          />
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.18" />
         </filter>
       </defs>
 
-      <path
-        d="M18 38 12 60 24 54 30 60 30 40"
-        fill="url(#ribbonL)"
-        opacity="0.95"
-        filter="url(#soft)"
-      />
-      <path
-        d="M46 38 52 60 40 54 34 60 34 40"
-        fill="url(#ribbonR)"
-        opacity="0.95"
-        filter="url(#soft)"
-      />
+      <path d="M18 38 12 60 24 54 30 60 30 40" fill="url(#ribbonL)" opacity="0.95" filter="url(#soft)" />
+      <path d="M46 38 52 60 40 54 34 60 34 40" fill="url(#ribbonR)" opacity="0.95" filter="url(#soft)" />
 
       <circle cx="32" cy="28" r="16.5" fill="url(#gold)" filter="url(#soft)" />
       <circle cx="32" cy="28" r="16.5" stroke="rgba(17,24,39,0.18)" />
@@ -88,18 +56,10 @@ function PrettyBadgeIcon({ size = 44 }) {
   );
 }
 
-/* ---------- small icons (itineraries) ---------- */
-
+/* icons itineraries */
 function PinIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="tp-mini-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
       <path
         d="M12 22s7-4.2 7-11a7 7 0 1 0-14 0c0 6.8 7 11 7 11Z"
         stroke="currentColor"
@@ -113,26 +73,9 @@ function PinIcon({ size = 16 }) {
 
 function CalendarIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="tp-mini-icon"
-    >
-      <path
-        d="M8 3v3M16 3v3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4 7h16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
+      <path d="M8 3v3M16 3v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
         d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
         stroke="currentColor"
@@ -145,18 +88,37 @@ function CalendarIcon({ size = 16 }) {
 
 export default function TouristProfilePage() {
   const navigate = useNavigate();
+  const params = useParams();
+  const location = useLocation();
+
   const { userId, username, role } = useAuth();
+
+  // /tourists/:id => public mode
+  const publicTouristId = params?.id ? Number(params.id) : null;
+
+  // owner mode: /profile/tourist (protected) + role tourist
+  const isOwnerMode = !publicTouristId && role?.toLowerCase() === "tourist";
+  const isPublicMode = !!publicTouristId;
+
+  // state primit din Link
+  const touristFromState = location?.state?.tourist || null;
+  const contextItineraries = location?.state?.contextItineraries || [];
+
+  const displayName =
+    (isOwnerMode ? username : touristFromState?.username) ||
+    touristFromState?.name ||
+    touristFromState?.email ||
+    (isPublicMode ? `Tourist #${publicTouristId}` : "Tourist");
+
+  const displayLevel = touristFromState?.level ?? null;
 
   const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
   const [selectedBadge, setSelectedBadge] = useState(null);
-
-  // ✅ profile (email/phone) — chiar dacă vine gol
   const [profile, setProfile] = useState(null);
 
-  // search in itineraries
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -167,20 +129,34 @@ export default function TouristProfilePage() {
       setErr("");
 
       try {
-        if (!userId) throw new Error("Missing user id. Please log in again.");
+        if (isOwnerMode) {
+          if (!userId) throw new Error("Missing user id. Please log in again.");
 
-        const [itData, prof] = await Promise.all([
-          filterItineraries({ participant: true }, userId),
-          getMyProfile().catch(() => null), // nu stricăm pagina dacă nu merge
-        ]);
+          const [itData, prof] = await Promise.all([
+            filterItineraries({ participant: true }, userId),
+            getMyProfile().catch(() => null),
+          ]);
+
+          if (!alive) return;
+          setItineraries(Array.isArray(itData) ? itData : []);
+          setProfile(prof || null);
+          return;
+        }
+
+        // ✅ PUBLIC MODE: afișăm ce avem din state (context itineraries)
+        if (isPublicMode) {
+          if (!alive) return;
+          setItineraries(Array.isArray(contextItineraries) ? contextItineraries : []);
+          setProfile(null);
+          return;
+        }
 
         if (!alive) return;
-
-        setItineraries(Array.isArray(itData) ? itData : []);
-        setProfile(prof || null);
+        setItineraries([]);
+        setProfile(null);
       } catch (e) {
         if (!alive) return;
-        setErr(e?.message || "Failed to load itineraries.");
+        setErr(e?.message || "Failed to load profile.");
         setItineraries([]);
         setProfile(null);
       } finally {
@@ -192,15 +168,13 @@ export default function TouristProfilePage() {
     return () => {
       alive = false;
     };
-  }, [userId]);
+  }, [isOwnerMode, isPublicMode, userId, contextItineraries]);
 
-  if (role?.toLowerCase() !== "tourist") return null;
-
-  const email = profile?.email || "—";
-  const phone = profile?.phone || profile?.phoneNumber || "—";
+  // contact doar pentru owner
+  const email = isOwnerMode ? profile?.email || "—" : "—";
+  const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
   const now = useMemo(() => new Date(), []);
-
   const withStatus = useMemo(() => {
     return itineraries.map((it) => {
       const end = it?.endDate ? new Date(it.endDate) : null;
@@ -209,24 +183,17 @@ export default function TouristProfilePage() {
     });
   }, [itineraries, now]);
 
-  // counts (My itineraries stats)
   const counts = useMemo(() => {
     const active = withStatus.filter((x) => x.__status === "Active").length;
     const past = withStatus.filter((x) => x.__status === "Completed").length;
     return { active, past, total: withStatus.length };
   }, [withStatus]);
 
-  const getFirstLocation = (it) => {
-    if (Array.isArray(it?.locations) && it.locations.length > 0)
-      return it.locations[0];
-    return null;
-  };
-
+  const getFirstLocation = (it) => (Array.isArray(it?.locations) && it.locations.length > 0 ? it.locations[0] : null);
   const getCity = (it) => {
     const loc = getFirstLocation(it);
     return loc?.city || loc?.name || it?.city || "";
   };
-
   const getCountry = (it) => {
     const loc = getFirstLocation(it);
     return loc?.country || it?.country || "";
@@ -246,14 +213,20 @@ export default function TouristProfilePage() {
 
   const formatDate = (iso) => {
     if (!iso) return "—";
-    return new Date(iso).toLocaleDateString(undefined, {
-      month: "short",
-      day: "2-digit",
-      year: "numeric",
-    });
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
   };
 
-  const selectedBadgeName = selectedBadge?.name || null;
+  // ✅ badge name:
+  // - owner: din MyBadgesSection (selectedBadge)
+  // - public: din state (touristFromState.visibleBadgeName)
+  const selectedBadgeName =
+    selectedBadge?.name ||
+    (isOwnerMode ? profile?.selectedBadge?.name : null) ||
+    touristFromState?.visibleBadgeName ||
+    null;
+
+  // ✅ badges interactive doar owner
+  const showBadgesSection = isOwnerMode;
 
   return (
     <div className="tourist-profile-page">
@@ -262,28 +235,36 @@ export default function TouristProfilePage() {
         <div className="tourist-header-left">
           <AvatarIcon />
           <div>
-            <h1 className="tourist-name">{username || "Tourist"}</h1>
+            <h1 className="tourist-name">{displayName}</h1>
             <span className="tourist-role">Tourist</span>
 
-            {/* ✅ email + phone in header */}
-            <div className="tp-contact">
-              <div className="tp-contact-item">
-                <span className="tp-contact-label">Email</span>
-                <span className="tp-contact-value">{email}</span>
+            {isPublicMode && displayLevel != null && (
+              <div className="tp-contact" style={{ marginTop: 6 }}>
+                <div className="tp-contact-item">
+                  <span className="tp-contact-label">Level</span>
+                  <span className="tp-contact-value">{displayLevel}</span>
+                </div>
               </div>
-              <span className="tp-contact-dot">•</span>
-              <div className="tp-contact-item">
-                <span className="tp-contact-label">Phone</span>
-                <span className="tp-contact-value">{phone}</span>
+            )}
+
+            {isOwnerMode && (
+              <div className="tp-contact">
+                <div className="tp-contact-item">
+                  <span className="tp-contact-label">Email</span>
+                  <span className="tp-contact-value">{email}</span>
+                </div>
+                <span className="tp-contact-dot">•</span>
+                <div className="tp-contact-item">
+                  <span className="tp-contact-label">Phone</span>
+                  <span className="tp-contact-value">{phone}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* ✅ fara bara de level */}
         <div className="tourist-header-center" />
 
-        {/* ✅ badge: icon doar dacă există badge */}
         <div className="tourist-header-right">
           {selectedBadgeName ? <PrettyBadgeIcon /> : null}
           <div>
@@ -293,16 +274,19 @@ export default function TouristProfilePage() {
         </div>
       </div>
 
-      {/* BADGES IN CARD */}
-      <div className="tourist-card">
-        <MyBadgesSection onSelectedChange={setSelectedBadge} />
-      </div>
+      {/* BADGES (owner only) */}
+      {showBadgesSection && (
+        <div className="tourist-card">
+          <MyBadgesSection onSelectedChange={setSelectedBadge} />
+        </div>
+      )}
 
       {/* ITINERARIES CARD */}
       <div className="tourist-card">
         <div className="itins-head">
           <div>
             <h2 className="itins-title">My itineraries</h2>
+
             <div className="itins-sub">
               <b>{counts.active}</b> active <span className="dot">•</span>{" "}
               <b>{counts.past}</b> past <span className="dot">•</span>{" "}
@@ -310,24 +294,25 @@ export default function TouristProfilePage() {
             </div>
           </div>
 
-          {/* Search bar */}
-          <div className="itins-search">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by title, city or country..."
-            />
-            {query && (
-              <button
-                type="button"
-                className="itins-search-clear"
-                onClick={() => setQuery("")}
-                aria-label="Clear search"
-              >
-                ✕
-              </button>
-            )}
-          </div>
+          {(isOwnerMode || withStatus.length > 0) && (
+            <div className="itins-search">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by title, city or country..."
+              />
+              {query && (
+                <button
+                  type="button"
+                  className="itins-search-clear"
+                  onClick={() => setQuery("")}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {err && <div className="tourist-banner">{err}</div>}
@@ -335,7 +320,7 @@ export default function TouristProfilePage() {
         {loading ? (
           <p className="tourist-muted">Loading…</p>
         ) : filteredList.length === 0 ? (
-          <p className="tourist-empty">No itineraries found.</p>
+          <p className="tourist-empty">No itineraries to show.</p>
         ) : (
           <div className="itinerary-list">
             {filteredList.map((it) => {
@@ -353,13 +338,7 @@ export default function TouristProfilePage() {
                           {title}
                         </h3>
 
-                        <span
-                          className={`pill ${
-                            it.__status === "Active"
-                              ? "pill-active"
-                              : "pill-history"
-                          }`}
-                        >
+                        <span className={`pill ${it.__status === "Active" ? "pill-active" : "pill-history"}`}>
                           {it.__status}
                         </span>
                       </div>
@@ -383,10 +362,7 @@ export default function TouristProfilePage() {
                   </div>
 
                   <div className="itinerary-actions-right">
-                    <button
-                      className="tourist-blue-btn"
-                      onClick={() => navigate(`/itineraries/${it.id}`)}
-                    >
+                    <button className="tourist-blue-btn" onClick={() => navigate(`/itineraries/${it.id}`)}>
                       View
                     </button>
                   </div>

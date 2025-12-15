@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   getMyItineraries,
   deleteItinerary,
   updateItinerary,
+  getPublicItineraries,
 } from "../services/itineraryService";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import "./GuideProfilePage.css";
@@ -116,22 +117,8 @@ function BadgeMedalIcon({ size = 44 }) {
       <path d="M22 38L14 60L28 52L32 60L32 38H22Z" fill="#60A5FA" />
       <path d="M42 38L50 60L36 52L32 60L32 38H42Z" fill="#F472B6" />
 
-      <circle
-        cx="32"
-        cy="28"
-        r="16"
-        fill="#FDE68A"
-        stroke="#F59E0B"
-        strokeWidth="2"
-      />
-      <circle
-        cx="32"
-        cy="28"
-        r="12"
-        fill="#FFF7ED"
-        stroke="#F59E0B"
-        strokeWidth="2"
-      />
+      <circle cx="32" cy="28" r="16" fill="#FDE68A" stroke="#F59E0B" strokeWidth="2" />
+      <circle cx="32" cy="28" r="12" fill="#FFF7ED" stroke="#F59E0B" strokeWidth="2" />
 
       <path
         d="M32 18L35 25L43 26L37 31L39 39L32 35L25 39L27 31L21 26L29 25L32 18Z"
@@ -148,21 +135,33 @@ function BadgeMedalIcon({ size = 44 }) {
 
 export default function GuideProfilePage() {
   const navigate = useNavigate();
+  const params = useParams();
   const { role, userId, username } = useAuth();
+
+  // dacă ai /guides/:id -> public view
+  const viewedGuideId = params?.id ? Number(params.id) : null;
+
+  // owner view = /profile/guide (sau /guides/:id unde id == userId și e logat ca guide)
+  const isOwner =
+    role === "guide" &&
+    userId != null &&
+    (viewedGuideId == null || Number(viewedGuideId) === Number(userId));
+
+  const isPublicView = viewedGuideId != null && !isOwner;
 
   const [itineraries, setItineraries] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // ✅ profile (email/phone) — chiar dacă vine gol
+  // ✅ profile (email/phone) — doar pentru owner
   const [profile, setProfile] = useState(null);
 
-  // modal edit
+  // modal edit (owner only)
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // selected badge from MyBadgesSection
+  // selected badge from MyBadgesSection (owner only)
   const [selectedBadge, setSelectedBadge] = useState(null);
 
   const now = useMemo(() => new Date(), []);
@@ -177,7 +176,8 @@ export default function GuideProfilePage() {
   }
 
   async function refreshItineraries() {
-    if (!userId) return;
+    if (!isOwner) return;
+
     const data = await getMyItineraries(userId);
     setItineraries(Array.isArray(data) ? data : []);
   }
@@ -190,37 +190,59 @@ export default function GuideProfilePage() {
         setLoading(true);
         setErr("");
 
-        if (!userId) throw new Error("Missing user id. Please log in again.");
+        // OWNER: itinerariile mele (cu PENDING/REJECTED etc)
+        if (isOwner) {
+          const data = await getMyItineraries(userId);
+          if (!alive) return;
+          setItineraries(Array.isArray(data) ? data : []);
 
-        const data = await getMyItineraries(userId);
-        if (!alive) return;
+          // ✅ profile în paralel (email/phone + badge fallback)
+          loadProfile();
+          return;
+        }
 
-        setItineraries(Array.isArray(data) ? data : []);
+        // PUBLIC: folosim DOAR itinerarii publice + filtrăm după creator.id
+        if (isPublicView) {
+          const allPublic = await getPublicItineraries();
+          if (!alive) return;
 
-        // ✅ profile în paralel (email/phone + badge fallback)
-        loadProfile();
+          const list = Array.isArray(allPublic) ? allPublic : [];
+          const mine = list.filter((it) => {
+            const cid = it?.creator?.id ?? it?.creatorId ?? it?.guideId;
+            return Number(cid) === Number(viewedGuideId);
+          });
+
+          setItineraries(mine);
+          setProfile(null);
+          return;
+        }
+
+        // dacă nu e owner și nici public (ex: nu ai param id și nu e guide logat)
+        setItineraries([]);
+        setProfile(null);
       } catch (e) {
         if (!alive) return;
         setErr(e?.message || "Failed to load itineraries.");
         setItineraries([]);
+        setProfile(null);
       } finally {
         if (!alive) return;
         setLoading(false);
       }
     }
 
-    if (role === "guide") load();
+    load();
     return () => {
       alive = false;
     };
-  }, [userId, role]);
+  }, [isOwner, isPublicView, userId, viewedGuideId]);
 
-  const email = profile?.email || "—";
-  const phone = profile?.phone || profile?.phoneNumber || "—";
+  // email/phone: doar owner (public rămâne "—")
+  const email = isOwner ? profile?.email || "—" : "—";
+  const phone = isOwner ? (profile?.phone || profile?.phoneNumber || "—") : "—";
 
   const getFirstLocation = (it) => {
-    if (Array.isArray(it?.locations) && it.locations.length > 0)
-      return it.locations[0];
+    if (Array.isArray(it?.locations) && it.locations.length > 0) return it.locations[0];
     return null;
   };
 
@@ -243,6 +265,37 @@ export default function GuideProfilePage() {
     });
   };
 
+  // ✅ public display name: din auth (owner) sau din itinerariile publice (creator.username) ca fallback
+  const headerUsername = useMemo(() => {
+    if (isOwner) return username || "—";
+
+    const first = itineraries?.[0];
+    const u = first?.creator?.username || first?.creatorUsername;
+    if (u) return u;
+
+    if (viewedGuideId != null) return `Guide #${viewedGuideId}`;
+    return "Guide";
+  }, [isOwner, username, itineraries, viewedGuideId]);
+
+  // ✅ badge name:
+  // - owner: din selectedBadge sau profile.selectedBadge
+  // - public: încercăm din creator.selectedBadge (venit în itinerariile publice)
+  const selectedBadgeName = useMemo(() => {
+    if (isOwner) {
+      return selectedBadge?.name || profile?.selectedBadge?.name || null;
+    }
+
+    // public: încearcă să găsești badge-ul în creator
+    for (const it of itineraries || []) {
+      const name =
+        it?.creator?.selectedBadge?.name ||
+        it?.creator?.visibleBadge?.name ||
+        it?.creatorSelectedBadge?.name;
+      if (name) return name;
+    }
+    return null;
+  }, [isOwner, selectedBadge, profile, itineraries]);
+
   // ✅ header stats: Active / Upcoming / Past
   // ✅ past = DOAR itinerarii trecute + Published (APPROVED)
   const headerStats = useMemo(() => {
@@ -254,11 +307,9 @@ export default function GuideProfilePage() {
       const start = it?.startDate ? new Date(it.startDate) : null;
       const end = it?.endDate ? new Date(it.endDate) : null;
 
-      // past: end < now AND status APPROVED
       if (end && end < now) {
-        if (normalizeStatus(it?.status) === "APPROVED") {
-          past += 1;
-        }
+        // past doar dacă Published
+        if (normalizeStatus(it?.status) === "APPROVED") past += 1;
         continue;
       }
 
@@ -282,12 +333,7 @@ export default function GuideProfilePage() {
       const city = String(getCity(it) || "").toLowerCase();
       const country = String(getCountry(it) || "").toLowerCase();
       const status = statusLabel(it.status).toLowerCase();
-      return (
-        title.includes(q) ||
-        city.includes(q) ||
-        country.includes(q) ||
-        status.includes(q)
-      );
+      return title.includes(q) || city.includes(q) || country.includes(q) || status.includes(q);
     });
   }, [search, itineraries]);
 
@@ -314,10 +360,9 @@ export default function GuideProfilePage() {
     setSelected(null);
   }
 
-  if (role !== "guide") return null;
-
-  const selectedBadgeName =
-    selectedBadge?.name || profile?.selectedBadge?.name || null;
+  // dacă e public view, nu blocăm pagina (nu mai return null)
+  // dacă e owner route dar nu e guide logat, o poți lăsa cum ai în Router cu ProtectedRoute
+  // aici doar păstrăm UI safe.
 
   return (
     <div className="gp-page">
@@ -325,37 +370,30 @@ export default function GuideProfilePage() {
       <section className="gp-header-card">
         <div className="gp-header-left">
           <div className="gp-avatar">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="8" r="4" fill="rgba(15,23,42,.35)" />
-              <path
-                d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6"
-                fill="rgba(15,23,42,.20)"
-              />
+              <path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6" fill="rgba(15,23,42,.20)" />
             </svg>
           </div>
 
           <div>
-            <h1 className="gp-name">{username || "—"}</h1>
+            <h1 className="gp-name">{headerUsername}</h1>
             <div className="gp-role">Guide</div>
 
-            {/* ✅ email + phone in header */}
-            <div className="gp-contact">
-              <div className="gp-contact-item">
-                <span className="gp-contact-label">Email</span>
-                <span className="gp-contact-value">{email}</span>
+            {/* ✅ email + phone in header (doar owner) */}
+            {isOwner && (
+              <div className="gp-contact">
+                <div className="gp-contact-item">
+                  <span className="gp-contact-label">Email</span>
+                  <span className="gp-contact-value">{email}</span>
+                </div>
+                <span className="gp-contact-dot">•</span>
+                <div className="gp-contact-item">
+                  <span className="gp-contact-label">Phone</span>
+                  <span className="gp-contact-value">{phone}</span>
+                </div>
               </div>
-              <span className="gp-contact-dot">•</span>
-              <div className="gp-contact-item">
-                <span className="gp-contact-label">Phone</span>
-                <span className="gp-contact-value">{phone}</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -376,7 +414,7 @@ export default function GuideProfilePage() {
           </div>
         </div>
 
-        {/* ✅ badge: icon doar dacă există badge */}
+        {/* ✅ badge: icon doar dacă există badge (PUBLIC + OWNER) */}
         <div className="gp-header-right">
           {selectedBadgeName ? (
             <>
@@ -396,19 +434,22 @@ export default function GuideProfilePage() {
       </section>
 
       {/* ================= BADGES CARD ================= */}
-      <section className="gp-card gp-section-card">
-        <MyBadgesSection onSelectedChange={setSelectedBadge} />
-      </section>
+      {/* owner only: public view NU trebuie să aibă secțiune interactivă */}
+      {isOwner && (
+        <section className="gp-card gp-section-card">
+          <MyBadgesSection onSelectedChange={setSelectedBadge} />
+        </section>
+      )}
 
       {/* ================= ITINERARIES CARD ================= */}
       <section className="gp-card gp-section-card">
         <div className="gp-itins-head">
           <div>
-            <h2 className="gp-section-title">My itineraries</h2>
+            <h2 className="gp-section-title">
+              {isPublicView ? "Published itineraries" : "My itineraries"}
+            </h2>
             <div className="gp-section-sub">
-              {loading
-                ? "Loading..."
-                : `${filtered.length} shown • ${itineraries.length} total`}
+              {loading ? "Loading..." : `${filtered.length} shown • ${itineraries.length} total`}
             </div>
           </div>
 
@@ -431,9 +472,12 @@ export default function GuideProfilePage() {
               )}
             </div>
 
-            <button className="gp-btn" onClick={() => navigate("/itineraries")}>
-              View all
-            </button>
+            {/* owner only: View all */}
+            {!isPublicView && (
+              <button className="gp-btn" onClick={() => navigate("/itineraries")}>
+                View all
+              </button>
+            )}
           </div>
         </div>
 
@@ -454,8 +498,9 @@ export default function GuideProfilePage() {
 
               const city = getCity(it);
               const country = getCountry(it);
-              const location =
-                country && country !== "—" ? `${city}, ${country}` : city;
+              const location = country && country !== "—" ? `${city}, ${country}` : city;
+
+              const canShowOwnerActions = !isPublicView;
 
               return (
                 <article key={it.id} className="gp-itin-row">
@@ -466,9 +511,7 @@ export default function GuideProfilePage() {
                           {title}
                         </h3>
 
-                        <span
-                          className={`gp-status-badge ${statusClass(it.status)}`}
-                        >
+                        <span className={`gp-status-badge ${statusClass(it.status)}`}>
                           {statusLabel(it.status)}
                         </span>
                       </div>
@@ -499,20 +542,14 @@ export default function GuideProfilePage() {
                       View
                     </button>
 
-                    {perms.showEditDelete && perms.canEdit && (
-                      <button
-                        className="gp-btn"
-                        onClick={() => handleEditOpen(it)}
-                      >
+                    {canShowOwnerActions && perms.showEditDelete && perms.canEdit && (
+                      <button className="gp-btn" onClick={() => handleEditOpen(it)}>
                         Edit
                       </button>
                     )}
 
-                    {perms.showEditDelete && perms.canDelete && (
-                      <button
-                        className="gp-btn gp-btn-danger"
-                        onClick={() => handleDelete(it.id)}
-                      >
+                    {canShowOwnerActions && perms.showEditDelete && perms.canDelete && (
+                      <button className="gp-btn gp-btn-danger" onClick={() => handleDelete(it.id)}>
                         Delete
                       </button>
                     )}
@@ -524,15 +561,18 @@ export default function GuideProfilePage() {
         )}
       </section>
 
-      <ItineraryForm
-        visible={showModal}
-        initialValues={selected}
-        onSubmit={handleEditSubmit}
-        onClose={() => {
-          setShowModal(false);
-          setSelected(null);
-        }}
-      />
+      {/* EDIT MODAL: owner only */}
+      {isOwner && (
+        <ItineraryForm
+          visible={showModal}
+          initialValues={selected}
+          onSubmit={handleEditSubmit}
+          onClose={() => {
+            setShowModal(false);
+            setSelected(null);
+          }}
+        />
+      )}
     </div>
   );
 }

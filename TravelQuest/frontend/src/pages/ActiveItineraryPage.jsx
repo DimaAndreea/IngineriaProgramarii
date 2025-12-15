@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./ActiveItineraryPage.css";
 
 import ProgressBar from "../components/itineraries/active/ProgressBar";
@@ -23,6 +23,11 @@ export default function ActiveItineraryPage() {
   const [submissions, setSubmissions] = useState([]);
   const [feedback, setFeedback] = useState([]);
 
+  // ✅ păstrăm și datele necesare pt "context itinerary"
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [locations, setLocations] = useState([]);
+
   const [currentStage, setCurrentStage] = useState(0);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
@@ -46,6 +51,9 @@ export default function ActiveItineraryPage() {
           setMissions([]);
           setSubmissions([]);
           setFeedback([]);
+          setLocations([]);
+          setStartDate(null);
+          setEndDate(null);
           setCurrentStage(0);
           return;
         }
@@ -54,6 +62,11 @@ export default function ActiveItineraryPage() {
 
         setItineraryId(active.id);
         setTitle(active.title || "Active itinerary");
+
+        // ✅ pt context itinerary
+        setStartDate(active.startDate || null);
+        setEndDate(active.endDate || null);
+        setLocations(Array.isArray(active.locations) ? active.locations : []);
 
         const locationStages = Array.isArray(active.locations)
           ? active.locations.map((loc, idx) => {
@@ -101,6 +114,18 @@ export default function ActiveItineraryPage() {
     currentStage > 0 && currentStage < stages.length - 1
       ? missions[currentStage - 1] || []
       : [];
+
+  // ✅ context itinerary trimis către ParticipantList (pentru profil public turist)
+  const contextItinerary = useMemo(() => {
+    if (!itineraryId) return null;
+    return {
+      id: itineraryId,
+      title: title || "Itinerary",
+      startDate,
+      endDate,
+      locations: Array.isArray(locations) ? locations : [],
+    };
+  }, [itineraryId, title, startDate, endDate, locations]);
 
   // ---------------------- NAVIGATION ----------------------
   const goNext = () =>
@@ -176,11 +201,7 @@ export default function ActiveItineraryPage() {
       <ProgressBar stages={stages} currentStage={currentStage} />
 
       <div className="nav-buttons">
-        <button
-          className="nav-btn prev"
-          onClick={goPrev}
-          disabled={currentStage === 0}
-        >
+        <button className="nav-btn prev" onClick={goPrev} disabled={currentStage === 0}>
           ← Previous
         </button>
 
@@ -194,7 +215,9 @@ export default function ActiveItineraryPage() {
       </div>
 
       <div className="stage-content">
-        {currentStage === 0 && <ParticipantList participants={participants} />}
+        {currentStage === 0 && (
+          <ParticipantList participants={participants} contextItinerary={contextItinerary} />
+        )}
 
         {currentStage > 0 && currentStage < stages.length - 1 && (
           <MissionList
