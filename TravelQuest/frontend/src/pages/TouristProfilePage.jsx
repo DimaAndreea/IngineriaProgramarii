@@ -5,11 +5,18 @@ import "./TouristProfilePage.css";
 import { useAuth } from "../context/AuthContext";
 import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
+import { getMyProfile } from "../services/userService";
 
 /* avatar anonim */
 function AvatarIcon({ size = 64 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
       <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
       <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
@@ -46,7 +53,13 @@ function PrettyBadgeIcon({ size = 44 }) {
         </linearGradient>
 
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.18" />
+          <feDropShadow
+            dx="0"
+            dy="2"
+            stdDeviation="2"
+            floodColor="#000"
+            floodOpacity="0.18"
+          />
         </filter>
       </defs>
 
@@ -140,6 +153,9 @@ export default function TouristProfilePage() {
 
   const [selectedBadge, setSelectedBadge] = useState(null);
 
+  // ✅ profile (email/phone) — chiar dacă vine gol
+  const [profile, setProfile] = useState(null);
+
   // search in itineraries
   const [query, setQuery] = useState("");
 
@@ -152,13 +168,21 @@ export default function TouristProfilePage() {
 
       try {
         if (!userId) throw new Error("Missing user id. Please log in again.");
-        const data = await filterItineraries({ participant: true }, userId);
+
+        const [itData, prof] = await Promise.all([
+          filterItineraries({ participant: true }, userId),
+          getMyProfile().catch(() => null), // nu stricăm pagina dacă nu merge
+        ]);
+
         if (!alive) return;
-        setItineraries(Array.isArray(data) ? data : []);
+
+        setItineraries(Array.isArray(itData) ? itData : []);
+        setProfile(prof || null);
       } catch (e) {
         if (!alive) return;
         setErr(e?.message || "Failed to load itineraries.");
         setItineraries([]);
+        setProfile(null);
       } finally {
         if (alive) setLoading(false);
       }
@@ -171,6 +195,9 @@ export default function TouristProfilePage() {
   }, [userId]);
 
   if (role?.toLowerCase() !== "tourist") return null;
+
+  const email = profile?.email || "—";
+  const phone = profile?.phone || profile?.phoneNumber || "—";
 
   const now = useMemo(() => new Date(), []);
 
@@ -190,7 +217,8 @@ export default function TouristProfilePage() {
   }, [withStatus]);
 
   const getFirstLocation = (it) => {
-    if (Array.isArray(it?.locations) && it.locations.length > 0) return it.locations[0];
+    if (Array.isArray(it?.locations) && it.locations.length > 0)
+      return it.locations[0];
     return null;
   };
 
@@ -236,6 +264,19 @@ export default function TouristProfilePage() {
           <div>
             <h1 className="tourist-name">{username || "Tourist"}</h1>
             <span className="tourist-role">Tourist</span>
+
+            {/* ✅ email + phone in header */}
+            <div className="tp-contact">
+              <div className="tp-contact-item">
+                <span className="tp-contact-label">Email</span>
+                <span className="tp-contact-value">{email}</span>
+              </div>
+              <span className="tp-contact-dot">•</span>
+              <div className="tp-contact-item">
+                <span className="tp-contact-label">Phone</span>
+                <span className="tp-contact-value">{phone}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -314,7 +355,9 @@ export default function TouristProfilePage() {
 
                         <span
                           className={`pill ${
-                            it.__status === "Active" ? "pill-active" : "pill-history"
+                            it.__status === "Active"
+                              ? "pill-active"
+                              : "pill-history"
                           }`}
                         >
                           {it.__status}

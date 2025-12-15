@@ -398,3 +398,34 @@
   overflow-y: auto;
   padding-right: 6px;    /* să nu intre scrollbar peste conținut */
 }
+
+.gp-contact{
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 12.5px;
+}
+
+.gp-contact-item{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.gp-contact-label{
+  opacity: 0.75;
+  font-weight: 900;
+}
+
+.gp-contact-value{
+  color: var(--text);
+  font-weight: 950;
+}
+
+.gp-contact-dot{
+  color: #cbd5e1;
+}

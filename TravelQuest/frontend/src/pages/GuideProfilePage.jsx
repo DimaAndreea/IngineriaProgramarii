@@ -155,6 +155,7 @@ export default function GuideProfilePage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
+  // ✅ profile (email/phone) — chiar dacă vine gol
   const [profile, setProfile] = useState(null);
 
   // modal edit
@@ -196,7 +197,7 @@ export default function GuideProfilePage() {
 
         setItineraries(Array.isArray(data) ? data : []);
 
-        // profile in paralel (pt badge fallback)
+        // ✅ profile în paralel (email/phone + badge fallback)
         loadProfile();
       } catch (e) {
         if (!alive) return;
@@ -213,6 +214,9 @@ export default function GuideProfilePage() {
       alive = false;
     };
   }, [userId, role]);
+
+  const email = profile?.email || "—";
+  const phone = profile?.phone || profile?.phoneNumber || "—";
 
   const getFirstLocation = (it) => {
     if (Array.isArray(it?.locations) && it.locations.length > 0)
@@ -250,7 +254,7 @@ export default function GuideProfilePage() {
       const start = it?.startDate ? new Date(it.startDate) : null;
       const end = it?.endDate ? new Date(it.endDate) : null;
 
-      // ✅ past: end < now AND status APPROVED
+      // past: end < now AND status APPROVED
       if (end && end < now) {
         if (normalizeStatus(it?.status) === "APPROVED") {
           past += 1;
@@ -258,13 +262,11 @@ export default function GuideProfilePage() {
         continue;
       }
 
-      // upcoming = start > now (și nu e past)
       if (start && start > now) {
         upcoming += 1;
         continue;
       }
 
-      // rest = active (inclusiv dacă lipsesc datele / end null)
       active += 1;
     }
 
@@ -341,6 +343,19 @@ export default function GuideProfilePage() {
           <div>
             <h1 className="gp-name">{username || "—"}</h1>
             <div className="gp-role">Guide</div>
+
+            {/* ✅ email + phone in header */}
+            <div className="gp-contact">
+              <div className="gp-contact-item">
+                <span className="gp-contact-label">Email</span>
+                <span className="gp-contact-value">{email}</span>
+              </div>
+              <span className="gp-contact-dot">•</span>
+              <div className="gp-contact-item">
+                <span className="gp-contact-label">Phone</span>
+                <span className="gp-contact-value">{phone}</span>
+              </div>
+            </div>
           </div>
         </div>
 
