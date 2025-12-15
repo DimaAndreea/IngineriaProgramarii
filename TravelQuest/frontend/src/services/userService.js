@@ -34,5 +34,5 @@ async function request(url, options = {}) {
 
 // ✅ recomandat de backend: user din sesiune
 export function getMyProfile() {
-  return request(`${API_BASE_URL}/api/users/me`);
+  return request(`${API_BASE_URL}/api/profile/me`);
 }
