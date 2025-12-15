@@ -13,270 +13,125 @@
 
   --shadow: 0 20px 45px rgba(15, 23, 42, 0.10);
   --shadow-soft: 0 12px 26px rgba(15, 23, 42, 0.08);
-  --radius: 18px;
+  --radius: 22px;
 }
 
 .gp-page{
-  background: radial-gradient(1200px 700px at 20% -10%, rgba(99,102,241,.12), transparent 65%),
-              radial-gradient(900px 600px at 85% 0%, rgba(147,51,234,.12), transparent 60%),
-              var(--bg);
-  min-height: calc(100vh - 72px);
-  padding: 28px 18px 44px;
-}
-
-.gp-shell{
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
-  display: grid;
-  gap: 24px;
-  align-items: start;
+  padding: 24px;
 }
 
-@media (min-width: 1024px){
-  .gp-shell{
-    grid-template-columns: 420px 1fr;
-  }
-}
-
+/* generic card */
 .gp-card{
   background: var(--card);
-  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
 
-.gp-sticky{
-  position: sticky;
-  top: 18px;
-  height: fit-content;
+.gp-section-card{
+  margin-top: 18px;
+  padding: 22px;
 }
 
-/* ======================================================
-   PROFILE CARD – CENTERED & CLEAN (no cover, no avatar)
-   ====================================================== */
-
-.gp-profile-card{
-  padding: 18px;
-  overflow: hidden;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 18px;
-}
-
-.gp-profile-top{
-  display: flex;
-  flex-direction: column;
+/* HEADER */
+.gp-header-card{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
   align-items: center;
-  text-align: center;
 
-  /* IMPORTANT: daca nu mai ai cover, NU mai ridicam cu minus */
-  margin-top: 0;
-  padding: 6px 8px 0;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
 }
 
-/* daca ai pus className="gp-profile-top gp-profile-top-noCover" */
-.gp-profile-top-noCover{
-  margin-top: 0;
-  padding-top: 6px;
-}
-
-.gp-profile-titles{
-  min-width: 0;
+.gp-header-left{
   display: flex;
-  flex-direction: column;
+  gap: 16px;
   align-items: center;
-  gap: 6px;
 }
 
-/* FIX: titlul sa nu mai iasa din card */
-.gp-title{
-  margin: 0;
-  color: var(--text);
-  font-weight: 950;
-  letter-spacing: -0.03em;
-
-  /* clamp ca sa se adapteze pe mobil */
-  font-size: clamp(24px, 3vw, 34px);
-  line-height: 1.08;
-
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.gp-subtitle{
-  margin: 0;
-  color: var(--muted);
-  font-weight: 650;
-  font-size: 13.5px;
-  line-height: 1.35;
-
-  max-width: 28ch;
-}
-
-.gp-chips{
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 6px;
-}
-
-.gp-chip{
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 850;
-  color: #0b2a6b;
-  background: rgba(37,99,235,.10);
-  border: 1px solid rgba(37,99,235,.18);
-}
-
-/* ======================================================
-   RATING CARD – CENTERED
-   ====================================================== */
-
-.gp-rating-card{
-  margin-top: 2px;
-  border-radius: 16px;
-  padding: 18px;
-  text-align: center;
-
-  background:
-    linear-gradient(135deg, rgba(34,197,94,.10), rgba(245,158,11,.08)),
-    #ffffff;
-
-  border: 1px solid rgba(2,6,23,.08);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
-}
-
-.gp-rating-head{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.gp-kicker{
-  text-transform: uppercase;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .10em;
-  color: rgba(15,23,42,.55);
-}
-
-.gp-rating-value{
-  font-size: 30px;
-  font-weight: 950;
-  color: var(--text);
-  letter-spacing: -0.02em;
-}
-
-.gp-rating-outof{
-  font-size: 14px;
-  font-weight: 900;
-  color: rgba(15,23,42,.55);
-  margin-left: 4px;
-}
-
-.gp-rating-right{
-  text-align: center;
-}
-
-.gp-stars{
-  display: flex;
-  gap: 2px;
-  justify-content: center;
-  margin-top: 2px;
-}
-
-.gp-star{
-  font-size: 14px;
-  color: rgba(148,163,184,.65);
-  line-height: 1;
-}
-
-.gp-star.is-filled{
-  color: #fbbf24;
-}
-
-.gp-star.is-half{
-  color: #fbbf24;
-  opacity: .75;
-}
-
-.gp-rating-meta{
-  margin-top: 6px;
-  font-weight: 750;
-  font-size: 12.5px;
-  color: rgba(15,23,42,.62);
-}
-
-.gp-rating-bar{
-  height: 6px;
-  width: 80%;
-  margin: 12px auto 0;
+.gp-avatar{
+  width: 56px;
+  height: 56px;
   border-radius: 999px;
   background: rgba(2,6,23,.06);
-  overflow: hidden;
-}
-
-.gp-rating-fill{
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(37,99,235,.9), rgba(147,51,234,.8));
-  box-shadow: 0 10px 20px rgba(37,99,235,.18);
-}
-
-/* ======================================================
-   INFO ROWS
-   ====================================================== */
-
-.gp-info{
-  margin-top: 4px;
   display: grid;
-  gap: 10px;
+  place-items: center;
 }
 
-.gp-info-row{
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 11px 12px;
-  border-radius: 14px;
-  background: rgba(2,6,23,.02);
-  border: 1px solid rgba(148,163,184,.18);
-}
-
-.gp-info-label{
-  color: var(--muted);
-  font-weight: 750;
-  font-size: 13px;
-}
-
-.gp-info-value{
+.gp-name{
+  margin: 0;
+  font-size: 28px;
+  font-weight: 950;
+  letter-spacing: -0.02em;
   color: var(--text);
+}
+
+.gp-role{
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.18);
+  color: #0b2a6b;
   font-weight: 900;
+  font-size: 12px;
+}
+
+.gp-header-center{
+  min-width: 320px;
+}
+
+.gp-header-stats{
+  color: var(--muted);
+  font-weight: 850;
   font-size: 13px;
-}
-
-.gp-profile-footer{
-  margin-top: 8px;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* ======================================================
-   BUTTONS
-   ====================================================== */
+.gp-dot{
+  color: #cbd5e1;
+  margin: 0 2px;
+}
 
+.gp-header-right{
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.gp-badge-kicker{
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-weight: 900;
+}
+
+.gp-badge-name{
+  font-weight: 950;
+  color: var(--text);
+}
+
+.gp-badge-icon{
+  display: block;
+}
+
+/* buttons */
 .gp-btn{
   border: 1px solid rgba(148,163,184,.30);
   background: #fff;
   color: var(--text);
-  font-weight: 850;
+  font-weight: 900;
   border-radius: 14px;
   padding: 10px 14px;
   cursor: pointer;
@@ -290,11 +145,6 @@
   border-color: rgba(37, 99, 235, 0.22);
 }
 
-.gp-btn:active{
-  transform: translateY(0);
-  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.10);
-}
-
 .gp-btn-primary{
   border-color: rgba(37, 99, 235, 0.22);
   background: var(--primary);
@@ -303,7 +153,6 @@
 
 .gp-btn-primary:hover{
   background: var(--primary-hover);
-  border-color: rgba(37, 99, 235, 0.30);
 }
 
 .gp-btn-danger{
@@ -317,19 +166,13 @@
   border-color: rgba(239, 68, 68, 0.30);
 }
 
-/* ======================================================
-   RIGHT PANEL (itineraries)
-   ====================================================== */
-
-.gp-itins-card{
-  padding: 18px;
-}
-
-.gp-itins-header{
+/* itineraries header */
+.gp-itins-head{
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: flex-start;
   gap: 14px;
+  flex-wrap: wrap;
   margin-bottom: 16px;
 }
 
@@ -341,168 +184,146 @@
   color: var(--text);
 }
 
+.gp-section-sub{
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 13px;
+}
+
 .gp-itins-actions{
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
+/* search */
 .gp-search{
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 10px;
+  border: 1px solid rgba(17,24,39,0.10);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.06);
   border-radius: 999px;
-  border: 1px solid rgba(148,163,184,.28);
-  background: rgba(255,255,255,.75);
-  box-shadow: 0 10px 22px rgba(15,23,42,.06);
-  backdrop-filter: blur(8px);
-}
-
-.gp-search-icon{
-  width: 18px;
-  height: 18px;
-  color: rgba(51,65,85,.60);
+  padding: 10px 14px;
+  min-width: 320px;
+  background: #fff;
 }
 
 .gp-search-input{
-  border: none;
+  border: 0;
   outline: none;
-  background: transparent;
-  min-width: 260px;
-  font-weight: 750;
+  width: 100%;
+  font-weight: 700;
   color: var(--text);
-}
-
-.gp-search-input::placeholder{
-  color: rgba(51,65,85,.55);
-  font-weight: 650;
+  background: transparent;
 }
 
 .gp-search-clear{
-  border: none;
+  border: 0;
   background: transparent;
   cursor: pointer;
   font-weight: 950;
-  color: rgba(51,65,85,.55);
-  padding: 2px 6px;
-  border-radius: 10px;
+  opacity: 0.6;
 }
 
 .gp-search-clear:hover{
-  background: rgba(2,6,23,.06);
-  color: rgba(15,23,42,.85);
+  opacity: 1;
 }
 
-.gp-banner{
-  border: 1px solid rgba(239,68,68,.28);
-  background: rgba(239,68,68,.06);
-  color: #991b1b;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-weight: 750;
-  margin-bottom: 14px;
+/* ====== ITINERARY LIST (wide rows) ====== */
+.gp-itins-list{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-.gp-loading{
-  color: rgba(51,65,85,.75);
-  font-weight: 800;
-  padding: 12px 4px;
-}
-
-.gp-empty{
-  border: 1px dashed rgba(148,163,184,.45);
-  background: rgba(255,255,255,.60);
-  border-radius: 16px;
-  padding: 16px;
-  color: rgba(51,65,85,.75);
-  font-weight: 750;
-}
-
-.gp-itins-grid{
-  display: grid;
-  gap: 18px;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-}
-
-.gp-itin-card{
-  position: relative;
+.gp-itin-row{
   border-radius: 18px;
-  border: 1px solid rgba(148,163,184,.22);
+  border: 1px solid rgba(148,163,184,.18);
   background: rgba(255,255,255,.92);
   box-shadow: var(--shadow-soft);
-  padding: 16px;
-  overflow: hidden;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  padding: 16px 18px;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
 }
 
-.gp-itin-card:hover{
-  transform: translateY(-2px);
-  border-color: rgba(37, 99, 235, 0.25);
+.gp-itin-row:hover{
+  border-color: rgba(37, 99, 235, 0.22);
   box-shadow: 0 22px 44px rgba(15, 23, 42, 0.12);
 }
 
-.gp-itin-head{
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 10px;
-  align-items: start;
-  margin-bottom: 10px;
+.gp-itin-left{
+  min-width: 0;
 }
 
-.gp-itin-titlewrap{
+.gp-itin-row-top{
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.gp-itin-title-wrap{
+  display: flex;
+  align-items: center;
+  gap: 10px;
   min-width: 0;
+  flex-wrap: wrap;
 }
 
 .gp-itin-title{
   margin: 0;
   font-size: 16px;
   font-weight: 950;
-  letter-spacing: -0.01em;
   color: var(--text);
   line-height: 1.25;
-
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
+  max-width: 100%;
 }
 
 .gp-itin-meta{
+  display: grid;
+  gap: 6px;
   color: rgba(51,65,85,.78);
-  font-weight: 700;
+  font-weight: 750;
   font-size: 13px;
-  margin-top: 2px;
 }
 
-.gp-itin-meta b{
-  color: var(--text);
+.gp-meta-line{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.gp-itin-actions{
+.gp-mini-icon{
+  color: rgba(51,65,85,.65);
+  flex: 0 0 auto;
+}
+
+.gp-itin-actions-right{
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-  margin-top: 14px;
+  justify-content: flex-end;
 }
 
 .gp-status-badge{
-  justify-self: end;
-  align-self: start;
   white-space: nowrap;
   padding: 6px 11px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 950;
-  letter-spacing: .02em;
   border: 1px solid rgba(148,163,184,.26);
   background: rgba(2,6,23,.03);
   color: rgba(51,65,85,.85);
+  line-height: 1;
+  margin-top: 2px;
 }
 
 .status-approved{
@@ -529,15 +350,51 @@
   color: #334155;
 }
 
+/* states */
+.gp-loading{
+  color: rgba(51,65,85,.75);
+  font-weight: 850;
+  padding: 12px 4px;
+}
+
+.gp-empty{
+  border: 1px dashed rgba(148,163,184,.45);
+  background: rgba(255,255,255,.60);
+  border-radius: 16px;
+  padding: 16px;
+  color: rgba(51,65,85,.75);
+  font-weight: 850;
+}
+
 /* responsive */
-@media (max-width: 1023px){
-  .gp-sticky{
-    position: static;
+@media (max-width: 980px){
+  .gp-header-card{
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .gp-header-right{
+    justify-content: flex-start;
+  }
+
+  .gp-search{
+    min-width: 220px;
+    width: 100%;
+  }
+
+  .gp-itin-row{
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .gp-itin-actions-right{
+    justify-content: flex-start;
   }
 }
 
-@media (max-width: 520px){
-  .gp-search-input{
-    min-width: 180px;
-  }
+/* ITINERARIES: scroll vertical în card */
+.gp-itins-list{
+  max-height: 420px;     /* ajustează cum vrei */
+  overflow-y: auto;
+  padding-right: 6px;    /* să nu intre scrollbar peste conținut */
 }

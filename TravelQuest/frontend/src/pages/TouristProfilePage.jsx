@@ -4,70 +4,190 @@ import "./TouristProfilePage.css";
 
 import { useAuth } from "../context/AuthContext";
 import { filterItineraries } from "../services/itineraryService";
+import MyBadgesSection from "../components/badges/MyBadgesSection";
+
+/* avatar anonim */
+function AvatarIcon({ size = 64 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
+      <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
+      <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
+    </svg>
+  );
+}
+
+/* ✅ badge icon colorat */
+function PrettyBadgeIcon({ size = 44 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden="true"
+      className="badge-icon"
+    >
+      <defs>
+        <linearGradient id="gold" x1="14" y1="12" x2="52" y2="52">
+          <stop stopColor="#FDE68A" />
+          <stop offset="0.55" stopColor="#F59E0B" />
+          <stop offset="1" stopColor="#D97706" />
+        </linearGradient>
+
+        <linearGradient id="ribbonL" x1="8" y1="36" x2="30" y2="60">
+          <stop stopColor="#60A5FA" />
+          <stop offset="1" stopColor="#2563EB" />
+        </linearGradient>
+
+        <linearGradient id="ribbonR" x1="34" y1="36" x2="56" y2="60">
+          <stop stopColor="#F472B6" />
+          <stop offset="1" stopColor="#DB2777" />
+        </linearGradient>
+
+        <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.18" />
+        </filter>
+      </defs>
+
+      <path
+        d="M18 38 12 60 24 54 30 60 30 40"
+        fill="url(#ribbonL)"
+        opacity="0.95"
+        filter="url(#soft)"
+      />
+      <path
+        d="M46 38 52 60 40 54 34 60 34 40"
+        fill="url(#ribbonR)"
+        opacity="0.95"
+        filter="url(#soft)"
+      />
+
+      <circle cx="32" cy="28" r="16.5" fill="url(#gold)" filter="url(#soft)" />
+      <circle cx="32" cy="28" r="16.5" stroke="rgba(17,24,39,0.18)" />
+
+      <path
+        d="M32 18.5 35.1 25.3 42.5 26.2 37 31 38.6 38.3 32 34.6 25.4 38.3 27 31 21.5 26.2 28.9 25.3 32 18.5Z"
+        fill="rgba(255,255,255,0.9)"
+        stroke="rgba(17,24,39,0.10)"
+      />
+    </svg>
+  );
+}
+
+/* ---------- small icons (itineraries) ---------- */
+
+function PinIcon({ size = 16 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="tp-mini-icon"
+    >
+      <path
+        d="M12 22s7-4.2 7-11a7 7 0 1 0-14 0c0 6.8 7 11 7 11Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="11" r="2.5" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
+
+function CalendarIcon({ size = 16 }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="tp-mini-icon"
+    >
+      <path
+        d="M8 3v3M16 3v3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M4 7h16"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function TouristProfilePage() {
   const navigate = useNavigate();
   const { userId, username, role } = useAuth();
 
+  const [itineraries, setItineraries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [err, setErr] = useState("");
 
-  const [allItineraries, setAllItineraries] = useState([]);
+  const [selectedBadge, setSelectedBadge] = useState(null);
+
+  // search in itineraries
   const [query, setQuery] = useState("");
-  const [viewAll, setViewAll] = useState(false);
-
-  // toggle active/history
-  const [tab, setTab] = useState("active"); // "active" | "history"
 
   useEffect(() => {
+    let alive = true;
+
     async function load() {
       setLoading(true);
-      setError("");
+      setErr("");
 
       try {
         if (!userId) throw new Error("Missing user id. Please log in again.");
-
-        // folosim doar ce există deja: filterItineraries
         const data = await filterItineraries({ participant: true }, userId);
-        setAllItineraries(Array.isArray(data) ? data : []);
+        if (!alive) return;
+        setItineraries(Array.isArray(data) ? data : []);
       } catch (e) {
-        console.error(e);
-        setError(e?.message || "Failed to load your itineraries.");
-        setAllItineraries([]);
+        if (!alive) return;
+        setErr(e?.message || "Failed to load itineraries.");
+        setItineraries([]);
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     }
 
     load();
+    return () => {
+      alive = false;
+    };
   }, [userId]);
 
-  // "now" fixat (nu se schimbă la rerender)
+  if (role?.toLowerCase() !== "tourist") return null;
+
   const now = useMemo(() => new Date(), []);
 
-  const { activeList, historyList } = useMemo(() => {
-    const active = [];
-    const history = [];
-
-    for (const it of allItineraries) {
+  const withStatus = useMemo(() => {
+    return itineraries.map((it) => {
       const end = it?.endDate ? new Date(it.endDate) : null;
+      const status = !end || end >= now ? "Active" : "Completed";
+      return { ...it, __status: status };
+    });
+  }, [itineraries, now]);
 
-      // dacă nu avem endDate, îl considerăm "active" doar ca să nu dispară
-      if (!end) {
-        active.push(it);
-        continue;
-      }
-
-      if (end >= now) active.push(it);
-      else history.push(it);
-    }
-
-    // sort: active by startDate asc, history by endDate desc
-    active.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-    history.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
-
-    return { activeList: active, historyList: history };
-  }, [allItineraries, now]);
+  // counts (My itineraries stats)
+  const counts = useMemo(() => {
+    const active = withStatus.filter((x) => x.__status === "Active").length;
+    const past = withStatus.filter((x) => x.__status === "Completed").length;
+    return { active, past, total: withStatus.length };
+  }, [withStatus]);
 
   const getFirstLocation = (it) => {
     if (Array.isArray(it?.locations) && it.locations.length > 0) return it.locations[0];
@@ -76,33 +196,25 @@ export default function TouristProfilePage() {
 
   const getCity = (it) => {
     const loc = getFirstLocation(it);
-    return loc?.city || loc?.name || it?.city || "—";
+    return loc?.city || loc?.name || it?.city || "";
   };
 
   const getCountry = (it) => {
     const loc = getFirstLocation(it);
-    return loc?.country || it?.country || "—";
+    return loc?.country || it?.country || "";
   };
 
-  const visibleList = useMemo(() => {
-    const base = tab === "active" ? activeList : historyList;
-
+  const filteredList = useMemo(() => {
     const q = query.trim().toLowerCase();
+    if (!q) return withStatus;
 
-    const filtered = q
-      ? base.filter((it) => {
-          const title = String(it.title || it.name || "").toLowerCase();
-          const city = String(getCity(it) || "").toLowerCase();
-          const country = String(getCountry(it) || "").toLowerCase();
-
-          return title.includes(q) || city.includes(q) || country.includes(q);
-        })
-      : base;
-
-    return viewAll ? filtered : filtered.slice(0, 6);
-  }, [tab, activeList, historyList, query, viewAll]);
-
-  const totalCount = tab === "active" ? activeList.length : historyList.length;
+    return withStatus.filter((it) => {
+      const title = String(it.title || it.name || "").toLowerCase();
+      const city = String(getCity(it) || "").toLowerCase();
+      const country = String(getCountry(it) || "").toLowerCase();
+      return title.includes(q) || city.includes(q) || country.includes(q);
+    });
+  }, [withStatus, query]);
 
   const formatDate = (iso) => {
     if (!iso) return "—";
@@ -113,196 +225,133 @@ export default function TouristProfilePage() {
     });
   };
 
-  const getPill = () => {
-    if (tab === "active") return { label: "Active", cls: "pill pill-active" };
-    return { label: "Completed", cls: "pill pill-history" };
-  };
-
-  const openDetails = (id) => navigate(`/itineraries/${id}`);
-
-  // left profile values (ca la ghid)
-  const email = "—";
-  const phone = "—";
-
-  // dacă vrei să blochezi pagina pentru non-tourist:
-  if (role && role.toLowerCase() !== "tourist") return null;
-
-  const pill = getPill();
+  const selectedBadgeName = selectedBadge?.name || null;
 
   return (
     <div className="tourist-profile-page">
-      <div className="tourist-profile-grid">
-        {/* LEFT CARD (same vibe ca Guide Profile) */}
-        <aside className="tourist-left-card">
-          <h1 className="tourist-profile-title">Tourist Profile</h1>
-          <p className="tourist-profile-subtitle">
-            See your account details and itinerary history
-          </p>
+      {/* PROFILE HEADER */}
+      <div className="tourist-header-card">
+        <div className="tourist-header-left">
+          <AvatarIcon />
+          <div>
+            <h1 className="tourist-name">{username || "Tourist"}</h1>
+            <span className="tourist-role">Tourist</span>
+          </div>
+        </div>
 
-          <div className="tourist-role-pill">Tourist</div>
+        {/* ✅ fara bara de level */}
+        <div className="tourist-header-center" />
 
-          {/* summary card */}
-          <div className="tourist-summary-box">
-            <div className="tourist-summary-label">ITINERARIES</div>
+        {/* ✅ badge: icon doar dacă există badge */}
+        <div className="tourist-header-right">
+          {selectedBadgeName ? <PrettyBadgeIcon /> : null}
+          <div>
+            <div className="badge-kicker">Visible badge</div>
+            <div className="badge-name">{selectedBadgeName || "None selected"}</div>
+          </div>
+        </div>
+      </div>
 
-            <div className="tourist-summary-main">
-              <span className="tourist-summary-number">{allItineraries.length || 0}</span>
-              <span className="tourist-summary-muted">total joined</span>
+      {/* BADGES IN CARD */}
+      <div className="tourist-card">
+        <MyBadgesSection onSelectedChange={setSelectedBadge} />
+      </div>
+
+      {/* ITINERARIES CARD */}
+      <div className="tourist-card">
+        <div className="itins-head">
+          <div>
+            <h2 className="itins-title">My itineraries</h2>
+            <div className="itins-sub">
+              <b>{counts.active}</b> active <span className="dot">•</span>{" "}
+              <b>{counts.past}</b> past <span className="dot">•</span>{" "}
+              <b>{counts.total}</b> total
             </div>
-
-            <div className="tourist-summary-row">
-              <span className="tourist-summary-chip">
-                Active: <strong>{activeList.length}</strong>
-              </span>
-              <span className="tourist-summary-chip">
-                History: <strong>{historyList.length}</strong>
-              </span>
-            </div>
-
-            <div className="tourist-summary-divider" />
           </div>
 
-          {/* account details */}
-          <div className="tourist-details">
-            <div className="tourist-detail-row">
-              <span className="tourist-detail-key">Username</span>
-              <span className="tourist-detail-value">{username || "—"}</span>
-            </div>
-
-            <div className="tourist-detail-row">
-              <span className="tourist-detail-key">Email</span>
-              <span className="tourist-detail-value">{email}</span>
-            </div>
-
-            <div className="tourist-detail-row">
-              <span className="tourist-detail-key">Phone</span>
-              <span className="tourist-detail-value">{phone}</span>
-            </div>
-
-            <div className="tourist-detail-row">
-              <span className="tourist-detail-key">Role</span>
-              <span className="tourist-detail-value">{role || "tourist"}</span>
-            </div>
-          </div>
-        </aside>
-
-        {/* RIGHT CARD */}
-        <main className="tourist-right-card">
-          <div className="tourist-right-top">
-            <div>
-              <h2 className="tourist-right-title">
-                {tab === "active" ? "My active itineraries" : "My itinerary history"}
-              </h2>
-
-              <div className="tourist-right-meta">
-                {loading ? "Loading..." : `${visibleList.length} shown`}
-                <span className="dot">•</span>
-                {totalCount} total
-              </div>
-            </div>
-
-            <div className="tourist-right-actions">
-              <div className="tourist-search">
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search by title, city or country..."
-                />
-                {query && (
-                  <button
-                    type="button"
-                    className="tourist-search-clear"
-                    onClick={() => setQuery("")}
-                    aria-label="Clear search"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-
+          {/* Search bar */}
+          <div className="itins-search">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by title, city or country..."
+            />
+            {query && (
               <button
                 type="button"
-                className="tourist-viewall-btn"
-                onClick={() => setViewAll((v) => !v)}
+                className="itins-search-clear"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
               >
-                {viewAll ? "Show less" : "View all"}
+                ✕
               </button>
-            </div>
+            )}
           </div>
+        </div>
 
-          {/* tabs */}
-          <div className="tourist-tabs">
-            <button
-              type="button"
-              className={`tourist-tab ${tab === "active" ? "active" : ""}`}
-              onClick={() => {
-                setTab("active");
-                setViewAll(false);
-              }}
-            >
-              Active
-            </button>
-            <button
-              type="button"
-              className={`tourist-tab ${tab === "history" ? "active" : ""}`}
-              onClick={() => {
-                setTab("history");
-                setViewAll(false);
-              }}
-            >
-              History
-            </button>
-          </div>
+        {err && <div className="tourist-banner">{err}</div>}
 
-          {loading && <p className="tourist-muted">Loading...</p>}
-          {error && <p className="tourist-error">{error}</p>}
-
-          {!loading && !error && visibleList.length === 0 && (
-            <div className="tourist-empty">
-              {tab === "active"
-                ? "You don’t have any active itineraries."
-                : "You don’t have any past itineraries yet."}
-            </div>
-          )}
-
-          <div className="tourist-itinerary-list">
-            {visibleList.map((it) => {
-              const title = it.title || it.name || "Untitled";
+        {loading ? (
+          <p className="tourist-muted">Loading…</p>
+        ) : filteredList.length === 0 ? (
+          <p className="tourist-empty">No itineraries found.</p>
+        ) : (
+          <div className="itinerary-list">
+            {filteredList.map((it) => {
+              const title = it.title || it.name || `Itinerary #${it.id}`;
               const city = getCity(it);
               const country = getCountry(it);
+              const location = country ? `${city}, ${country}` : city || "—";
 
               return (
-                <div key={it.id} className="tourist-itinerary-card">
-                  <div className="tourist-itinerary-card-top">
-                    <div className="tourist-itinerary-title">{title}</div>
-                    <span className={pill.cls}>{pill.label}</span>
-                  </div>
+                <article key={it.id} className="itinerary-row">
+                  <div className="itinerary-left">
+                    <div className="itinerary-row-top">
+                      <div className="itinerary-title-wrap">
+                        <h3 className="itinerary-title" title={title}>
+                          {title}
+                        </h3>
 
-                  <div className="tourist-itinerary-meta">
-                    <div>
-                      <strong>City:</strong> {city}
-                      {country && country !== "—" ? `, ${country}` : ""}
+                        <span
+                          className={`pill ${
+                            it.__status === "Active" ? "pill-active" : "pill-history"
+                          }`}
+                        >
+                          {it.__status}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="tourist-itinerary-dates">
-                      {formatDate(it.startDate)} → {formatDate(it.endDate)}
+                    <div className="itinerary-meta">
+                      <div className="tp-meta-line">
+                        <PinIcon />
+                        <span>
+                          <b>Location:</b> {location}
+                        </span>
+                      </div>
+
+                      <div className="tp-meta-line">
+                        <CalendarIcon />
+                        <span>
+                          {formatDate(it.startDate)} → {formatDate(it.endDate)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="tourist-itinerary-actions">
+                  <div className="itinerary-actions-right">
                     <button
-                      type="button"
                       className="tourist-blue-btn"
-                      onClick={() => openDetails(it.id)}
+                      onClick={() => navigate(`/itineraries/${it.id}`)}
                     >
                       View
                     </button>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
-        </main>
+        )}
       </div>
     </div>
   );
