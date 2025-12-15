@@ -295,3 +295,35 @@
     white-space: normal;
   }
 }
+
+
+.tp-contact{
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #6b7280;
+  font-weight: 800;
+  font-size: 12.5px;
+}
+
+.tp-contact-item{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.tp-contact-label{
+  opacity: 0.75;
+  font-weight: 900;
+}
+
+.tp-contact-value{
+  color: #111827;
+  font-weight: 900;
+}
+
+.tp-contact-dot{
+  color: #cbd5e1;
+}
