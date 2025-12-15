@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage";
@@ -26,6 +26,11 @@ function ProtectedLayout({ children }) {
   );
 }
 
+function SmartCatchAll() {
+  const { role } = useAuth();
+  return <Navigate to={role ? "/home" : "/login"} replace />;
+}
+
 export default function App() {
   return (
     <Router>
@@ -35,19 +40,37 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* DETAILS PAGE */}
+          {/* PUBLIC: Itinerary details */}
           <Route
             path="/itineraries/:id"
             element={
-              <ProtectedRoute>
-                <ProtectedLayout>
-                  <ItineraryDetailsPage />
-                </ProtectedLayout>
-              </ProtectedRoute>
+              <ProtectedLayout>
+                <ItineraryDetailsPage />
+              </ProtectedLayout>
             }
           />
 
-          {/* HOME */}
+          {/* PUBLIC: Guide profile */}
+          <Route
+            path="/guides/:id"
+            element={
+              <ProtectedLayout>
+                <GuideProfilePage />
+              </ProtectedLayout>
+            }
+          />
+
+          {/* ✅ PUBLIC: Tourist profile */}
+          <Route
+            path="/tourists/:id"
+            element={
+              <ProtectedLayout>
+                <TouristProfilePage />
+              </ProtectedLayout>
+            }
+          />
+
+          {/* PRIVATE ROUTES */}
           <Route
             path="/home"
             element={
@@ -59,7 +82,6 @@ export default function App() {
             }
           />
 
-          {/* ITINERARIES LIST */}
           <Route
             path="/itineraries"
             element={
@@ -71,7 +93,6 @@ export default function App() {
             }
           />
 
-          {/* ACTIVE ITINERARY FOR GUIDE */}
           <Route
             path="/active"
             element={
@@ -83,7 +104,6 @@ export default function App() {
             }
           />
 
-          {/* ACTIVE ITINERARY FOR TOURIST */}
           <Route
             path="/tourist/active"
             element={
@@ -95,7 +115,6 @@ export default function App() {
             }
           />
 
-          {/* MISSIONS */}
           <Route
             path="/missions"
             element={
@@ -107,7 +126,6 @@ export default function App() {
             }
           />
 
-          {/* ADMIN */}
           <Route
             path="/admin"
             element={
@@ -119,7 +137,7 @@ export default function App() {
             }
           />
 
-          {/* GUIDE PROFILE */}
+          {/* OWNER: Guide */}
           <Route
             path="/profile/guide"
             element={
@@ -131,7 +149,7 @@ export default function App() {
             }
           />
 
-          {/* TOURIST PROFILE */}
+          {/* OWNER: Tourist */}
           <Route
             path="/profile/tourist"
             element={
@@ -143,9 +161,7 @@ export default function App() {
             }
           />
 
-
-          {/* CATCH-ALL -> LOGIN */}
-          <Route path="*" element={<LoginPage />} />
+          <Route path="*" element={<SmartCatchAll />} />
         </Routes>
       </AuthProvider>
     </Router>
