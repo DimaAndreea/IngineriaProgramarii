@@ -8,5 +8,7 @@ import java.util.List;
 
 public interface BadgeRepository extends JpaRepository<Badge, Long> {
 
+    List<Badge> findByRoleOrderByMinLevelAsc(UserRole role);
+
     List<Badge> findByRoleAndMinLevelLessThanEqual(UserRole role, int level);
 }
