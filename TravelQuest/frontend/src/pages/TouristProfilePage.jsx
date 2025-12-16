@@ -20,8 +20,6 @@ function readEnrollments() {
 
 const parseDate = (value, { endOfDay = false } = {}) => {
   if (!value) return null;
-
-  // dacă e format YYYY-MM-DD (fără timp), setăm ora ca să nu “moară” la 00:00
   const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(value));
 
   if (isDateOnly) {
@@ -38,7 +36,6 @@ const parseDate = (value, { endOfDay = false } = {}) => {
 function isTouristInItinerary(it, touristId) {
   if (!touristId) return false;
 
-  // cele mai comune forme
   const participants =
     it?.participants ||
     it?.enrolledTourists ||
@@ -54,13 +51,11 @@ function isTouristInItinerary(it, touristId) {
     });
   }
 
-  // uneori vine ca listă de ids
   const participantIds = it?.participantIds || it?.touristIds || it?.participantsIds;
   if (Array.isArray(participantIds)) {
     return participantIds.map(Number).includes(Number(touristId));
   }
 
-  // fallback
   return false;
 }
 
@@ -157,10 +152,10 @@ export default function TouristProfilePage() {
   const isOwnerMode = !publicTouristId && role?.toLowerCase() === "tourist";
   const isPublicMode = !!publicTouristId;
 
-  // state primit din Link
+  // state primit din Link (poate să lipsească)
   const touristFromState = location?.state?.tourist || null;
-  const contextItineraries = location?.state?.contextItineraries ?? null;
 
+  // pe cine afișăm
   const targetTouristId = isOwnerMode
     ? Number(userId)
     : Number(publicTouristId || touristFromState?.id || 0) || null;
@@ -190,51 +185,39 @@ export default function TouristProfilePage() {
       setErr("");
 
       try {
-        // ================= OWNER MODE =================
+        // 1) Itinerarii: în AMBELE moduri luăm din backend lista “participant: true”
+        //    - owner: userId (din sesiune)
+        //    - public: targetTouristId (din URL)
+        if (!targetTouristId) throw new Error("Missing tourist id.");
+
+        const itData = await filterItineraries({ participant: true }, targetTouristId);
+        if (!alive) return;
+
+        const list = Array.isArray(itData) ? itData : [];
+
+        // 2) Filtrare de siguranță: chiar dacă backend întoarce mai mult, păstrăm DOAR cele unde turistul e participant
+        let filtered = list.filter((it) => isTouristInItinerary(it, targetTouristId));
+
+        // 3) Fallback doar în owner mode: localStorage join history
         if (isOwnerMode) {
-          if (!userId) throw new Error("Missing user id. Please log in again.");
-
-          const [itData, prof] = await Promise.all([
-            filterItineraries({ participant: true }, userId),
-            getMyProfile().catch(() => null),
-          ]);
-
-          if (!alive) return;
-
-          const list = Array.isArray(itData) ? itData : [];
-
-          // ✅ IMPORTANT: afișăm DOAR itinerariile la care turistul e înscris.
-          // 1) pe baza participanților din obiect
-          // 2) fallback: localStorage (join history) – doar ca fallback, nu ca sursă principală
           const enrollments = readEnrollments();
-          const filtered = list.filter((it) => {
-            const inParticipants = isTouristInItinerary(it, userId);
+          filtered = list.filter((it) => {
+            const inParticipants = isTouristInItinerary(it, targetTouristId);
             const inLocal = enrollments.includes(Number(it?.id));
             return inParticipants || inLocal;
           });
-
-          setItineraries(filtered);
-          setProfile(prof || null);
-          return;
         }
 
-        // ================= PUBLIC MODE =================
-        if (isPublicMode) {
+        setItineraries(filtered);
+
+        // 4) Profil (email/phone) doar pentru owner
+        if (isOwnerMode) {
+          const prof = await getMyProfile().catch(() => null);
           if (!alive) return;
-
-          // în public mode, arătăm DOAR contextItineraries primite din state,
-          // dar filtrăm strict după turistul vizualizat, ca să nu apară “din greșeală” altele.
-          const list = Array.isArray(contextItineraries) ? contextItineraries : [];
-          const filtered = list.filter((it) => isTouristInItinerary(it, targetTouristId));
-
-          setItineraries(filtered);
+          setProfile(prof || null);
+        } else {
           setProfile(null);
-          return;
         }
-
-        if (!alive) return;
-        setItineraries([]);
-        setProfile(null);
       } catch (e) {
         if (!alive) return;
         setErr(e?.message || "Failed to load profile.");
@@ -249,9 +232,9 @@ export default function TouristProfilePage() {
     return () => {
       alive = false;
     };
-  }, [isOwnerMode, isPublicMode, userId, targetTouristId, contextItineraries]);
+  }, [isOwnerMode, targetTouristId]);
 
-  // contact doar pentru owner
+  // contact doar pentru owner (private)
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
@@ -313,6 +296,8 @@ export default function TouristProfilePage() {
   };
 
   // badge name:
+  // - owner: selectedBadge / profile.selectedBadge
+  // - public: din state (dacă a venit) — altfel nu avem sursă sigură fără endpoint dedicat
   const selectedBadgeName =
     selectedBadge?.name ||
     (isOwnerMode ? profile?.selectedBadge?.name : null) ||
@@ -341,6 +326,7 @@ export default function TouristProfilePage() {
               </div>
             )}
 
+            {/* ✅ Email/Phone private: doar owner */}
             {isOwnerMode && (
               <div className="tp-contact">
                 <div className="tp-contact-item">
