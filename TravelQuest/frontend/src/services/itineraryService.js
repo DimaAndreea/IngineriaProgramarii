@@ -121,7 +121,7 @@ export function filterItineraries(filter, userId) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      userId: userId,
+      userId: userId != null ? String(userId) : "",
     },
     body: JSON.stringify(filter),
   });
@@ -165,7 +165,6 @@ export function getSubmissionsForGuide(itineraryId) {
 
 /* =========================
    ACTIVE ITINERARY (TOURIST)
-   (dacă ai deja endpoint-ul în backend; îl folosești în Profile Tourist)
 ========================= */
 export function getActiveItineraryForTourist() {
   return request(`${BASE}/active/tourist`);
