@@ -7,6 +7,63 @@ import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
+/* ---------------- helpers ---------------- */
+
+const ENROLLMENTS_KEY = "tourist_enrollments_v1";
+function readEnrollments() {
+  try {
+    return JSON.parse(localStorage.getItem(ENROLLMENTS_KEY) || "[]").map(Number);
+  } catch {
+    return [];
+  }
+}
+
+const parseDate = (value, { endOfDay = false } = {}) => {
+  if (!value) return null;
+
+  // dacă e format YYYY-MM-DD (fără timp), setăm ora ca să nu “moară” la 00:00
+  const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(value));
+
+  if (isDateOnly) {
+    const [y, m, d] = String(value).split("-").map(Number);
+    return endOfDay
+      ? new Date(y, m - 1, d, 23, 59, 59, 999)
+      : new Date(y, m - 1, d, 0, 0, 0, 0);
+  }
+
+  return new Date(value);
+};
+
+/** returnează true dacă turistul e înscris în itinerariu (după datele venite din backend) */
+function isTouristInItinerary(it, touristId) {
+  if (!touristId) return false;
+
+  // cele mai comune forme
+  const participants =
+    it?.participants ||
+    it?.enrolledTourists ||
+    it?.tourists ||
+    it?.joinedUsers ||
+    [];
+
+  if (Array.isArray(participants)) {
+    return participants.some((p) => {
+      const t = p?.tourist || p?.user || p;
+      const pid = t?.id ?? p?.id;
+      return Number(pid) === Number(touristId);
+    });
+  }
+
+  // uneori vine ca listă de ids
+  const participantIds = it?.participantIds || it?.touristIds || it?.participantsIds;
+  if (Array.isArray(participantIds)) {
+    return participantIds.map(Number).includes(Number(touristId));
+  }
+
+  // fallback
+  return false;
+}
+
 /* avatar anonim */
 function AvatarIcon({ size = 64 }) {
   return (
@@ -102,7 +159,11 @@ export default function TouristProfilePage() {
 
   // state primit din Link
   const touristFromState = location?.state?.tourist || null;
-  const contextItineraries = location?.state?.contextItineraries || [];
+  const contextItineraries = location?.state?.contextItineraries ?? null;
+
+  const targetTouristId = isOwnerMode
+    ? Number(userId)
+    : Number(publicTouristId || touristFromState?.id || 0) || null;
 
   const displayName =
     (isOwnerMode ? username : touristFromState?.username) ||
@@ -129,6 +190,7 @@ export default function TouristProfilePage() {
       setErr("");
 
       try {
+        // ================= OWNER MODE =================
         if (isOwnerMode) {
           if (!userId) throw new Error("Missing user id. Please log in again.");
 
@@ -138,15 +200,34 @@ export default function TouristProfilePage() {
           ]);
 
           if (!alive) return;
-          setItineraries(Array.isArray(itData) ? itData : []);
+
+          const list = Array.isArray(itData) ? itData : [];
+
+          // ✅ IMPORTANT: afișăm DOAR itinerariile la care turistul e înscris.
+          // 1) pe baza participanților din obiect
+          // 2) fallback: localStorage (join history) – doar ca fallback, nu ca sursă principală
+          const enrollments = readEnrollments();
+          const filtered = list.filter((it) => {
+            const inParticipants = isTouristInItinerary(it, userId);
+            const inLocal = enrollments.includes(Number(it?.id));
+            return inParticipants || inLocal;
+          });
+
+          setItineraries(filtered);
           setProfile(prof || null);
           return;
         }
 
-        // ✅ PUBLIC MODE: afișăm ce avem din state (context itineraries)
+        // ================= PUBLIC MODE =================
         if (isPublicMode) {
           if (!alive) return;
-          setItineraries(Array.isArray(contextItineraries) ? contextItineraries : []);
+
+          // în public mode, arătăm DOAR contextItineraries primite din state,
+          // dar filtrăm strict după turistul vizualizat, ca să nu apară “din greșeală” altele.
+          const list = Array.isArray(contextItineraries) ? contextItineraries : [];
+          const filtered = list.filter((it) => isTouristInItinerary(it, targetTouristId));
+
+          setItineraries(filtered);
           setProfile(null);
           return;
         }
@@ -168,32 +249,43 @@ export default function TouristProfilePage() {
     return () => {
       alive = false;
     };
-  }, [isOwnerMode, isPublicMode, userId, contextItineraries]);
+  }, [isOwnerMode, isPublicMode, userId, targetTouristId, contextItineraries]);
 
   // contact doar pentru owner
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
-  const now = useMemo(() => new Date(), []);
+  // status (Active / Upcoming / Completed) — doar pentru itinerariile la care e înscris
   const withStatus = useMemo(() => {
-    return itineraries.map((it) => {
-      const end = it?.endDate ? new Date(it.endDate) : null;
-      const status = !end || end >= now ? "Active" : "Completed";
+    const nowTs = Date.now();
+
+    return (itineraries || []).map((it) => {
+      const start = parseDate(it?.startDate);
+      const end = parseDate(it?.endDate, { endOfDay: true });
+
+      let status = "Active";
+      if (start && start.getTime() > nowTs) status = "Upcoming";
+      else if (end && end.getTime() < nowTs) status = "Completed";
+
       return { ...it, __status: status };
     });
-  }, [itineraries, now]);
+  }, [itineraries]);
 
   const counts = useMemo(() => {
     const active = withStatus.filter((x) => x.__status === "Active").length;
+    const upcoming = withStatus.filter((x) => x.__status === "Upcoming").length;
     const past = withStatus.filter((x) => x.__status === "Completed").length;
-    return { active, past, total: withStatus.length };
+    return { active, upcoming, past, total: withStatus.length };
   }, [withStatus]);
 
-  const getFirstLocation = (it) => (Array.isArray(it?.locations) && it.locations.length > 0 ? it.locations[0] : null);
+  const getFirstLocation = (it) =>
+    Array.isArray(it?.locations) && it.locations.length > 0 ? it.locations[0] : null;
+
   const getCity = (it) => {
     const loc = getFirstLocation(it);
     return loc?.city || loc?.name || it?.city || "";
   };
+
   const getCountry = (it) => {
     const loc = getFirstLocation(it);
     return loc?.country || it?.country || "";
@@ -213,19 +305,21 @@ export default function TouristProfilePage() {
 
   const formatDate = (iso) => {
     if (!iso) return "—";
-    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+    });
   };
 
-  // ✅ badge name:
-  // - owner: din MyBadgesSection (selectedBadge)
-  // - public: din state (touristFromState.visibleBadgeName)
+  // badge name:
   const selectedBadgeName =
     selectedBadge?.name ||
     (isOwnerMode ? profile?.selectedBadge?.name : null) ||
     touristFromState?.visibleBadgeName ||
     null;
 
-  // ✅ badges interactive doar owner
+  // badges interactive doar owner
   const showBadgesSection = isOwnerMode;
 
   return (
@@ -289,6 +383,7 @@ export default function TouristProfilePage() {
 
             <div className="itins-sub">
               <b>{counts.active}</b> active <span className="dot">•</span>{" "}
+              <b>{counts.upcoming}</b> upcoming <span className="dot">•</span>{" "}
               <b>{counts.past}</b> past <span className="dot">•</span>{" "}
               <b>{counts.total}</b> total
             </div>
@@ -327,7 +422,14 @@ export default function TouristProfilePage() {
               const title = it.title || it.name || `Itinerary #${it.id}`;
               const city = getCity(it);
               const country = getCountry(it);
-              const location = country ? `${city}, ${country}` : city || "—";
+              const locText = country ? `${city}, ${country}` : city || "—";
+
+              const pillClass =
+                it.__status === "Active"
+                  ? "pill-active"
+                  : it.__status === "Upcoming"
+                  ? "pill-upcoming"
+                  : "pill-history";
 
               return (
                 <article key={it.id} className="itinerary-row">
@@ -338,9 +440,7 @@ export default function TouristProfilePage() {
                           {title}
                         </h3>
 
-                        <span className={`pill ${it.__status === "Active" ? "pill-active" : "pill-history"}`}>
-                          {it.__status}
-                        </span>
+                        <span className={`pill ${pillClass}`}>{it.__status}</span>
                       </div>
                     </div>
 
@@ -348,7 +448,7 @@ export default function TouristProfilePage() {
                       <div className="tp-meta-line">
                         <PinIcon />
                         <span>
-                          <b>Location:</b> {location}
+                          <b>Location:</b> {locText}
                         </span>
                       </div>
 
@@ -362,7 +462,10 @@ export default function TouristProfilePage() {
                   </div>
 
                   <div className="itinerary-actions-right">
-                    <button className="tourist-blue-btn" onClick={() => navigate(`/itineraries/${it.id}`)}>
+                    <button
+                      className="tourist-blue-btn"
+                      onClick={() => navigate(`/itineraries/${it.id}`)}
+                    >
                       View
                     </button>
                   </div>
