@@ -2,7 +2,6 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8088";
 
-// helper comun (similar cu ce ai în api.js)
 async function request(url, options = {}) {
   const res = await fetch(url, {
     credentials: "include",
@@ -16,10 +15,7 @@ async function request(url, options = {}) {
   const text = await res.text();
 
   if (!res.ok) {
-    // backend not ready / endpoint missing
-    if (res.status === 404) throw new Error("Missions endpoint not available yet.");
-
-    // încearcă JSON error (Spring)
+    if (res.status === 404) throw new Error("Endpoint not available yet.");
     try {
       const j = JSON.parse(text);
       throw new Error(j.message || j.error || "Request failed");
@@ -36,28 +32,36 @@ async function request(url, options = {}) {
 
 /**
  * GET /api/missions
- * Așteptat: listă de misiuni
- * ex item: { id, title, description, deadline, reward_points, status, scope }
+ * Returns: array OR {data: array} OR {success, data}
  */
-export function listMissions() {
-  return request(`${API_BASE_URL}/api/missions`);
+export async function listMissions() {
+  const res = await request(`${API_BASE_URL}/api/missions`);
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data)) return res.data;
+  return res?.data ?? [];
 }
 
 /**
- * POST /api/missions
- * (Admin only) - creează o misiune
+ * POST /api/missions/{id}/join
+ * Returns: updated join state OR wrapper
  */
-export function createMission(payload) {
-  return request(`${API_BASE_URL}/api/missions`, {
+export async function joinMission(missionId) {
+  const res = await request(`${API_BASE_URL}/api/missions/${missionId}/join`, {
+    method: "POST",
+  });
+
+  return res?.data ?? res;
+}
+
+/**
+ * Admin create (kept here because you already have it),
+ * but it’s NOT required by this subtask.
+ * You can keep or ignore it.
+ */
+export async function createMission(payload) {
+  const res = await request(`${API_BASE_URL}/api/missions`, {
     method: "POST",
     body: JSON.stringify(payload),
   });
-}
-
-/**
- * Opțional, dacă vei avea endpoint dedicat:
- * GET /api/missions/:id
- */
-export function getMissionById(id) {
-  return request(`${API_BASE_URL}/api/missions/${id}`);
+  return res?.data ?? res;
 }

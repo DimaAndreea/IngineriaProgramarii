@@ -27,13 +27,13 @@ export default function MissionCreateForm({ onCreate }) {
     setSuccess(null);
 
     const res = await onCreate(values);
-    if (!res.ok) {
-      setFormError(res.message || "Create failed.");
+    if (!res?.ok) {
+      setFormError(res?.message || "Create failed.");
       setSubmitting(false);
       return;
     }
 
-    setSuccess("Mission created (mock).");
+    setSuccess("Mission created successfully.");
     setValues({
       title: "",
       description: "",
@@ -47,6 +47,13 @@ export default function MissionCreateForm({ onCreate }) {
 
   return (
     <form className="ms-form" onSubmit={onSubmit}>
+      <div className="ms-form-header">
+        <div className="ms-form-title">Create a new mission</div>
+        <div className="ms-form-subtitle">
+          Users will be able to join and track progress automatically.
+        </div>
+      </div>
+
       <label className="ms-label">
         Title
         <input
@@ -54,7 +61,8 @@ export default function MissionCreateForm({ onCreate }) {
           name="title"
           value={values.title}
           onChange={onChange}
-          placeholder="Ex: Completează 3 city breaks"
+          placeholder="e.g. Complete 3 city-break itineraries"
+          autoComplete="off"
         />
       </label>
 
@@ -65,7 +73,7 @@ export default function MissionCreateForm({ onCreate }) {
           name="description"
           value={values.description}
           onChange={onChange}
-          placeholder="Descriere completă..."
+          placeholder="Full description shown in the mission details panel..."
           rows={4}
         />
       </label>
@@ -132,8 +140,8 @@ export default function MissionCreateForm({ onCreate }) {
         {submitting ? "Creating..." : "Create mission"}
       </button>
 
-      <p className="ms-hint">
-        * Acum e mock. Mai târziu: POST către backend (admin-only).
+      <p className="ms-form-footnote">
+        * For now this is mock / backend-ready. Later: POST to backend (admin-only).
       </p>
     </form>
   );

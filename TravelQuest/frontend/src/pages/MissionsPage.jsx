@@ -4,22 +4,25 @@ import "./MissionsPage.css";
 import MissionList from "../components/missions/MissionList";
 import MissionDetails from "../components/missions/MissionDetails";
 import MissionCreateForm from "../components/missions/MissionCreateForm";
+import Toast from "../components/missions/Toast";
 
 import { useAuth } from "../context/AuthContext";
-import { createMission, listMissions } from "../services/missionService";
+import { createMission, joinMission, listMissions } from "../services/missionService";
 
 function normalizeRole(role) {
   const r = (role || "").toString().trim().toLowerCase();
   if (r === "admin") return "ADMIN";
   if (r === "guide") return "GUIDE";
   if (r === "tourist") return "TOURIST";
-  return null;
+  return "TOURIST";
 }
 
 export default function MissionsPage() {
   const authCtx = useAuth();
-  const role = normalizeRole(authCtx?.role ?? authCtx?.auth?.role) || "TOURIST";
+  const role = normalizeRole(authCtx?.role ?? authCtx?.auth?.role);
+
   const isAdmin = role === "ADMIN";
+  const canParticipate = role === "TOURIST" || role === "GUIDE";
 
   const [missions, setMissions] = useState([]);
   const [selectedMissionId, setSelectedMissionId] = useState(null);
@@ -27,18 +30,15 @@ export default function MissionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [toast, setToast] = useState(null);
+
   async function loadMissions() {
     setLoading(true);
     setError(null);
-    setSelectedMissionId(null);
 
     try {
       const data = await listMissions();
-
-      // dacă backend returnează wrapper {success, data} vs list direct:
-      // -> încearcă să fii tolerant:
-      const missionsList = Array.isArray(data) ? data : data?.data ?? [];
-      setMissions(missionsList);
+      setMissions(data || []);
     } catch (e) {
       setError(e?.message || "Failed to load missions.");
       setMissions([]);
@@ -49,42 +49,87 @@ export default function MissionsPage() {
 
   useEffect(() => {
     loadMissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const visibleMissions = useMemo(() => {
-    if (isAdmin) return missions;
-    return missions.filter((m) => m.scope === "BOTH" || m.scope === role);
-  }, [missions, isAdmin, role]);
-
   const selectedMission = useMemo(() => {
-    return visibleMissions.find((m) => m.id === selectedMissionId) || null;
-  }, [visibleMissions, selectedMissionId]);
+    return missions.find((m) => m.id === selectedMissionId) || null;
+  }, [missions, selectedMissionId]);
 
-  const handleCreate = async (formValues) => {
+  // ✅ JOIN (optimistic) — tourist/guide only
+  const handleJoin = async (missionId) => {
+    if (!canParticipate) return;
+
+    setMissions((prev) =>
+      prev.map((m) =>
+        m.id === missionId
+          ? { ...m, my_status: "pending", my_progress: typeof m.my_progress === "number" ? m.my_progress : 0 }
+          : m
+      )
+    );
+
     try {
-      const created = await createMission(formValues);
+      const res = await joinMission(missionId);
 
-      // la fel, tolerant la wrapper:
+      const newStatus =
+        res?.my_status ?? res?.status ?? res?.participation_status ?? "pending";
+      const newProgress =
+        res?.my_progress ?? res?.progress ?? res?.current_progress;
+
+      setMissions((prev) =>
+        prev.map((m) =>
+          m.id === missionId
+            ? {
+                ...m,
+                my_status: newStatus,
+                my_progress:
+                  typeof newProgress === "number" ? newProgress : (typeof m.my_progress === "number" ? m.my_progress : 0),
+              }
+            : m
+        )
+      );
+
+      setToast({ type: "success", message: "You have joined the mission!" });
+    } catch (e) {
+      setMissions((prev) =>
+        prev.map((m) =>
+          m.id === missionId
+            ? { ...m, my_status: "not_joined" }
+            : m
+        )
+      );
+      setToast({ type: "error", message: e?.message || "Join failed." });
+    }
+  };
+
+  // ✅ ADMIN create (kept separate, no interference with join task)
+  const handleCreate = async (payload) => {
+    if (!isAdmin) return { ok: false, message: "Forbidden" };
+
+    try {
+      const created = await createMission(payload);
       const createdMission = created?.data ?? created;
 
-      // update instant UI
       setMissions((prev) => [createdMission, ...prev]);
-      setSelectedMissionId(createdMission.id);
+      if (createdMission?.id) setSelectedMissionId(createdMission.id);
+
+      setToast({ type: "success", message: "Mission created." });
       return { ok: true };
     } catch (e) {
+      setToast({ type: "error", message: e?.message || "Create failed." });
       return { ok: false, message: e?.message || "Create failed." };
     }
   };
 
   return (
     <div className="mp-page">
+      <Toast toast={toast} onClose={() => setToast(null)} />
+
       <div className="mp-header">
         <div>
           <h2 className="mp-title">Missions</h2>
           <p className="mp-subtitle">
-            Rol curent: <span className="mp-role">{role}</span> •{" "}
-            {isAdmin ? "Poți crea misiuni." : "Poți vizualiza misiunile."}
+            Current role: <span className="mp-role">{role}</span> •{" "}
+            {isAdmin ? "Create and view missions." : canParticipate ? "You can join missions." : "View only."}
           </p>
         </div>
 
@@ -97,7 +142,7 @@ export default function MissionsPage() {
         <section className="mp-card">
           <h3 className="mp-section-title">All missions</h3>
           <MissionList
-            missions={visibleMissions}
+            missions={missions}
             loading={loading}
             error={error}
             selectedMissionId={selectedMissionId}
@@ -106,7 +151,11 @@ export default function MissionsPage() {
         </section>
 
         <aside className="mp-card">
-          <MissionDetails mission={selectedMission} />
+          <MissionDetails
+            mission={selectedMission}
+            canParticipate={canParticipate}
+            onJoin={handleJoin}
+          />
         </aside>
 
         {isAdmin && (

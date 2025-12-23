@@ -59,6 +59,31 @@
   font-size: 12px;
 }
 
+/* Progress bar */
+.ms-progress {
+  margin-top: 10px;
+}
+
+.ms-progress-track {
+  height: 10px;
+  background: #eef2ff;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.ms-progress-fill {
+  height: 100%;
+  background: #2f6fed;
+  border-radius: 999px;
+}
+
+.ms-progress-label {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
 /* Status badge */
 .ms-status {
   font-size: 11px;
@@ -66,33 +91,38 @@
   padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid rgba(17, 24, 39, 0.08);
-  color: #111827;
   white-space: nowrap;
   background: #f3f4f6;
+  color: #111827;
 }
 
-.ms-active {
+.ms-not_joined {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.ms-pending {
+  background: #fff7ed;
+  border-color: rgba(249, 115, 22, 0.25);
+  color: #9a3412;
+}
+
+.ms-completed {
   background: #eef2ff;
   border-color: rgba(47, 111, 237, 0.2);
   color: #1d4ed8;
 }
 
-.ms-expired {
-  background: #fef2f2;
-  border-color: rgba(220, 38, 38, 0.2);
-  color: #b91c1c;
-}
-
-.ms-completed {
+.ms-approved {
   background: #ecfdf3;
   border-color: rgba(22, 163, 74, 0.25);
   color: #166534;
 }
 
-.ms-draft {
-  background: #fff7ed;
-  border-color: rgba(249, 115, 22, 0.25);
-  color: #9a3412;
+.ms-rejected {
+  background: #fef2f2;
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #b91c1c;
 }
 
 /* Details */
@@ -154,11 +184,105 @@
   font-weight: 950;
 }
 
-/* Admin form */
+/* Join CTA */
+.ms-cta {
+  margin-top: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: #2f6fed;
+  color: #fff;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(47, 111, 237, 0.2);
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+
+.ms-cta:hover {
+  transform: translateY(-1px);
+}
+
+.ms-hint {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+/* Toast */
+.ms-toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 280px;
+  max-width: 360px;
+  padding: 12px 12px;
+  border-radius: 14px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  z-index: 9999;
+}
+
+.ms-toast-success {
+  background: #ecfdf3;
+  color: #166534;
+  border-color: rgba(22, 163, 74, 0.25);
+}
+
+.ms-toast-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.2);
+}
+
+.ms-toast-text {
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.ms-toast-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* ========================= */
+/* ✅ Create Mission Form UI  */
+/* ========================= */
+
 .ms-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.ms-form-header {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.ms-form-title {
+  font-size: 14px;
+  font-weight: 950;
+  color: #111827;
+}
+
+.ms-form-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
 }
 
 .ms-label {
@@ -177,6 +301,13 @@
   padding: 10px 12px;
   font-size: 13px;
   outline: none;
+  background: #fff;
+}
+
+.ms-input:focus,
+.ms-textarea:focus {
+  border-color: rgba(47, 111, 237, 0.45);
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.12);
 }
 
 .ms-textarea {
@@ -193,7 +324,7 @@
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .ms-form-error {
@@ -229,8 +360,16 @@
   cursor: not-allowed;
 }
 
-.ms-hint {
+.ms-form-footnote {
   margin: 0;
   color: #6b7280;
   font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Responsive rows */
+@media (max-width: 520px) {
+  .ms-row {
+    grid-template-columns: 1fr;
+  }
 }
