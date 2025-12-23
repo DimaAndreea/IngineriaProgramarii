@@ -40,7 +40,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* PUBLIC: Itinerary details */}
+          {/* PUBLIC: Itinerary details (dar cu Navbar) */}
           <Route
             path="/itineraries/:id"
             element={
@@ -50,7 +50,7 @@ export default function App() {
             }
           />
 
-          {/* PUBLIC: Guide profile */}
+          {/* PUBLIC: Guide profile (dar cu Navbar) */}
           <Route
             path="/guides/:id"
             element={
@@ -60,7 +60,7 @@ export default function App() {
             }
           />
 
-          {/* ✅ PUBLIC: Tourist profile */}
+          {/* PUBLIC: Tourist profile (dar cu Navbar) */}
           <Route
             path="/tourists/:id"
             element={
@@ -93,6 +93,7 @@ export default function App() {
             }
           />
 
+          {/* Guide active itinerary */}
           <Route
             path="/active"
             element={
@@ -104,6 +105,7 @@ export default function App() {
             }
           />
 
+          {/* Tourist active itinerary */}
           <Route
             path="/tourist/active"
             element={
@@ -115,6 +117,7 @@ export default function App() {
             }
           />
 
+          {/* Missions: aceeași rută pentru toți, UI se schimbă în pagină după role */}
           <Route
             path="/missions"
             element={
@@ -126,6 +129,7 @@ export default function App() {
             }
           />
 
+          {/* Admin panel */}
           <Route
             path="/admin"
             element={
