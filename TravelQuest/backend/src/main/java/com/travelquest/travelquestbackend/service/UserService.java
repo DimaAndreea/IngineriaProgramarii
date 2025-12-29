@@ -33,6 +33,13 @@ public class UserService {
     }
 
     // =====================================================
+    // GET USER BY NAME
+    // =====================================================
+    public User getByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+    }
+    // =====================================================
     // OPTIONAL: GET LOGGED USER FROM SESSION / JWT
     // =====================================================
     // Poți adăuga o metodă care să returneze userul curent pe baza contextului de securitate

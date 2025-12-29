@@ -46,12 +46,18 @@ export async function listMissions() {
  * Returns: updated join state OR wrapper
  */
 export async function joinMission(missionId) {
-  const res = await request(`${API_BASE_URL}/api/missions/${missionId}/join`, {
-    method: "POST",
-  });
-
-  return res?.data ?? res;
+  try {
+    const res = await request(`${API_BASE_URL}/api/missions/${missionId}/join`, {
+      method: "POST",
+    });
+    console.log("Join success:", res);
+    return res?.data ?? res;
+  } catch (err) {
+    console.error("Join error:", err);
+    throw err;
+  }
 }
+
 
 /**
  * Admin create (kept here because you already have it),
