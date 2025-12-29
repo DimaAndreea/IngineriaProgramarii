@@ -18,7 +18,7 @@ public class UserProfileController {
     }
 
     // ===============================
-    // 🔒 PROFILUL MEU (Guide / Tourist)
+    // PROFILUL MEU (Guide / Tourist)
     // ===============================
     @GetMapping("/me")
     public ResponseEntity<UserProfileDto> getMyProfile(HttpServletRequest request) {
