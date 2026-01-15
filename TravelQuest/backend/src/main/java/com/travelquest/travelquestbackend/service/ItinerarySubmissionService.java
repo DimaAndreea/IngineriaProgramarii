@@ -20,15 +20,18 @@ public class ItinerarySubmissionService {
     private final ItineraryRepository itineraryRepository;
     private final ItinerarySubmissionRepository submissionRepository;
     private final UserRepository userRepository;
+    private final PointsService pointsService;
 
     public ItinerarySubmissionService(
             ItineraryRepository itineraryRepository,
             ItinerarySubmissionRepository submissionRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            PointsService pointsService
     ) {
         this.itineraryRepository = itineraryRepository;
         this.submissionRepository = submissionRepository;
         this.userRepository = userRepository;
+        this.pointsService = pointsService;
     }
 
     // =========================
@@ -150,26 +153,35 @@ public class ItinerarySubmissionService {
         submission.setStatus(newStatus);
         submission.setValidatedAt(ZonedDateTime.now());
 
+        Long itId = submission.getObjective().getLocation().getItinerary().getId();
+
         // =========================
-        // TOURIST XP (DOAR LA APPROVED)
+        // TOURIST XP (DOAR LA APPROVED) + HISTORY + LEVEL RECALC
         // =========================
         if (newStatus == SubmissionStatus.APPROVED && !submission.isXpGranted()) {
-            User tourist = submission.getTourist();
             int xpReward = submission.getObjective().getXpReward();
             if (xpReward > 0) {
-                tourist.setXp(tourist.getXp() + xpReward);
-                userRepository.save(tourist);
+                pointsService.addPointsForObjectiveApproved(
+                        submission.getTourist().getId(),
+                        xpReward,
+                        itId,
+                        submission.getObjective().getId(),
+                        submission.getId()
+                );
             }
             submission.setXpGranted(true);
         }
 
         // =========================
-        // GUIDE XP (LA ORICE VALIDARE)
+        // GUIDE XP (LA ORICE VALIDARE) + HISTORY + LEVEL RECALC
         // =========================
         if (isFirstValidation) {
-            User guideEntity = submission.getGuide();
-            guideEntity.setXp(guideEntity.getXp() + GUIDE_XP_PER_VALIDATION);
-            userRepository.save(guideEntity);
+            // folosim PointsService ca să fie consistent (history + recalc level)
+            pointsService.addPointsForSubmissionValidatedGuide(
+                    submission.getGuide().getId(),
+                    itId,
+                    submission.getId()
+            );
         }
 
         return submissionRepository.save(submission);

@@ -7,6 +7,8 @@ import com.travelquest.travelquestbackend.repository.ItineraryParticipantReposit
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
 import com.travelquest.travelquestbackend.repository.ItinerarySubmissionRepository;
 import com.travelquest.travelquestbackend.repository.UserRepository;
+import com.travelquest.travelquestbackend.service.PointsService;
+
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,9 @@ public class ItineraryService {
 
     private static final int GUIDE_XP_PER_JOIN = 25;
 
+    private final PointsService pointsService;
+
+
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
     private final ItineraryParticipantRepository itineraryParticipantRepository;
@@ -28,11 +33,13 @@ public class ItineraryService {
     public ItineraryService(ItineraryRepository itineraryRepository,
                             UserRepository userRepository,
                             ItineraryParticipantRepository itineraryParticipantRepository,
-                            ItinerarySubmissionRepository itinerarySubmissionRepository) {
+                            ItinerarySubmissionRepository itinerarySubmissionRepository,
+                            PointsService pointsService) {
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
         this.itineraryParticipantRepository = itineraryParticipantRepository;
         this.itinerarySubmissionRepository = itinerarySubmissionRepository;
+        this.pointsService = pointsService;
     }
 
     // =====================================================
@@ -199,11 +206,10 @@ public class ItineraryService {
         // =========================
         User guide = itinerary.getCreator();
         if (guide != null && guide.getRole() == UserRole.GUIDE) {
-            guide.setXp(guide.getXp() + GUIDE_XP_PER_JOIN);
-            userRepository.save(guide);
+            pointsService.addPointsForItineraryJoinedGuide(guide.getId(), itinerary.getId());
         }
 
-        return "TOUR JOINED! Welcome to the adventure, " + user.getUsername() + " 🎉";
+        return "TOUR JOINED! Welcome to the adventure, " + user.getUsername();
     }
 
     // =====================================================
