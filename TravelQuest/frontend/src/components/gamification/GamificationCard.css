@@ -1,0 +1,117 @@
+/* EMBEDDED variant: no extra shadow, blends into header */
+.gami-embedded{
+  box-shadow: none;
+  border: 1px solid rgba(0,0,0,0.06);
+  background: rgba(37,99,235,0.06);
+  max-width: none;
+  width: 100%;
+}
+
+.gami-top{
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.gami-kicker{
+  font-size: 11px;
+  text-transform: uppercase;
+  opacity: 0.7;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gami-mock-tag{
+  font-size: 10px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(245,158,11,0.18);
+  color: #92400e;
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+.gami-level{
+  margin-top: 2px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.gami-level span{
+  font-size: 26px;
+}
+
+.gami-points{
+  text-align: right;
+}
+
+.gami-points-value{
+  margin-top: 2px;
+  font-weight: 900;
+  font-size: 22px;
+}
+
+.gami-progress{
+  margin-top: 12px;
+}
+
+.gami-progress-meta{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #374151;
+  font-weight: 800;
+  font-size: 12.5px;
+}
+
+.gami-progress-right{
+  color: #111827;
+  font-weight: 900;
+}
+
+.gami-bar {
+  position: relative;          /* 🔑 necesar pentru overlay */
+  height: 12px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.gami-bar-fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* TEXT INSIDE BAR */
+.gami-bar-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+
+.gami-err{
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(239,68,68,0.10);
+  font-weight: 800;
+  color: #991b1b;
+  font-size: 12.5px;
+}
+

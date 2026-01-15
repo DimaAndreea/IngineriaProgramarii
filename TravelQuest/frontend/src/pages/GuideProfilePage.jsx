@@ -13,6 +13,9 @@ import "./GuideProfilePage.css";
 import { getMyProfile } from "../services/userService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 
+import GamificationCard from "../components/gamification/GamificationCard";
+import { getGamificationSummary } from "../services/gamificationService";
+
 /* ---------------- helpers ---------------- */
 
 function normalizeStatus(status) {
@@ -175,6 +178,10 @@ function BadgeMedalIcon({ size = 44 }) {
 /* ---------------- page ---------------- */
 
 export default function GuideProfilePage() {
+  const [gami, setGami] = useState(null);
+  const [gamiLoading, setGamiLoading] = useState(false);
+  const [gamiErr, setGamiErr] = useState("");
+
   const navigate = useNavigate();
   const params = useParams();
   const { role, userId, username } = useAuth();
@@ -234,8 +241,25 @@ export default function GuideProfilePage() {
           if (!alive) return;
           setItineraries(Array.isArray(data) ? data : []);
           loadProfile();
+
+          // ✅ Gamification (owner only)
+          setGamiLoading(true);
+          setGamiErr("");
+          try {
+            const gs = await getGamificationSummary();
+            if (!alive) return;
+            setGami(gs || null);
+          } catch (e) {
+            if (!alive) return;
+            setGami(null);
+            setGamiErr(e?.message || "Failed to load gamification.");
+          } finally {
+            if (alive) setGamiLoading(false);
+          }
+
           return;
         }
+
 
         // PUBLIC: folosim DOAR itinerarii publice + filtrăm după creator.id
         if (isPublicView) {
@@ -416,63 +440,67 @@ export default function GuideProfilePage() {
     <div className="gp-page">
       {/* ================= HEADER CARD ================= */}
       <section className="gp-header-card">
-        <div className="gp-header-left">
-          <div className="gp-avatar">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="8" r="4" fill="rgba(15,23,42,.35)" />
-              <path
-                d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6"
-                fill="rgba(15,23,42,.20)"
-              />
-            </svg>
+        {/* ROW 1 */}
+        <div className="gp-header-main">
+          <div className="gp-header-left">
+            <div className="gp-avatar">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" fill="rgba(15,23,42,.35)" />
+                <path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6" fill="rgba(15,23,42,.20)" />
+              </svg>
+            </div>
+
+            <div>
+              <h1 className="gp-name">{headerUsername}</h1>
+              <div className="gp-role">Guide</div>
+
+              {isOwner && (
+                <div className="gp-contact">
+                  <div className="gp-contact-item">
+                    <span className="gp-contact-label">Email</span>
+                    <span className="gp-contact-value">{email}</span>
+                  </div>
+                  <span className="gp-contact-dot">•</span>
+                  <div className="gp-contact-item">
+                    <span className="gp-contact-label">Phone</span>
+                    <span className="gp-contact-value">{phone}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div>
-            <h1 className="gp-name">{headerUsername}</h1>
-            <div className="gp-role">Guide</div>
-
-            {isOwner && (
-              <div className="gp-contact">
-                <div className="gp-contact-item">
-                  <span className="gp-contact-label">Email</span>
-                  <span className="gp-contact-value">{email}</span>
+          <div className="gp-header-right">
+            {selectedBadgeName ? (
+              <>
+                <BadgeMedalIcon size={44} />
+                <div>
+                  <div className="gp-badge-kicker">Visible badge</div>
+                  <div className="gp-badge-name">{selectedBadgeName}</div>
                 </div>
-                <span className="gp-contact-dot">•</span>
-                <div className="gp-contact-item">
-                  <span className="gp-contact-label">Phone</span>
-                  <span className="gp-contact-value">{phone}</span>
-                </div>
+              </>
+            ) : (
+              <div>
+                <div className="gp-badge-kicker">Visible badge</div>
+                <div className="gp-badge-name">None selected</div>
               </div>
             )}
           </div>
         </div>
 
-        {/* stats din HEADER rămân cum le ai (nu schimb aici) */}
-        <div className="gp-header-center" />
-
-        <div className="gp-header-right">
-          {selectedBadgeName ? (
-            <>
-              <BadgeMedalIcon size={44} />
-              <div>
-                <div className="gp-badge-kicker">Visible badge</div>
-                <div className="gp-badge-name">{selectedBadgeName}</div>
-              </div>
-            </>
-          ) : (
-            <div>
-              <div className="gp-badge-kicker">Visible badge</div>
-              <div className="gp-badge-name">None selected</div>
-            </div>
-          )}
-        </div>
+        {/* ROW 2 – Gamification (owner only) */}
+        {isOwner && (
+          <div className="gp-header-gamification">
+            <GamificationCard
+              summary={gami}
+              loading={gamiLoading}
+              error={gamiErr}
+              isMock={false}
+            />
+          </div>
+        )}
       </section>
+
 
       {/* ================= BADGES CARD ================= */}
       {isOwner && (

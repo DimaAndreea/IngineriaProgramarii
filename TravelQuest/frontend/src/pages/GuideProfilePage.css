@@ -37,10 +37,9 @@
 
 /* HEADER */
 .gp-header-card{
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 24px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 
   background: #fff;
   border-radius: var(--radius);
@@ -48,6 +47,7 @@
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
 }
+
 
 .gp-header-left{
   display: flex;
@@ -428,4 +428,15 @@
 
 .gp-contact-dot{
   color: #cbd5e1;
+}
+
+.gp-header-main{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.gp-header-gamification{
+  width: 100%;
 }

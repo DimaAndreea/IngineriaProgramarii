@@ -7,6 +7,9 @@ import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
+import GamificationCard from "../components/gamification/GamificationCard";
+import { getGamificationSummary } from "../services/gamificationService";
+
 /* ---------------- helpers ---------------- */
 
 const ENROLLMENTS_KEY = "tourist_enrollments_v1";
@@ -51,7 +54,8 @@ function isTouristInItinerary(it, touristId) {
     });
   }
 
-  const participantIds = it?.participantIds || it?.touristIds || it?.participantsIds;
+  const participantIds =
+    it?.participantIds || it?.touristIds || it?.participantsIds;
   if (Array.isArray(participantIds)) {
     return participantIds.map(Number).includes(Number(touristId));
   }
@@ -62,7 +66,13 @@ function isTouristInItinerary(it, touristId) {
 /* avatar anonim */
 function AvatarIcon({ size = 64 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden="true"
+    >
       <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
       <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
       <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
@@ -73,7 +83,14 @@ function AvatarIcon({ size = 64 }) {
 /* badge icon */
 function PrettyBadgeIcon({ size = 44 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true" className="badge-icon">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden="true"
+      className="badge-icon"
+    >
       <defs>
         <linearGradient id="gold" x1="14" y1="12" x2="52" y2="52">
           <stop stopColor="#FDE68A" />
@@ -89,12 +106,28 @@ function PrettyBadgeIcon({ size = 44 }) {
           <stop offset="1" stopColor="#DB2777" />
         </linearGradient>
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.18" />
+          <feDropShadow
+            dx="0"
+            dy="2"
+            stdDeviation="2"
+            floodColor="#000"
+            floodOpacity="0.18"
+          />
         </filter>
       </defs>
 
-      <path d="M18 38 12 60 24 54 30 60 30 40" fill="url(#ribbonL)" opacity="0.95" filter="url(#soft)" />
-      <path d="M46 38 52 60 40 54 34 60 34 40" fill="url(#ribbonR)" opacity="0.95" filter="url(#soft)" />
+      <path
+        d="M18 38 12 60 24 54 30 60 30 40"
+        fill="url(#ribbonL)"
+        opacity="0.95"
+        filter="url(#soft)"
+      />
+      <path
+        d="M46 38 52 60 40 54 34 60 34 40"
+        fill="url(#ribbonR)"
+        opacity="0.95"
+        filter="url(#soft)"
+      />
 
       <circle cx="32" cy="28" r="16.5" fill="url(#gold)" filter="url(#soft)" />
       <circle cx="32" cy="28" r="16.5" stroke="rgba(17,24,39,0.18)" />
@@ -111,7 +144,14 @@ function PrettyBadgeIcon({ size = 44 }) {
 /* icons itineraries */
 function PinIcon({ size = 16 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="tp-mini-icon"
+    >
       <path
         d="M12 22s7-4.2 7-11a7 7 0 1 0-14 0c0 6.8 7 11 7 11Z"
         stroke="currentColor"
@@ -125,7 +165,14 @@ function PinIcon({ size = 16 }) {
 
 function CalendarIcon({ size = 16 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="tp-mini-icon"
+    >
       <path d="M8 3v3M16 3v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path d="M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
@@ -144,6 +191,12 @@ export default function TouristProfilePage() {
   const location = useLocation();
 
   const { userId, username, role } = useAuth();
+
+  // Gamification state
+  const [gami, setGami] = useState(null);
+  const [gamiLoading, setGamiLoading] = useState(false);
+  const [gamiErr, setGamiErr] = useState("");
+  const [gamiIsMock, setGamiIsMock] = useState(false);
 
   // /tourists/:id => public mode
   const publicTouristId = params?.id ? Number(params.id) : null;
@@ -184,10 +237,18 @@ export default function TouristProfilePage() {
       setLoading(true);
       setErr("");
 
+      // reset gamification errors each load (owner only)
+      if (isOwnerMode) {
+        setGamiErr("");
+      } else {
+        setGami(null);
+        setGamiErr("");
+        setGamiLoading(false);
+        setGamiIsMock(false);
+      }
+
       try {
-        // 1) Itinerarii: în AMBELE moduri luăm din backend lista “participant: true”
-        //    - owner: userId (din sesiune)
-        //    - public: targetTouristId (din URL)
+        // 1) Itinerarii
         if (!targetTouristId) throw new Error("Missing tourist id.");
 
         const itData = await filterItineraries({ participant: true }, targetTouristId);
@@ -195,10 +256,10 @@ export default function TouristProfilePage() {
 
         const list = Array.isArray(itData) ? itData : [];
 
-        // 2) Filtrare de siguranță: chiar dacă backend întoarce mai mult, păstrăm DOAR cele unde turistul e participant
+        // 2) Filtrare sigură
         let filtered = list.filter((it) => isTouristInItinerary(it, targetTouristId));
 
-        // 3) Fallback doar în owner mode: localStorage join history
+        // 3) Fallback localStorage (owner only)
         if (isOwnerMode) {
           const enrollments = readEnrollments();
           filtered = list.filter((it) => {
@@ -210,13 +271,32 @@ export default function TouristProfilePage() {
 
         setItineraries(filtered);
 
-        // 4) Profil (email/phone) doar pentru owner
+        // 4) Profil (owner only)
         if (isOwnerMode) {
           const prof = await getMyProfile().catch(() => null);
           if (!alive) return;
           setProfile(prof || null);
         } else {
           setProfile(null);
+        }
+
+        // 5) Gamification (owner only) — mock fallback
+        if (isOwnerMode) {
+          setGamiLoading(true);
+          try {
+            const gs = await getGamificationSummary();
+            if (!alive) return;
+            setGami(gs || null);
+            setGamiIsMock(false);
+
+          } catch (e2) {
+            if (!alive) return;
+            setGami(null);
+            setGamiIsMock(false);
+            setGamiErr(e2?.message || "Failed to load gamification.");
+          } finally {
+            if (alive) setGamiLoading(false);
+          }
         }
       } catch (e) {
         if (!alive) return;
@@ -238,7 +318,7 @@ export default function TouristProfilePage() {
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
-  // status (Active / Upcoming / Completed) — doar pentru itinerariile la care e înscris
+  // status (Active / Upcoming / Completed)
   const withStatus = useMemo(() => {
     const nowTs = Date.now();
 
@@ -295,63 +375,71 @@ export default function TouristProfilePage() {
     });
   };
 
-  // badge name:
-  // - owner: selectedBadge / profile.selectedBadge
-  // - public: din state (dacă a venit) — altfel nu avem sursă sigură fără endpoint dedicat
   const selectedBadgeName =
     selectedBadge?.name ||
     (isOwnerMode ? profile?.selectedBadge?.name : null) ||
     touristFromState?.visibleBadgeName ||
     null;
 
-  // badges interactive doar owner
   const showBadgesSection = isOwnerMode;
 
   return (
     <div className="tourist-profile-page">
       {/* PROFILE HEADER */}
       <div className="tourist-header-card">
-        <div className="tourist-header-left">
-          <AvatarIcon />
-          <div>
-            <h1 className="tourist-name">{displayName}</h1>
-            <span className="tourist-role">Tourist</span>
+        {/* ROW 1: avatar + personal data (left) + badge (right) */}
+        <div className="tourist-header-main">
+          <div className="tourist-header-left">
+            <AvatarIcon />
+            <div>
+              <h1 className="tourist-name">{displayName}</h1>
+              <span className="tourist-role">Tourist</span>
 
-            {isPublicMode && displayLevel != null && (
-              <div className="tp-contact" style={{ marginTop: 6 }}>
-                <div className="tp-contact-item">
-                  <span className="tp-contact-label">Level</span>
-                  <span className="tp-contact-value">{displayLevel}</span>
+              {isPublicMode && displayLevel != null && (
+                <div className="tp-contact" style={{ marginTop: 6 }}>
+                  <div className="tp-contact-item">
+                    <span className="tp-contact-label">Level</span>
+                    <span className="tp-contact-value">{displayLevel}</span>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* ✅ Email/Phone private: doar owner */}
-            {isOwnerMode && (
-              <div className="tp-contact">
-                <div className="tp-contact-item">
-                  <span className="tp-contact-label">Email</span>
-                  <span className="tp-contact-value">{email}</span>
+              {isOwnerMode && (
+                <div className="tp-contact">
+                  <div className="tp-contact-item">
+                    <span className="tp-contact-label">Email</span>
+                    <span className="tp-contact-value">{email}</span>
+                  </div>
+                  <span className="tp-contact-dot">•</span>
+                  <div className="tp-contact-item">
+                    <span className="tp-contact-label">Phone</span>
+                    <span className="tp-contact-value">{phone}</span>
+                  </div>
                 </div>
-                <span className="tp-contact-dot">•</span>
-                <div className="tp-contact-item">
-                  <span className="tp-contact-label">Phone</span>
-                  <span className="tp-contact-value">{phone}</span>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
+          </div>
+
+          <div className="tourist-header-right">
+            {selectedBadgeName ? <PrettyBadgeIcon /> : null}
+            <div>
+              <div className="badge-kicker">Visible badge</div>
+              <div className="badge-name">{selectedBadgeName || "None selected"}</div>
+            </div>
           </div>
         </div>
 
-        <div className="tourist-header-center" />
-
-        <div className="tourist-header-right">
-          {selectedBadgeName ? <PrettyBadgeIcon /> : null}
-          <div>
-            <div className="badge-kicker">Visible badge</div>
-            <div className="badge-name">{selectedBadgeName || "None selected"}</div>
+        {/* ROW 2: gamification full width */}
+        {isOwnerMode && (
+          <div className="tourist-header-gamification">
+            <GamificationCard
+              summary={gami}
+              loading={gamiLoading}
+              error={gamiErr}
+              isMock={gamiIsMock}
+            />
           </div>
-        </div>
+        )}
       </div>
 
       {/* BADGES (owner only) */}
