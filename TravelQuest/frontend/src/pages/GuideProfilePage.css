@@ -440,3 +440,112 @@
 .gp-header-gamification{
   width: 100%;
 }
+
+/* ===== Level-up celebration (Guide) ===== */
+
+.gp-avatar-glow{
+  box-shadow:
+    0 0 0 6px rgba(37,99,235,.14),
+    0 0 36px rgba(37,99,235,.35);
+  transition: box-shadow 280ms ease;
+}
+
+.gp-levelup-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.38);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+
+.gp-levelup-modal{
+  position: relative;
+  width: min(520px, calc(100vw - 32px));
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(148,163,184,.25);
+  box-shadow: 0 30px 70px rgba(15,23,42,.22);
+  padding: 18px 18px 16px;
+  overflow: hidden;
+}
+
+.gp-levelup-title{
+  font-weight: 950;
+  color: var(--text);
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.gp-levelup-sub{
+  margin-top: 6px;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+/* confetti */
+.gp-confetti{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gp-confetti-piece{
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 8px;
+  height: 14px;
+  border-radius: 4px;
+  opacity: 0.95;
+  transform: translateX(-50%);
+  animation: gp-confetti-fall 1200ms ease-in forwards;
+}
+
+/* culori random-ish fără JS: folosim nth-child */
+.gp-confetti-piece:nth-child(3n){ background: rgba(37,99,235,.95); }
+.gp-confetti-piece:nth-child(3n+1){ background: rgba(245,158,11,.95); }
+.gp-confetti-piece:nth-child(3n+2){ background: rgba(236,72,153,.95); }
+
+.gp-confetti-piece:nth-child(1){ left: 12%; animation-delay: 0ms; }
+.gp-confetti-piece:nth-child(2){ left: 18%; animation-delay: 40ms; }
+.gp-confetti-piece:nth-child(3){ left: 24%; animation-delay: 80ms; }
+.gp-confetti-piece:nth-child(4){ left: 30%; animation-delay: 20ms; }
+.gp-confetti-piece:nth-child(5){ left: 36%; animation-delay: 100ms; }
+.gp-confetti-piece:nth-child(6){ left: 42%; animation-delay: 60ms; }
+.gp-confetti-piece:nth-child(7){ left: 48%; animation-delay: 0ms; }
+.gp-confetti-piece:nth-child(8){ left: 54%; animation-delay: 120ms; }
+.gp-confetti-piece:nth-child(9){ left: 60%; animation-delay: 30ms; }
+.gp-confetti-piece:nth-child(10){ left: 66%; animation-delay: 90ms; }
+.gp-confetti-piece:nth-child(11){ left: 72%; animation-delay: 50ms; }
+.gp-confetti-piece:nth-child(12){ left: 78%; animation-delay: 10ms; }
+.gp-confetti-piece:nth-child(13){ left: 84%; animation-delay: 70ms; }
+.gp-confetti-piece:nth-child(14){ left: 90%; animation-delay: 110ms; }
+.gp-confetti-piece:nth-child(15){ left: 15%; animation-delay: 140ms; }
+.gp-confetti-piece:nth-child(16){ left: 45%; animation-delay: 160ms; }
+.gp-confetti-piece:nth-child(17){ left: 75%; animation-delay: 180ms; }
+.gp-confetti-piece:nth-child(18){ left: 55%; animation-delay: 200ms; }
+
+@keyframes gp-confetti-fall{
+  0%{
+    transform: translate(-50%, 0) rotate(0deg);
+    opacity: 0.95;
+  }
+  100%{
+    transform: translate(-50%, 380px) rotate(420deg);
+    opacity: 0;
+  }
+}
+
+/* Header row wrapper (dacă nu îl ai deja) */
+.gp-header-main{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  width: 100%;
+}
+
+.gp-header-gamification{
+  margin-top: 14px;
+}

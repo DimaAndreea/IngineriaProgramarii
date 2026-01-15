@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -117,12 +117,7 @@ function CalendarIcon({ size = 16 }) {
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <path
-        d="M4 7h16"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
         d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
         stroke="currentColor"
@@ -147,22 +142,8 @@ function BadgeMedalIcon({ size = 44 }) {
       <path d="M22 38L14 60L28 52L32 60L32 38H22Z" fill="#60A5FA" />
       <path d="M42 38L50 60L36 52L32 60L32 38H42Z" fill="#F472B6" />
 
-      <circle
-        cx="32"
-        cy="28"
-        r="16"
-        fill="#FDE68A"
-        stroke="#F59E0B"
-        strokeWidth="2"
-      />
-      <circle
-        cx="32"
-        cy="28"
-        r="12"
-        fill="#FFF7ED"
-        stroke="#F59E0B"
-        strokeWidth="2"
-      />
+      <circle cx="32" cy="28" r="16" fill="#FDE68A" stroke="#F59E0B" strokeWidth="2" />
+      <circle cx="32" cy="28" r="12" fill="#FFF7ED" stroke="#F59E0B" strokeWidth="2" />
 
       <path
         d="M32 18L35 25L43 26L37 31L39 39L32 35L25 39L27 31L21 26L29 25L32 18Z"
@@ -181,6 +162,12 @@ export default function GuideProfilePage() {
   const [gami, setGami] = useState(null);
   const [gamiLoading, setGamiLoading] = useState(false);
   const [gamiErr, setGamiErr] = useState("");
+
+  // ✅ Level up UI states (Guide)
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
+  const [levelUpGlow, setLevelUpGlow] = useState(false);
+  const [levelUpTo, setLevelUpTo] = useState(null);
+  const prevLevelRef = React.useRef(null);
 
   const navigate = useNavigate();
   const params = useParams();
@@ -235,6 +222,14 @@ export default function GuideProfilePage() {
         setLoading(true);
         setErr("");
 
+        // reset gami when leaving owner mode
+        if (!isOwner) {
+          setGami(null);
+          setGamiErr("");
+          setGamiLoading(false);
+          prevLevelRef.current = null;
+        }
+
         // OWNER: itinerariile mele (cu PENDING/REJECTED etc)
         if (isOwner) {
           const data = await getMyItineraries(userId);
@@ -242,7 +237,7 @@ export default function GuideProfilePage() {
           setItineraries(Array.isArray(data) ? data : []);
           loadProfile();
 
-          // ✅ Gamification (owner only)
+          // ✅ Gamification (owner only) — DOAR BACKEND
           setGamiLoading(true);
           setGamiErr("");
           try {
@@ -259,7 +254,6 @@ export default function GuideProfilePage() {
 
           return;
         }
-
 
         // PUBLIC: folosim DOAR itinerarii publice + filtrăm după creator.id
         if (isPublicView) {
@@ -295,6 +289,40 @@ export default function GuideProfilePage() {
       alive = false;
     };
   }, [isOwner, isPublicView, userId, viewedGuideId]);
+
+  // ✅ Detect level-up (Guide) – apare doar când level crește
+  useEffect(() => {
+    if (!isOwner) return;
+
+    const lvl =
+      gami?.level ??
+      gami?.lvl ??
+      gami?.currentLevel ??
+      gami?.levelNumber ??
+      null;
+
+    if (lvl == null) return;
+
+    const next = Number(lvl);
+
+    if (prevLevelRef.current == null) {
+      prevLevelRef.current = next;
+      return;
+    }
+
+    const prev = Number(prevLevelRef.current);
+
+    if (Number.isFinite(prev) && Number.isFinite(next) && next > prev) {
+      setLevelUpTo(next);
+      setLevelUpOpen(true);
+      setLevelUpGlow(true);
+
+      window.setTimeout(() => setLevelUpOpen(false), 2400);
+      window.setTimeout(() => setLevelUpGlow(false), 1800);
+    }
+
+    prevLevelRef.current = next;
+  }, [gami, isOwner]);
 
   // email/phone: doar owner
   const email = isOwner ? profile?.email || "—" : "—";
@@ -351,15 +379,12 @@ export default function GuideProfilePage() {
   }, [isOwner, selectedBadge, profile, itineraries]);
 
   /* =========================
-     ✅ ITINERARY STATS (în secțiunea itineraries)
-     - OWNER: total + pending + upcoming + past
-     - PUBLIC: (doar Published) active + upcoming + past
+     ✅ ITINERARY STATS
   ========================= */
 
   const itineraryStats = useMemo(() => {
     const all = Array.isArray(itineraries) ? itineraries : [];
 
-    // OWNER: contează statusurile backend + buckets temporale
     if (isOwner) {
       const total = all.length;
       let pending = 0;
@@ -378,7 +403,6 @@ export default function GuideProfilePage() {
       return { mode: "owner", total, pending, upcoming, past };
     }
 
-    // PUBLIC: doar Published (APPROVED) și apoi buckets temporale
     const published = all.filter((it) => normalizeStatus(it?.status) === "APPROVED");
 
     let active = 0;
@@ -438,12 +462,30 @@ export default function GuideProfilePage() {
 
   return (
     <div className="gp-page">
+      {/* ✅ Level-up popup + confetti (Guide) */}
+      {levelUpOpen && (
+        <div className="gp-levelup-overlay" onClick={() => setLevelUpOpen(false)}>
+          <div className="gp-levelup-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="gp-levelup-title">
+              Congratulations! You've leveled up to <b>{levelUpTo}</b>!
+            </div>
+            <div className="gp-levelup-sub">Keep going 🚀</div>
+
+            <div className="gp-confetti" aria-hidden="true">
+              {Array.from({ length: 18 }).map((_, i) => (
+                <span key={i} className="gp-confetti-piece" />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ================= HEADER CARD ================= */}
       <section className="gp-header-card">
         {/* ROW 1 */}
         <div className="gp-header-main">
           <div className="gp-header-left">
-            <div className="gp-avatar">
+            <div className={`gp-avatar ${levelUpGlow ? "gp-avatar-glow" : ""}`}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="12" cy="8" r="4" fill="rgba(15,23,42,.35)" />
                 <path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6" fill="rgba(15,23,42,.20)" />
@@ -501,7 +543,6 @@ export default function GuideProfilePage() {
         )}
       </section>
 
-
       {/* ================= BADGES CARD ================= */}
       {isOwner && (
         <section className="gp-card gp-section-card">
@@ -517,26 +558,20 @@ export default function GuideProfilePage() {
               {isPublicView ? "Published itineraries" : "My itineraries"}
             </h2>
 
-            {/* ✅ AICI e statistica cerută */}
             <div className="gp-section-sub">
               {loading ? (
                 "Loading..."
               ) : itineraryStats.mode === "owner" ? (
                 <>
-                  <b>{itineraryStats.total}</b> total{" "}
-                  <span className="gp-dot">•</span>{" "}
-                  <b>{itineraryStats.pending}</b> pending{" "}
-                  <span className="gp-dot">•</span>{" "}
-                  <b>{itineraryStats.upcoming}</b> upcoming{" "}
-                  <span className="gp-dot">•</span>{" "}
+                  <b>{itineraryStats.total}</b> total <span className="gp-dot">•</span>{" "}
+                  <b>{itineraryStats.pending}</b> pending <span className="gp-dot">•</span>{" "}
+                  <b>{itineraryStats.upcoming}</b> upcoming <span className="gp-dot">•</span>{" "}
                   <b>{itineraryStats.past}</b> past
                 </>
               ) : (
                 <>
-                  <b>{itineraryStats.active}</b> active{" "}
-                  <span className="gp-dot">•</span>{" "}
-                  <b>{itineraryStats.upcoming}</b> upcoming{" "}
-                  <span className="gp-dot">•</span>{" "}
+                  <b>{itineraryStats.active}</b> active <span className="gp-dot">•</span>{" "}
+                  <b>{itineraryStats.upcoming}</b> upcoming <span className="gp-dot">•</span>{" "}
                   <b>{itineraryStats.past}</b> past
                 </>
               )}
