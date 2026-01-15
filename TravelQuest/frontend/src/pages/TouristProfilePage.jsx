@@ -40,11 +40,7 @@ function isTouristInItinerary(it, touristId) {
   if (!touristId) return false;
 
   const participants =
-    it?.participants ||
-    it?.enrolledTourists ||
-    it?.tourists ||
-    it?.joinedUsers ||
-    [];
+    it?.participants || it?.enrolledTourists || it?.tourists || it?.joinedUsers || [];
 
   if (Array.isArray(participants)) {
     return participants.some((p) => {
@@ -66,13 +62,7 @@ function isTouristInItinerary(it, touristId) {
 /* avatar anonim */
 function AvatarIcon({ size = 64 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
       <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
       <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
@@ -83,14 +73,7 @@ function AvatarIcon({ size = 64 }) {
 /* badge icon */
 function PrettyBadgeIcon({ size = 44 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-      className="badge-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true" className="badge-icon">
       <defs>
         <linearGradient id="gold" x1="14" y1="12" x2="52" y2="52">
           <stop stopColor="#FDE68A" />
@@ -106,28 +89,12 @@ function PrettyBadgeIcon({ size = 44 }) {
           <stop offset="1" stopColor="#DB2777" />
         </linearGradient>
         <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow
-            dx="0"
-            dy="2"
-            stdDeviation="2"
-            floodColor="#000"
-            floodOpacity="0.18"
-          />
+          <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#000" floodOpacity="0.18" />
         </filter>
       </defs>
 
-      <path
-        d="M18 38 12 60 24 54 30 60 30 40"
-        fill="url(#ribbonL)"
-        opacity="0.95"
-        filter="url(#soft)"
-      />
-      <path
-        d="M46 38 52 60 40 54 34 60 34 40"
-        fill="url(#ribbonR)"
-        opacity="0.95"
-        filter="url(#soft)"
-      />
+      <path d="M18 38 12 60 24 54 30 60 30 40" fill="url(#ribbonL)" opacity="0.95" filter="url(#soft)" />
+      <path d="M46 38 52 60 40 54 34 60 34 40" fill="url(#ribbonR)" opacity="0.95" filter="url(#soft)" />
 
       <circle cx="32" cy="28" r="16.5" fill="url(#gold)" filter="url(#soft)" />
       <circle cx="32" cy="28" r="16.5" stroke="rgba(17,24,39,0.18)" />
@@ -144,14 +111,7 @@ function PrettyBadgeIcon({ size = 44 }) {
 /* icons itineraries */
 function PinIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="tp-mini-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
       <path
         d="M12 22s7-4.2 7-11a7 7 0 1 0-14 0c0 6.8 7 11 7 11Z"
         stroke="currentColor"
@@ -165,14 +125,7 @@ function PinIcon({ size = 16 }) {
 
 function CalendarIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="tp-mini-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
       <path d="M8 3v3M16 3v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path d="M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
@@ -189,14 +142,18 @@ export default function TouristProfilePage() {
   const navigate = useNavigate();
   const params = useParams();
   const location = useLocation();
-
   const { userId, username, role } = useAuth();
 
-  // Gamification state
+  // Gamification state (NO MOCK)
   const [gami, setGami] = useState(null);
   const [gamiLoading, setGamiLoading] = useState(false);
   const [gamiErr, setGamiErr] = useState("");
-  const [gamiIsMock, setGamiIsMock] = useState(false);
+
+  // Level up UI states
+  const [levelUpOpen, setLevelUpOpen] = useState(false);
+  const [levelUpGlow, setLevelUpGlow] = useState(false);
+  const [levelUpTo, setLevelUpTo] = useState(null);
+  const prevLevelRef = React.useRef(null);
 
   // /tourists/:id => public mode
   const publicTouristId = params?.id ? Number(params.id) : null;
@@ -237,14 +194,13 @@ export default function TouristProfilePage() {
       setLoading(true);
       setErr("");
 
-      // reset gamification errors each load (owner only)
+      // reset gamification state on route changes
       if (isOwnerMode) {
         setGamiErr("");
       } else {
         setGami(null);
         setGamiErr("");
         setGamiLoading(false);
-        setGamiIsMock(false);
       }
 
       try {
@@ -280,19 +236,17 @@ export default function TouristProfilePage() {
           setProfile(null);
         }
 
-        // 5) Gamification (owner only) — mock fallback
+        // 5) Gamification (owner only) — ONLY BACKEND
         if (isOwnerMode) {
           setGamiLoading(true);
+          setGamiErr("");
           try {
             const gs = await getGamificationSummary();
             if (!alive) return;
             setGami(gs || null);
-            setGamiIsMock(false);
-
           } catch (e2) {
             if (!alive) return;
             setGami(null);
-            setGamiIsMock(false);
             setGamiErr(e2?.message || "Failed to load gamification.");
           } finally {
             if (alive) setGamiLoading(false);
@@ -313,6 +267,42 @@ export default function TouristProfilePage() {
       alive = false;
     };
   }, [isOwnerMode, targetTouristId]);
+
+  // Detect level-up (for animation)
+  useEffect(() => {
+    if (!isOwnerMode) return;
+
+    const lvl =
+      gami?.level ??
+      gami?.lvl ??
+      gami?.currentLevel ??
+      gami?.levelNumber ??
+      null;
+
+    if (lvl == null) return;
+
+    const next = Number(lvl);
+
+    // init
+    if (prevLevelRef.current == null) {
+      prevLevelRef.current = next;
+      return;
+    }
+
+    const prev = Number(prevLevelRef.current);
+
+    // level up only when it increases
+    if (Number.isFinite(prev) && Number.isFinite(next) && next > prev) {
+      setLevelUpTo(next);
+      setLevelUpOpen(true);
+      setLevelUpGlow(true);
+
+      window.setTimeout(() => setLevelUpOpen(false), 2400);
+      window.setTimeout(() => setLevelUpGlow(false), 1800);
+    }
+
+    prevLevelRef.current = next;
+  }, [gami, isOwnerMode]);
 
   // contact doar pentru owner (private)
   const email = isOwnerMode ? profile?.email || "—" : "—";
@@ -385,12 +375,33 @@ export default function TouristProfilePage() {
 
   return (
     <div className="tourist-profile-page">
+      {/* Level-up popup + confetti */}
+      {levelUpOpen && (
+        <div className="tp-levelup-overlay" onClick={() => setLevelUpOpen(false)}>
+          <div className="tp-levelup-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="tp-levelup-title">
+              Congratulations! You've leveled up to <b>{levelUpTo}</b>!
+            </div>
+            <div className="tp-levelup-sub">Keep going 🚀</div>
+
+            <div className="tp-confetti">
+              {Array.from({ length: 18 }).map((_, i) => (
+                <span key={i} className="tp-confetti-piece" />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* PROFILE HEADER */}
       <div className="tourist-header-card">
-        {/* ROW 1: avatar + personal data (left) + badge (right) */}
+        {/* ROW 1 */}
         <div className="tourist-header-main">
           <div className="tourist-header-left">
-            <AvatarIcon />
+            <div className={`tp-avatar ${levelUpGlow ? "tp-avatar-glow" : ""}`}>
+              <AvatarIcon />
+            </div>
+
             <div>
               <h1 className="tourist-name">{displayName}</h1>
               <span className="tourist-role">Tourist</span>
@@ -429,14 +440,14 @@ export default function TouristProfilePage() {
           </div>
         </div>
 
-        {/* ROW 2: gamification full width */}
+        {/* ROW 2: gamification full width (owner only) */}
         {isOwnerMode && (
           <div className="tourist-header-gamification">
             <GamificationCard
               summary={gami}
               loading={gamiLoading}
               error={gamiErr}
-              isMock={gamiIsMock}
+              isMock={false}
             />
           </div>
         )}

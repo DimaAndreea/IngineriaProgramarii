@@ -338,3 +338,104 @@
 .tourist-header-gamification {
   width: 100%;
 }
+
+/* ===== Level up glow (avatar) ===== */
+.tp-avatar {
+  display: inline-flex;
+  border-radius: 999px;
+}
+
+.tp-avatar-glow {
+  box-shadow:
+    0 0 0 6px rgba(37, 99, 235, 0.14),
+    0 0 30px rgba(37, 99, 235, 0.55);
+  animation: tpGlowPulse 900ms ease-in-out infinite alternate;
+}
+
+@keyframes tpGlowPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+/* ===== Level up popup ===== */
+.tp-levelup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+}
+
+.tp-levelup-modal {
+  width: min(520px, calc(100vw - 28px));
+  background: #fff;
+  border-radius: 22px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.22);
+  position: relative;
+  overflow: hidden;
+  animation: tpPopIn 220ms ease-out;
+}
+
+@keyframes tpPopIn {
+  from { transform: translateY(10px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.tp-levelup-title {
+  font-weight: 950;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.tp-levelup-sub {
+  margin-top: 4px;
+  font-weight: 800;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* ===== Confetti (CSS mock) ===== */
+.tp-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.tp-confetti-piece {
+  position: absolute;
+  top: -10px;
+  left: calc(5% + (90% * var(--x, 0.5)));
+  width: 8px;
+  height: 14px;
+  border-radius: 3px;
+  opacity: 0.95;
+  animation: tpConfettiFall 900ms ease-out forwards;
+  transform: rotate(0deg);
+}
+
+/* randomize via nth-child */
+.tp-confetti-piece:nth-child(1)  { --x: 0.05; background: #2563eb; }
+.tp-confetti-piece:nth-child(2)  { --x: 0.10; background: #f59e0b; }
+.tp-confetti-piece:nth-child(3)  { --x: 0.15; background: #22c55e; }
+.tp-confetti-piece:nth-child(4)  { --x: 0.20; background: #ef4444; }
+.tp-confetti-piece:nth-child(5)  { --x: 0.25; background: #a855f7; }
+.tp-confetti-piece:nth-child(6)  { --x: 0.30; background: #06b6d4; }
+.tp-confetti-piece:nth-child(7)  { --x: 0.35; background: #f97316; }
+.tp-confetti-piece:nth-child(8)  { --x: 0.40; background: #2563eb; }
+.tp-confetti-piece:nth-child(9)  { --x: 0.45; background: #22c55e; }
+.tp-confetti-piece:nth-child(10) { --x: 0.50; background: #f59e0b; }
+.tp-confetti-piece:nth-child(11) { --x: 0.55; background: #ef4444; }
+.tp-confetti-piece:nth-child(12) { --x: 0.60; background: #a855f7; }
+.tp-confetti-piece:nth-child(13) { --x: 0.65; background: #06b6d4; }
+.tp-confetti-piece:nth-child(14) { --x: 0.70; background: #f97316; }
+.tp-confetti-piece:nth-child(15) { --x: 0.75; background: #2563eb; }
+.tp-confetti-piece:nth-child(16) { --x: 0.80; background: #22c55e; }
+.tp-confetti-piece:nth-child(17) { --x: 0.85; background: #f59e0b; }
+.tp-confetti-piece:nth-child(18) { --x: 0.90; background: #ef4444; }
+
+@keyframes tpConfettiFall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(220px) rotate(220deg); opacity: 0; }
+}
