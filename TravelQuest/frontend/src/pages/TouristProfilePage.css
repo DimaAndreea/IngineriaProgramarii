@@ -15,15 +15,15 @@
 
 /* HEADER */
 .tourist-header-card {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 24px;
-  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
   background: #fff;
   border-radius: 22px;
   padding: 22px;
   box-shadow: 0 14px 32px rgba(0,0,0,0.08);
 }
+
 
 .tourist-header-left {
   display: flex;
@@ -326,4 +326,15 @@
 
 .tp-contact-dot{
   color: #cbd5e1;
+}
+
+.tourist-header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.tourist-header-gamification {
+  width: 100%;
 }
