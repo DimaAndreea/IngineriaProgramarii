@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import "./MissionsPage.css";
 
-import MissionList from "../components/missions/MissionList";
-import MissionDetails from "../components/missions/MissionDetails";
-import MissionCreateForm from "../components/missions/MissionCreateForm";
 import Toast from "../components/missions/Toast";
+import MissionCardList from "../components/missions/MissionCardList";
+import RewardsList from "../components/missions/RewardsList";
+import MissionCreateForm from "../components/missions/MissionCreateForm";
 
 import { useAuth } from "../context/AuthContext";
-import { createMission, joinMission, listMissions } from "../services/missionService";
+import {
+  claimMission,
+  createMission,
+  joinMission,
+  listMissions,
+  listMyRewards,
+} from "../services/missionService";
 
 function normalizeRole(role) {
   const r = (role || "").toString().trim().toLowerCase();
@@ -25,94 +31,85 @@ export default function MissionsPage() {
   const canParticipate = role === "TOURIST" || role === "GUIDE";
 
   const [missions, setMissions] = useState([]);
-  const [selectedMissionId, setSelectedMissionId] = useState(null);
-
+  const [rewards, setRewards] = useState([]); // optional endpoint
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
   const [toast, setToast] = useState(null);
 
-  async function loadMissions() {
-    setLoading(true);
-    setError(null);
+  const visibleMissions = useMemo(() => {
+    if (isAdmin) return missions;
+    return missions.filter((m) => (m.role || "").toUpperCase() === role);
+  }, [missions, isAdmin, role]);
 
+  // fallback rewards from claimed missions (still REAL backend data)
+  const derivedRewards = useMemo(() => {
+    const claimed = missions
+      .filter((m) => (m.my_state || m.state || "").toUpperCase() === "CLAIMED")
+      .map((m) => ({
+        id: m.mission_id ?? m.id,
+        title: m?.reward?.real_reward_title || "Voucher",
+        fromMissionTitle: m?.title || "Mission",
+        claimed_at: m?.claimed_at || m?.my_claimed_at || null,
+      }));
+    return claimed;
+  }, [missions]);
+
+  async function loadAll() {
+    setLoading(true);
     try {
       const data = await listMissions();
-      setMissions(data || []);
+      setMissions(Array.isArray(data) ? data : []);
+
+      // OPTIONAL endpoint: if not available, ignore silently
+      try {
+        const r = await listMyRewards();
+        setRewards(Array.isArray(r) ? r : []);
+      } catch (e) {
+        // endpoint not available yet -> fallback to derived rewards
+        setRewards([]);
+      }
     } catch (e) {
-      setError(e?.message || "Failed to load missions.");
+      setToast({ type: "error", message: e?.message || "Failed to load missions." });
       setMissions([]);
+      setRewards([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadMissions();
+    loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedMission = useMemo(() => {
-    return missions.find((m) => m.id === selectedMissionId) || null;
-  }, [missions, selectedMissionId]);
-
-  // ✅ JOIN (optimistic) — tourist/guide only
   const handleJoin = async (missionId) => {
     if (!canParticipate) return;
 
-    setMissions((prev) =>
-      prev.map((m) =>
-        m.id === missionId
-          ? { ...m, my_status: "pending", my_progress: typeof m.my_progress === "number" ? m.my_progress : 0 }
-          : m
-      )
-    );
-
     try {
-      const res = await joinMission(missionId);
-
-      const newStatus =
-        res?.my_status ?? res?.status ?? res?.participation_status ?? "pending";
-      const newProgress =
-        res?.my_progress ?? res?.progress ?? res?.current_progress;
-
-      setMissions((prev) =>
-        prev.map((m) =>
-          m.id === missionId
-            ? {
-                ...m,
-                my_status: newStatus,
-                my_progress:
-                  typeof newProgress === "number" ? newProgress : (typeof m.my_progress === "number" ? m.my_progress : 0),
-              }
-            : m
-        )
-      );
-
-      setToast({ type: "success", message: "You have joined the mission!" });
+      await joinMission(missionId);
+      setToast({ type: "success", message: "Joined mission." });
+      await loadAll(); // ✅ refresh from backend (no mock)
     } catch (e) {
-      setMissions((prev) =>
-        prev.map((m) =>
-          m.id === missionId
-            ? { ...m, my_status: "not_joined" }
-            : m
-        )
-      );
       setToast({ type: "error", message: e?.message || "Join failed." });
     }
   };
 
-  // ✅ ADMIN create (kept separate, no interference with join task)
+  const handleClaim = async (missionId) => {
+    try {
+      await claimMission(missionId);
+      setToast({ type: "success", message: "Reward claimed." });
+      await loadAll(); // ✅ refresh from backend
+    } catch (e) {
+      setToast({ type: "error", message: e?.message || "Claim failed." });
+    }
+  };
+
   const handleCreate = async (payload) => {
     if (!isAdmin) return { ok: false, message: "Forbidden" };
 
     try {
-      const created = await createMission(payload);
-      const createdMission = created?.data ?? created;
-
-      setMissions((prev) => [createdMission, ...prev]);
-      if (createdMission?.id) setSelectedMissionId(createdMission.id);
-
+      await createMission(payload);
       setToast({ type: "success", message: "Mission created." });
+      await loadAll(); // ✅ refresh from backend
       return { ok: true };
     } catch (e) {
       setToast({ type: "error", message: e?.message || "Create failed." });
@@ -120,51 +117,81 @@ export default function MissionsPage() {
     }
   };
 
+  // ✅ show rewards from endpoint if present, else derived
+  const rewardsToShow = rewards?.length ? rewards : derivedRewards;
+
   return (
-    <div className="mp-page">
+    <div className="mr-page">
       <Toast toast={toast} onClose={() => setToast(null)} />
 
-      <div className="mp-header">
+      <div className="mr-header">
         <div>
-          <h2 className="mp-title">Missions</h2>
-          <p className="mp-subtitle">
-            Current role: <span className="mp-role">{role}</span> •{" "}
-            {isAdmin ? "Create and view missions." : canParticipate ? "You can join missions." : "View only."}
-          </p>
+          <h2 className="mr-title">Missions & Rewards</h2>
         </div>
-
-        <button className="mp-refresh" onClick={loadMissions}>
-          Refresh
-        </button>
       </div>
 
-      <div className={`mp-grid ${isAdmin ? "mp-grid-admin" : ""}`}>
-        <section className="mp-card">
-          <h3 className="mp-section-title">All missions</h3>
-          <MissionList
-            missions={missions}
-            loading={loading}
-            error={error}
-            selectedMissionId={selectedMissionId}
-            onSelect={setSelectedMissionId}
-          />
-        </section>
+      {isAdmin ? (
+        <div className="mr-admin-grid">
+          <section className="mr-card">
+            <div className="mr-card-header">
+              <h3 className="mr-section-title">All missions</h3>
+              <p className="mr-section-hint">Admin sees both GUIDE + TOURIST missions.</p>
+            </div>
 
-        <aside className="mp-card">
-          <MissionDetails
-            mission={selectedMission}
-            canParticipate={canParticipate}
-            onJoin={handleJoin}
-          />
-        </aside>
+            <div className="mr-scroll">
+              <MissionCardList
+                missions={visibleMissions}
+                loading={loading}
+                canParticipate={false}
+                onJoin={null}
+                onClaim={handleClaim}
+                isAdmin
+              />
+            </div>
+          </section>
 
-        {isAdmin && (
-          <aside className="mp-card">
-            <h3 className="mp-section-title">Create mission</h3>
-            <MissionCreateForm onCreate={handleCreate} />
-          </aside>
-        )}
-      </div>
+          <section className="mr-card">
+            <div className="mr-card-header">
+              <h3 className="mr-section-title">Create mission</h3>
+              <p className="mr-section-hint">Structured fields → trackable missions.</p>
+            </div>
+
+            <div className="mr-scroll">
+              <MissionCreateForm onCreate={handleCreate} />
+            </div>
+          </section>
+        </div>
+      ) : (
+        <>
+          <section className="mr-card">
+            <div className="mr-card-header">
+              <h3 className="mr-section-title">Missions</h3>
+              <p className="mr-section-hint">Only missions for your role are shown.</p>
+            </div>
+
+            <div className="mr-scroll">
+              <MissionCardList
+                missions={visibleMissions}
+                loading={loading}
+                canParticipate={canParticipate}
+                onJoin={handleJoin}
+                onClaim={handleClaim}
+              />
+            </div>
+          </section>
+
+          <section className="mr-card">
+            <div className="mr-card-header">
+              <h3 className="mr-section-title">My rewards</h3>
+              <p className="mr-section-hint">Your claimed vouchers appear here.</p>
+            </div>
+
+            <div className="mr-scroll">
+              <RewardsList rewards={rewardsToShow} loading={loading} />
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

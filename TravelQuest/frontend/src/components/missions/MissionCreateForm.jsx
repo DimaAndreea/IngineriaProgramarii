@@ -1,48 +1,283 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./missions.css";
+import DatePickerField from "../ui/DatePickerField";
+import { getMissionMeta } from "../../services/missionService";
+
+function todayYYYYMMDD() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function parseYMD(value) {
+  if (!value) return null;
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  return { y, m, d };
+}
+
+function toLocalOffsetISO(ymd, { endOfDay }) {
+  const p = parseYMD(ymd);
+  if (!p) return null;
+
+  const hh = endOfDay ? 23 : 0;
+  const min = endOfDay ? 59 : 0;
+  const sec = endOfDay ? 59 : 0;
+  const ms = endOfDay ? 999 : 0;
+
+  const dt = new Date(p.y, p.m - 1, p.d, hh, min, sec, ms);
+
+  const offsetMin = -dt.getTimezoneOffset();
+  const sign = offsetMin >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetMin);
+  const offH = String(Math.floor(abs / 60)).padStart(2, "0");
+  const offM = String(abs % 60).padStart(2, "0");
+
+  const yyyy = dt.getFullYear();
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  const dd = String(dt.getDate()).padStart(2, "0");
+  const HH = String(dt.getHours()).padStart(2, "0");
+  const MI = String(dt.getMinutes()).padStart(2, "0");
+  const SS = String(dt.getSeconds()).padStart(2, "0");
+  const MS = String(dt.getMilliseconds()).padStart(3, "0");
+
+  return `${yyyy}-${mm}-${dd}T${HH}:${MI}:${SS}.${MS}${sign}${offH}:${offM}`;
+}
+
+function slugifyCode(str) {
+  return (str || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 100);
+}
 
 export default function MissionCreateForm({ onCreate }) {
+  const minDate = useMemo(() => todayYYYYMMDD(), []);
+
+  const [meta, setMeta] = useState(null);
+  const [metaLoading, setMetaLoading] = useState(true);
+  const [metaError, setMetaError] = useState(null);
+
   const [values, setValues] = useState({
+    role: "",
+    type: "",
+    target_value: 5,
+
+    category: "",
+
+    start_at: "",
+    end_at: "",
+
     title: "",
-    description: "",
-    deadline: "",
-    reward_points: 100,
-    status: "ACTIVE",
-    scope: "BOTH",
+
+    xp_reward: 0,
+    real_reward_title: "",
+    real_reward_description: "",
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [msg, setMsg] = useState(null);
+
+  // ✅ Load metadata from backend
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      setMetaLoading(true);
+      setMetaError(null);
+      try {
+        const m = await getMissionMeta();
+        if (!alive) return;
+
+        setMeta(m);
+
+        // init role/type defaults from meta
+        const roles = m?.roles || [];
+        const types = m?.types || [];
+
+        const defaultRole = roles[0] || "";
+        const defaultType = types.find((t) => t.role === defaultRole)?.value || types[0]?.value || "";
+
+        setValues((v) => ({
+          ...v,
+          role: v.role || defaultRole,
+          type: v.type || defaultType,
+          real_reward_title: v.real_reward_title || "Voucher",
+        }));
+      } catch (e) {
+        if (!alive) return;
+        setMetaError(e?.message || "Failed to load mission metadata.");
+        setMeta(null);
+      } finally {
+        if (!alive) return;
+        setMetaLoading(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const roles = meta?.roles || [];
+  const types = meta?.types || [];
+  const categories = meta?.categories || [];
+
+  const availableTypes = useMemo(() => {
+    return types.filter((t) => t.role === values.role);
+  }, [types, values.role]);
+
+  const typeMeta = useMemo(() => {
+    return availableTypes.find((t) => t.value === values.type) || availableTypes[0] || null;
+  }, [availableTypes, values.type]);
+
+  // keep selected type valid if role changes
+  useEffect(() => {
+    if (!meta) return;
+    if (!values.role) return;
+
+    const ok = availableTypes.some((t) => t.value === values.type);
+    if (!ok) {
+      const first = availableTypes[0];
+      setValues((v) => ({
+        ...v,
+        type: first?.value || "",
+        category: "",
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.role, meta, availableTypes]);
+
+  const needsCategory = !!typeMeta?.paramsSchema?.category;
 
   const onChange = (e) => {
     const { name, value } = e.target;
-    setValues((v) => ({ ...v, [name]: value }));
+
+    setValues((v) => {
+      const next = { ...v, [name]: value };
+
+      if (name === "role") {
+        // reset dependent fields
+        next.category = "";
+      }
+
+      if (name === "type") {
+        // if type doesn't require category, clear it
+        const nextType = types.find((t) => t.value === value);
+        if (!nextType?.paramsSchema?.category) next.category = "";
+      }
+
+      if (name === "target_value") next.target_value = Number(value);
+      if (name === "xp_reward") next.xp_reward = Number(value);
+
+      // if start date becomes after end date, clear end date
+      if (name === "start_at" && v.end_at && value && v.end_at < value) {
+        next.end_at = "";
+      }
+
+      return next;
+    });
   };
+
+  const disabled = metaLoading || !!metaError || !meta;
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setFormError(null);
-    setSuccess(null);
+    setMsg(null);
 
-    const res = await onCreate(values);
-    if (!res?.ok) {
-      setFormError(res?.message || "Create failed.");
-      setSubmitting(false);
+    if (disabled) return;
+
+    if (!values.role || !values.type) {
+      setMsg({ type: "error", text: "Role and objective type are required." });
       return;
     }
 
-    setSuccess("Mission created successfully.");
-    setValues({
-      title: "",
-      description: "",
-      deadline: "",
-      reward_points: 100,
-      status: "ACTIVE",
-      scope: "BOTH",
-    });
-    setSubmitting(false);
+    if (!values.end_at) {
+      setMsg({ type: "error", text: "Deadline (end date) is required." });
+      return;
+    }
+
+    if (values.end_at < minDate) {
+      setMsg({ type: "error", text: "Deadline must be today or later." });
+      return;
+    }
+    if (values.start_at && values.start_at < minDate) {
+      setMsg({ type: "error", text: "Start date must be today or later." });
+      return;
+    }
+    if (values.start_at && values.end_at && values.end_at < values.start_at) {
+      setMsg({ type: "error", text: "Deadline must be the same day or after start date." });
+      return;
+    }
+
+    const target = Number(values.target_value || 0);
+    if (!target || target <= 0) {
+      setMsg({ type: "error", text: "Target value must be > 0." });
+      return;
+    }
+
+    if (needsCategory && !values.category?.trim()) {
+      setMsg({ type: "error", text: "Category is required for this objective." });
+      return;
+    }
+
+    // missions.params
+    const paramsObj = {};
+    if (needsCategory) paramsObj.category = values.category.trim();
+    const params = Object.keys(paramsObj).length ? paramsObj : null;
+
+    // missions.code (hidden in UI, required by DB)
+    const codeBase = `${values.type}_${target}${paramsObj.category ? "_" + paramsObj.category : ""}`;
+    const code = slugifyCode(codeBase);
+
+    // timestamptz
+    const start_at = values.start_at ? toLocalOffsetISO(values.start_at, { endOfDay: false }) : null;
+    const end_at = toLocalOffsetISO(values.end_at, { endOfDay: true });
+
+    const payload = {
+      // missions.*
+      code,
+      title: values.title?.trim() || codeBase.replaceAll("_", " "),
+      description: null,
+      role: values.role,
+      type: values.type,
+      target_value: target,
+      params,
+      start_at,
+      end_at,
+
+      // mission_rewards.*
+      reward: {
+        xp_reward: Number(values.xp_reward || 0) || 0,
+        real_reward_title: values.real_reward_title?.trim() || null,
+        real_reward_description: values.real_reward_description?.trim() || null,
+      },
+    };
+
+    setSubmitting(true);
+    try {
+      const res = await onCreate(payload);
+      if (!res?.ok) throw new Error(res?.message || "Create failed.");
+      setMsg({ type: "success", text: "Mission created." });
+
+      setValues((v) => ({
+        ...v,
+        target_value: 5,
+        category: "",
+        start_at: "",
+        end_at: "",
+        title: "",
+        xp_reward: 0,
+        real_reward_description: "",
+      }));
+    } catch (err) {
+      setMsg({ type: "error", text: err?.message || "Create failed." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -50,99 +285,174 @@ export default function MissionCreateForm({ onCreate }) {
       <div className="ms-form-header">
         <div className="ms-form-title">Create a new mission</div>
         <div className="ms-form-subtitle">
-          Users will be able to join and track progress automatically.
+          {metaLoading
+            ? "Loading mission metadata..."
+            : metaError
+            ? "Mission metadata not available yet."
+            : "Structured fields → trackable missions."}
         </div>
       </div>
 
+      {metaError ? (
+        <div className="ms-form-msg ms-form-error">{metaError}</div>
+      ) : null}
+
       <label className="ms-label">
-        Title
+        Role
+        <select
+          className="ms-input"
+          name="role"
+          value={values.role}
+          onChange={onChange}
+          disabled={disabled || submitting}
+        >
+          {roles.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="ms-label">
+        Objective type
+        <select
+          className="ms-input"
+          name="type"
+          value={values.type}
+          onChange={onChange}
+          disabled={disabled || submitting}
+        >
+          {availableTypes.map((t) => (
+            <option key={t.value} value={t.value}>
+              {t.label || t.value}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      {needsCategory && (
+        <label className="ms-label">
+          Category
+          <select
+            className="ms-input"
+            name="category"
+            value={values.category}
+            onChange={onChange}
+            disabled={disabled || submitting}
+          >
+            <option value="">Select category</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      <label className="ms-label">
+        Target value
+        <input
+          className="ms-input"
+          type="number"
+          min={1}
+          name="target_value"
+          value={values.target_value}
+          onChange={onChange}
+          disabled={disabled || submitting}
+        />
+      </label>
+
+      <div className="ms-row">
+        <DatePickerField
+          label="Start date (optional)"
+          value={values.start_at}
+          onChange={(v) =>
+            setValues((prev) => {
+              const next = { ...prev, start_at: v };
+              if (next.end_at && v && next.end_at < v) next.end_at = "";
+              return next;
+            })
+          }
+          minDate={minDate}
+          align="left"
+          disabled={disabled || submitting}
+        />
+
+        <DatePickerField
+          label="Deadline (end date)"
+          value={values.end_at}
+          onChange={(v) => setValues((prev) => ({ ...prev, end_at: v }))}
+          minDate={minDate}
+          required
+          align="right"
+          disabled={disabled || submitting}
+        />
+      </div>
+
+      <label className="ms-label">
+        Title (UI)
         <input
           className="ms-input"
           name="title"
           value={values.title}
           onChange={onChange}
-          placeholder="e.g. Complete 3 city-break itineraries"
-          autoComplete="off"
+          placeholder="Optional"
+          disabled={disabled || submitting}
+        />
+        <div className="ms-help">Optional. Leave empty to use an auto title.</div>
+      </label>
+
+      <div className="ms-divider" />
+      <div className="ms-form-title2">Reward</div>
+
+      <label className="ms-label">
+        XP reward
+        <input
+          className="ms-input"
+          type="number"
+          min={0}
+          name="xp_reward"
+          value={values.xp_reward}
+          onChange={onChange}
+          disabled={disabled || submitting}
         />
       </label>
 
       <label className="ms-label">
-        Description
-        <textarea
-          className="ms-textarea"
-          name="description"
-          value={values.description}
+        Real reward title
+        <input
+          className="ms-input"
+          name="real_reward_title"
+          value={values.real_reward_title}
           onChange={onChange}
-          placeholder="Full description shown in the mission details panel..."
-          rows={4}
+          placeholder="ex: Voucher transport gratuit"
+          disabled={disabled || submitting}
         />
       </label>
 
-      <div className="ms-row">
-        <label className="ms-label">
-          Deadline
-          <input
-            className="ms-input"
-            type="date"
-            name="deadline"
-            value={values.deadline}
-            onChange={onChange}
-          />
-        </label>
+      <label className="ms-label">
+        Real reward description (optional)
+        <textarea
+          className="ms-input ms-textarea"
+          name="real_reward_description"
+          value={values.real_reward_description}
+          onChange={onChange}
+          placeholder="Optional notes"
+          disabled={disabled || submitting}
+        />
+      </label>
 
-        <label className="ms-label">
-          Reward points
-          <input
-            className="ms-input"
-            type="number"
-            name="reward_points"
-            value={values.reward_points}
-            onChange={onChange}
-            min={0}
-          />
-        </label>
-      </div>
+      {msg ? (
+        <div className={`ms-form-msg ${msg.type === "error" ? "ms-form-error" : "ms-form-success"}`}>
+          {msg.text}
+        </div>
+      ) : null}
 
-      <div className="ms-row">
-        <label className="ms-label">
-          Status
-          <select
-            className="ms-input"
-            name="status"
-            value={values.status}
-            onChange={onChange}
-          >
-            <option value="ACTIVE">ACTIVE</option>
-            <option value="EXPIRED">EXPIRED</option>
-            <option value="DRAFT">DRAFT</option>
-          </select>
-        </label>
-
-        <label className="ms-label">
-          Scope
-          <select
-            className="ms-input"
-            name="scope"
-            value={values.scope}
-            onChange={onChange}
-          >
-            <option value="BOTH">BOTH</option>
-            <option value="TOURIST">TOURIST</option>
-            <option value="GUIDE">GUIDE</option>
-          </select>
-        </label>
-      </div>
-
-      {formError && <div className="ms-form-msg ms-form-error">{formError}</div>}
-      {success && <div className="ms-form-msg ms-form-success">{success}</div>}
-
-      <button className="ms-submit" type="submit" disabled={submitting}>
+      <button className="ms-submit" type="submit" disabled={disabled || submitting}>
         {submitting ? "Creating..." : "Create mission"}
       </button>
-
-      <p className="ms-form-footnote">
-        * For now this is mock / backend-ready. Later: POST to backend (admin-only).
-      </p>
     </form>
   );
 }
