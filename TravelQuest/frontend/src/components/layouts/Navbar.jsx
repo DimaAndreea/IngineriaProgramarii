@@ -1,8 +1,31 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useGamification } from "../../context/GamificationContext";
 import UserMenu from "./UserMenu";
 import "./Navbar.css";
+
+function GamificationHud() {
+  const { role } = useAuth();
+  const { summary, loading } = useGamification();
+
+  // nu afișăm nimic dacă nu e logat sau e public
+  if (!role) return null;
+
+  const lvl = summary?.level ?? summary?.lvl ?? summary?.currentLevel ?? summary?.levelNumber ?? null;
+  const xp = summary?.xp ?? summary?.currentXp ?? 0;
+
+  return (
+    <div className="nav-gami" aria-label="Gamification HUD">
+      <span className="nav-gami-pill">
+        LVL <b>{loading ? "…" : lvl ?? "—"}</b>
+      </span>
+      <span className="nav-gami-pill">
+        XP <b>{loading ? "…" : xp}</b>
+      </span>
+    </div>
+  );
+}
 
 export default function Navbar() {
   const { role } = useAuth();
@@ -65,6 +88,9 @@ export default function Navbar() {
 
       {/* RIGHT SIDE */}
       <div className="navbar-right">
+        {/* ✅ HUD (LVL + XP) */}
+        <GamificationHud />
+
         <div className="hamburger-wrapper">
           <button
             className="hamburger"

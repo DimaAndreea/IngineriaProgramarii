@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import { GamificationProvider } from "./context/GamificationContext";
 
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
@@ -35,138 +36,141 @@ export default function App() {
   return (
     <Router>
       <AuthProvider>
-        <Routes>
-          {/* PUBLIC ROUTES */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+        {/* ✅ Global gamification (HUD + refresh + celebration everywhere) */}
+        <GamificationProvider pollMs={5000}>
+          <Routes>
+            {/* PUBLIC ROUTES */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* PUBLIC: Itinerary details (dar cu Navbar) */}
-          <Route
-            path="/itineraries/:id"
-            element={
-              <ProtectedLayout>
-                <ItineraryDetailsPage />
-              </ProtectedLayout>
-            }
-          />
-
-          {/* PUBLIC: Guide profile (dar cu Navbar) */}
-          <Route
-            path="/guides/:id"
-            element={
-              <ProtectedLayout>
-                <GuideProfilePage />
-              </ProtectedLayout>
-            }
-          />
-
-          {/* PUBLIC: Tourist profile (dar cu Navbar) */}
-          <Route
-            path="/tourists/:id"
-            element={
-              <ProtectedLayout>
-                <TouristProfilePage />
-              </ProtectedLayout>
-            }
-          />
-
-          {/* PRIVATE ROUTES */}
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
+            {/* PUBLIC: Itinerary details (dar cu Navbar) */}
+            <Route
+              path="/itineraries/:id"
+              element={
                 <ProtectedLayout>
-                  <HomePage />
+                  <ItineraryDetailsPage />
                 </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
+              }
+            />
 
-          <Route
-            path="/itineraries"
-            element={
-              <ProtectedRoute>
-                <ProtectedLayout>
-                  <ItinerariesPage />
-                </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Guide active itinerary */}
-          <Route
-            path="/active"
-            element={
-              <ProtectedRoute allowedRoles={["guide"]}>
-                <ProtectedLayout>
-                  <ActiveGuidePage />
-                </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Tourist active itinerary */}
-          <Route
-            path="/tourist/active"
-            element={
-              <ProtectedRoute allowedRoles={["tourist"]}>
-                <ProtectedLayout>
-                  <ActiveItineraryTouristPage />
-                </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Missions: aceeași rută pentru toți, UI se schimbă în pagină după role */}
-          <Route
-            path="/missions"
-            element={
-              <ProtectedRoute>
-                <ProtectedLayout>
-                  <MissionsPage />
-                </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin panel */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <ProtectedLayout>
-                  <AdminPanelPage />
-                </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* OWNER: Guide */}
-          <Route
-            path="/profile/guide"
-            element={
-              <ProtectedRoute allowedRoles={["guide"]}>
+            {/* PUBLIC: Guide profile (dar cu Navbar) */}
+            <Route
+              path="/guides/:id"
+              element={
                 <ProtectedLayout>
                   <GuideProfilePage />
                 </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
+              }
+            />
 
-          {/* OWNER: Tourist */}
-          <Route
-            path="/profile/tourist"
-            element={
-              <ProtectedRoute allowedRoles={["tourist"]}>
+            {/* PUBLIC: Tourist profile (dar cu Navbar) */}
+            <Route
+              path="/tourists/:id"
+              element={
                 <ProtectedLayout>
                   <TouristProfilePage />
                 </ProtectedLayout>
-              </ProtectedRoute>
-            }
-          />
+              }
+            />
 
-          <Route path="*" element={<SmartCatchAll />} />
-        </Routes>
+            {/* PRIVATE ROUTES */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <HomePage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/itineraries"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <ItinerariesPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Guide active itinerary */}
+            <Route
+              path="/active"
+              element={
+                <ProtectedRoute allowedRoles={["guide"]}>
+                  <ProtectedLayout>
+                    <ActiveGuidePage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Tourist active itinerary */}
+            <Route
+              path="/tourist/active"
+              element={
+                <ProtectedRoute allowedRoles={["tourist"]}>
+                  <ProtectedLayout>
+                    <ActiveItineraryTouristPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Missions */}
+            <Route
+              path="/missions"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout>
+                    <MissionsPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin panel */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <ProtectedLayout>
+                    <AdminPanelPage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* OWNER: Guide */}
+            <Route
+              path="/profile/guide"
+              element={
+                <ProtectedRoute allowedRoles={["guide"]}>
+                  <ProtectedLayout>
+                    <GuideProfilePage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* OWNER: Tourist */}
+            <Route
+              path="/profile/tourist"
+              element={
+                <ProtectedRoute allowedRoles={["tourist"]}>
+                  <ProtectedLayout>
+                    <TouristProfilePage />
+                  </ProtectedLayout>
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="*" element={<SmartCatchAll />} />
+          </Routes>
+        </GamificationProvider>
       </AuthProvider>
     </Router>
   );
