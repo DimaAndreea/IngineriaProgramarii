@@ -1,87 +1,350 @@
-.mp-page {
-  padding: 32px 40px;
-  background: #f4f6fb;
-  min-height: 100vh;
+.mr-page {
+  width: 90%;
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+
+  height: calc(100vh - 90px); /* ✅ ajustează 90px dacă navbar-ul tău e mai mare/mic */
+  overflow: hidden;          /* ✅ stop page scroll */
+  display: flex;
+  flex-direction: column;
 }
 
-.mp-header {
+
+/* header stays visible */
+.mr-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   margin-bottom: 18px;
 }
 
-.mp-title {
-  margin: 0;
-  font-size: 28px;
-}
-
-.mp-subtitle {
-  margin: 6px 0 0;
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.mp-role {
+.mr-title {
+  font-size: 40px;
   font-weight: 900;
-  color: #111827;
+  margin: 0;
 }
 
-.mp-refresh {
+.mr-refresh {
   border: none;
-  border-radius: 12px;
-  padding: 10px 14px;
   background: #2f6fed;
-  color: #fff;
-  font-weight: 800;
+  color: white;
+  font-weight: 900;
+  padding: 12px 18px;
+  border-radius: 14px;
   cursor: pointer;
-  box-shadow: 0 10px 22px rgba(47, 111, 237, 0.2);
-  transition: transform 120ms ease, opacity 120ms ease;
+  box-shadow: 0 10px 26px rgba(47, 111, 237, 0.22);
 }
 
-.mp-refresh:hover {
+.mr-refresh:hover {
   transform: translateY(-1px);
 }
 
-.mp-grid {
-  display: grid;
-  grid-template-columns: 1.25fr 0.9fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.mp-grid-admin {
-  grid-template-columns: 1.1fr 0.9fr 0.9fr;
-}
-
-.mp-card {
-  background: #fff;
-  border-radius: 16px;
+.mr-card {
+  background: #ffffff;
+  border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(17, 24, 39, 0.06);
+  margin-top: 18px;
 }
 
-.mp-section-title {
-  margin: 0 0 12px;
-  font-size: 16px;
+.mr-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mr-section-title {
+  margin: 0;
+  font-size: 20px;
   font-weight: 950;
   color: #111827;
 }
 
-/* responsive */
-@media (max-width: 1100px) {
-  .mp-grid-admin {
-    grid-template-columns: 1fr;
+.mr-section-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.55);
+}
+
+/* Missions cards */
+.mr-missions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mr-mission-card {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(47, 111, 237, 0.05),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+.mr-mission-title {
+  font-weight: 950;
+  font-size: 16px;
+  color: #111827;
+}
+
+.mr-mission-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mr-meta {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.6);
+}
+
+.mr-reward {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.8);
+}
+
+.mr-reward-label {
+  color: rgba(17, 24, 39, 0.55);
+  margin-right: 6px;
+}
+
+.mr-mission-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mr-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.mr-btn-primary {
+  background: #2f6fed;
+  color: white;
+  box-shadow: 0 10px 22px rgba(47, 111, 237, 0.22);
+}
+
+.mr-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mr-btn-success {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.18);
+}
+
+.mr-status {
+  font-weight: 950;
+  color: rgba(17, 24, 39, 0.6);
+}
+
+/* Rewards */
+.mr-rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.mr-reward-card {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+}
+
+.mr-reward-title {
+  font-weight: 950;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.mr-reward-sub {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.7);
+}
+
+.mr-reward-date {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(17, 24, 39, 0.55);
+}
+
+.mr-muted {
+  color: rgba(17, 24, 39, 0.55);
+  font-weight: 800;
+}
+
+.mr-error {
+  color: #ef4444;
+  font-weight: 900;
+}
+
+/* ✅ shared scrollbar utility (used for missions list + create form) */
+.mr-scroll {
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.mr-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mr-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mr-scroll::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.25);
+  border-radius: 999px;
+}
+
+.mr-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.4);
+}
+
+/* progress */
+.mr-progress-wrap {
+  margin-top: 12px;
+}
+
+.mr-progress-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.mr-progress-text {
+  font-size: 12px;
+  font-weight: 900;
+  color: rgba(17, 24, 39, 0.65);
+}
+
+.mr-progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.08);
+  overflow: hidden;
+}
+
+.mr-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #2f6fed;
+  transition: width 300ms ease;
+}
+
+/* =========================
+   ✅ ADMIN: 2 scrollbars (All missions + Create form)
+   ========================= */
+.mr-admin-grid {
+  flex: 1;                   /* ✅ take remaining height under header */
+  min-height: 0;             /* ✅ CRITICAL for nested scroll to work */
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Make each admin card a column layout so header stays fixed and content scrolls */
+.mr-admin-grid .mr-card {
+  margin-top: 0;             /* ✅ remove margin that breaks height math */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;             /* ✅ CRITICAL */
+  height: 100%;              /* ✅ fill grid row height */
+}
+
+/* Make the scroll area fill the remaining height (this creates scrollbar per section) */
+.mr-admin-grid .mr-scroll {
+  flex: 1;
+  min-height: 0;             /* ✅ CRITICAL */
+  overflow-y: auto;          /* ✅ scrollbar per section */
+  padding-right: 6px;
+}
+
+/* header inside cards fixed */
+.mr-admin-grid .mr-card-header {
+  flex: 0 0 auto;
+}
+
+/* keep your scrollbar styling */
+.mr-admin-grid .mr-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mr-admin-grid .mr-scroll::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.25);
+  border-radius: 999px;
+}
+.mr-admin-grid .mr-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .mr-rewards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 960px) {
-  .mp-page {
-    padding: 24px 18px;
+/* responsive */
+@media (max-width: 980px) {
+  .mr-page {
+    height: auto;
+    overflow: visible;
   }
-  .mp-grid {
+  .mr-admin-grid {
+    grid-template-columns: 1fr;
+  }
+  .mr-admin-grid .mr-card {
+    height: auto;
+  }
+  .mr-admin-grid .mr-scroll {
+    max-height: 520px; /* pe mobil ok să existe */
+  }
+}
+
+@media (max-width: 620px) {
+  .mr-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .mr-mission-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .mr-mission-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .mr-rewards-grid {
     grid-template-columns: 1fr;
   }
 }

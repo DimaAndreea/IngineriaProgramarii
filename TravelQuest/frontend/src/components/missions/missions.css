@@ -113,16 +113,10 @@
   color: #1d4ed8;
 }
 
-.ms-approved {
+.ms-claimed {
   background: #ecfdf3;
   border-color: rgba(22, 163, 74, 0.25);
   color: #166534;
-}
-
-.ms-rejected {
-  background: #fef2f2;
-  border-color: rgba(220, 38, 38, 0.2);
-  color: #b91c1c;
 }
 
 /* Details */
@@ -184,7 +178,7 @@
   font-weight: 950;
 }
 
-/* Join CTA */
+/* Join / Claim CTA */
 .ms-cta {
   margin-top: 14px;
   width: 100%;
@@ -203,6 +197,11 @@
   transform: translateY(-1px);
 }
 
+.ms-cta-claim {
+  background: #16a34a;
+  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.2);
+}
+
 .ms-hint {
   margin-top: 12px;
   font-size: 13px;
@@ -210,6 +209,28 @@
   background: #f3f4f6;
   padding: 10px 12px;
   border-radius: 12px;
+}
+
+/* MOCK actions */
+.ms-mock-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ms-mock-btn {
+  flex: 1;
+  border: 1px dashed rgba(17, 24, 39, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  color: #111827;
+}
+
+.ms-mock-btn:hover {
+  background: #f9fafb;
 }
 
 /* Toast */
@@ -365,6 +386,43 @@
   color: #6b7280;
   font-size: 12px;
   line-height: 1.4;
+}
+
+/* Rewards section */
+.mq-section-title {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 950;
+  color: #111827;
+}
+
+.mq-state {
+  margin: 0;
+  color: #6b7280;
+}
+
+.mq-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mq-reward {
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  background: #fff;
+}
+
+.mq-reward-name {
+  font-weight: 950;
+  color: #111827;
+}
+
+.mq-reward-sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 /* Responsive rows */

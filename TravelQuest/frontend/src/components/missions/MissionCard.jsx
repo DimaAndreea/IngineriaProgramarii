@@ -1,44 +1,54 @@
 import "./missions.css";
 
-function statusLabel(status) {
-  if (!status || status === "not_joined") return "NOT JOINED";
-  return status.toUpperCase();
+function rewardLabel(mission) {
+  return (
+    mission?.reward?.label ||
+    (typeof mission.reward_points === "number" ? `${mission.reward_points} pts` : "Voucher")
+  );
 }
 
-export default function MissionCard({ mission, selected, onClick }) {
-  const target = mission.target || 0;
-  const progress = typeof mission.my_progress === "number" ? mission.my_progress : 0;
-  const pct = target > 0 ? Math.min(100, Math.round((progress / target) * 100)) : 0;
+function statusChip(status) {
+  const s = status || "not_joined";
+  if (s === "not_joined") return "NOT JOINED";
+  return s.toUpperCase();
+}
 
+export default function MissionCard({ mission, canParticipate, onJoin }) {
   const myStatus = mission.my_status || "not_joined";
+  const alreadyJoined = myStatus !== "not_joined";
+
+  const role = (mission.role || "—").toUpperCase();
+  const deadline = mission.deadline || "—";
+  const reward = rewardLabel(mission);
 
   return (
-    <button
-      type="button"
-      className={`ms-card ${selected ? "is-selected" : ""}`}
-      onClick={onClick}
-    >
-      <div className="ms-card-top">
-        <div className="ms-title">{mission.title}</div>
-
-        <span className={`ms-status ms-${myStatus.toLowerCase()}`}>
-          {statusLabel(myStatus)}
-        </span>
+    <div className="ms-card2">
+      <div className="ms-card2-top">
+        <div className="ms-card2-title">{mission.title}</div>
+        <span className={`ms-chip ms-${myStatus}`}>{statusChip(myStatus)}</span>
       </div>
 
-      <div className="ms-meta">
-        <span>Deadline: {mission.deadline}</span>
-        <span>Reward: {mission.reward_points} pts</span>
+      <div className="ms-card2-meta">
+        <span><b>Role:</b> {role}</span>
+        <span><b>Deadline:</b> {deadline}</span>
       </div>
 
-      <div className="ms-progress">
-        <div className="ms-progress-track">
-          <div className="ms-progress-fill" style={{ width: `${pct}%` }} />
+      <div className="ms-card2-reward">
+        <span className="ms-card2-reward-label">Reward</span>
+        <span className="ms-card2-reward-value">{reward}</span>
+      </div>
+
+      {canParticipate && !alreadyJoined && (
+        <button className="ms-join-btn" onClick={() => onJoin?.(mission.id)}>
+          Join
+        </button>
+      )}
+
+      {alreadyJoined && (
+        <div className="ms-card2-joined">
+          You are enrolled ✅
         </div>
-        <div className="ms-progress-label">
-          {progress}/{target} • {pct}%
-        </div>
-      </div>
-    </button>
+      )}
+    </div>
   );
 }

@@ -1,22 +1,20 @@
-import "./missions.css";
+export default function RewardsList({ rewards, loading }) {
+  if (loading) return <p className="mr-muted">Loading...</p>;
+  if (!rewards?.length) return <p className="mr-muted">No claimed rewards yet.</p>;
 
-export default function RewardsList({ rewards }) {
   return (
-    <div>
-      <h3 className="mq-section-title">Rewards</h3>
-
-      {!rewards || rewards.length === 0 ? (
-        <p className="mq-state">No rewards available.</p>
-      ) : (
-        <div className="mq-rewards">
-          {rewards.map((r) => (
-            <div key={r.id} className="mq-reward">
-              <div className="mq-reward-name">{r.name}</div>
-              <div className="mq-reward-cost">{r.cost} pts</div>
-            </div>
-          ))}
+    <div className="mr-rewards-grid">
+      {rewards.map((r) => (
+        <div key={r.id || `${r.title}-${r.claimed_at || ""}`} className="mr-reward-card">
+          <div className="mr-reward-title">{r.title}</div>
+          {r.fromMissionTitle ? (
+            <div className="mr-reward-sub">From: {r.fromMissionTitle}</div>
+          ) : null}
+          {r.claimed_at ? (
+            <div className="mr-reward-date">Claimed: {String(r.claimed_at).slice(0, 10)}</div>
+          ) : null}
         </div>
-      )}
+      ))}
     </div>
   );
 }
