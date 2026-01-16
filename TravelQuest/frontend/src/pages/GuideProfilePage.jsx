@@ -1,12 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useGamification } from "../context/GamificationContext";
+
 import {
   getMyItineraries,
   deleteItinerary,
   updateItinerary,
   getPublicItineraries,
 } from "../services/itineraryService";
+
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import "./GuideProfilePage.css";
 
@@ -14,7 +17,6 @@ import { getMyProfile } from "../services/userService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 
 import GamificationCard from "../components/gamification/GamificationCard";
-import { getGamificationSummary } from "../services/gamificationService";
 
 /* ---------------- helpers ---------------- */
 
@@ -51,7 +53,6 @@ function permissionsForStatus(status) {
   return { showEditDelete: false, canEdit: false, canDelete: false };
 }
 
-/** parse robust pt date-only (YYYY-MM-DD) */
 function parseDate(value, { endOfDay = false } = {}) {
   if (!value) return null;
   const str = String(value);
@@ -67,7 +68,6 @@ function parseDate(value, { endOfDay = false } = {}) {
   return new Date(value);
 }
 
-/** status temporal: Upcoming / Active / Past */
 function timeBucket(it) {
   const nowTs = Date.now();
   const start = parseDate(it?.startDate);
@@ -82,14 +82,7 @@ function timeBucket(it) {
 
 function PinIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="gp-mini-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="gp-mini-icon">
       <path
         d="M12 22s7-4.2 7-11a7 7 0 1 0-14 0c0 6.8 7 11 7 11Z"
         stroke="currentColor"
@@ -103,20 +96,8 @@ function PinIcon({ size = 16 }) {
 
 function CalendarIcon({ size = 16 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="gp-mini-icon"
-    >
-      <path
-        d="M8 3v3M16 3v3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="gp-mini-icon">
+      <path d="M8 3v3M16 3v3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path d="M4 7h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       <path
         d="M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"
@@ -128,17 +109,9 @@ function CalendarIcon({ size = 16 }) {
   );
 }
 
-/* --- colored badge icon (header) --- */
 function BadgeMedalIcon({ size = 44 }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      aria-hidden="true"
-      className="gp-badge-icon"
-    >
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true" className="gp-badge-icon">
       <path d="M22 38L14 60L28 52L32 60L32 38H22Z" fill="#60A5FA" />
       <path d="M42 38L50 60L36 52L32 60L32 38H42Z" fill="#F472B6" />
 
@@ -156,27 +129,15 @@ function BadgeMedalIcon({ size = 44 }) {
   );
 }
 
-/* ---------------- page ---------------- */
-
 export default function GuideProfilePage() {
-  const [gami, setGami] = useState(null);
-  const [gamiLoading, setGamiLoading] = useState(false);
-  const [gamiErr, setGamiErr] = useState("");
-
-  // ✅ Level up UI states (Guide)
-  const [levelUpOpen, setLevelUpOpen] = useState(false);
-  const [levelUpGlow, setLevelUpGlow] = useState(false);
-  const [levelUpTo, setLevelUpTo] = useState(null);
-  const prevLevelRef = React.useRef(null);
-
   const navigate = useNavigate();
   const params = useParams();
   const { role, userId, username } = useAuth();
 
-  // /guides/:id -> public view
+  const { summary: gami, loading: gamiLoading, err: gamiErr } = useGamification();
+
   const viewedGuideId = params?.id ? Number(params.id) : null;
 
-  // owner view = /profile/guide sau /guides/:id unde id == userId
   const isOwner =
     role === "guide" &&
     userId != null &&
@@ -189,14 +150,11 @@ export default function GuideProfilePage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // profile (email/phone) — doar pentru owner
   const [profile, setProfile] = useState(null);
 
-  // modal edit (owner only)
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // selected badge from MyBadgesSection (owner only)
   const [selectedBadge, setSelectedBadge] = useState(null);
 
   async function loadProfile() {
@@ -222,40 +180,14 @@ export default function GuideProfilePage() {
         setLoading(true);
         setErr("");
 
-        // reset gami when leaving owner mode
-        if (!isOwner) {
-          setGami(null);
-          setGamiErr("");
-          setGamiLoading(false);
-          prevLevelRef.current = null;
-        }
-
-        // OWNER: itinerariile mele (cu PENDING/REJECTED etc)
         if (isOwner) {
           const data = await getMyItineraries(userId);
           if (!alive) return;
           setItineraries(Array.isArray(data) ? data : []);
           loadProfile();
-
-          // ✅ Gamification (owner only) — DOAR BACKEND
-          setGamiLoading(true);
-          setGamiErr("");
-          try {
-            const gs = await getGamificationSummary();
-            if (!alive) return;
-            setGami(gs || null);
-          } catch (e) {
-            if (!alive) return;
-            setGami(null);
-            setGamiErr(e?.message || "Failed to load gamification.");
-          } finally {
-            if (alive) setGamiLoading(false);
-          }
-
           return;
         }
 
-        // PUBLIC: folosim DOAR itinerarii publice + filtrăm după creator.id
         if (isPublicView) {
           const allPublic = await getPublicItineraries();
           if (!alive) return;
@@ -290,41 +222,6 @@ export default function GuideProfilePage() {
     };
   }, [isOwner, isPublicView, userId, viewedGuideId]);
 
-  // ✅ Detect level-up (Guide) – apare doar când level crește
-  useEffect(() => {
-    if (!isOwner) return;
-
-    const lvl =
-      gami?.level ??
-      gami?.lvl ??
-      gami?.currentLevel ??
-      gami?.levelNumber ??
-      null;
-
-    if (lvl == null) return;
-
-    const next = Number(lvl);
-
-    if (prevLevelRef.current == null) {
-      prevLevelRef.current = next;
-      return;
-    }
-
-    const prev = Number(prevLevelRef.current);
-
-    if (Number.isFinite(prev) && Number.isFinite(next) && next > prev) {
-      setLevelUpTo(next);
-      setLevelUpOpen(true);
-      setLevelUpGlow(true);
-
-      window.setTimeout(() => setLevelUpOpen(false), 2400);
-      window.setTimeout(() => setLevelUpGlow(false), 1800);
-    }
-
-    prevLevelRef.current = next;
-  }, [gami, isOwner]);
-
-  // email/phone: doar owner
   const email = isOwner ? profile?.email || "—" : "—";
   const phone = isOwner ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
@@ -350,7 +247,6 @@ export default function GuideProfilePage() {
     });
   };
 
-  // header username
   const headerUsername = useMemo(() => {
     if (isOwner) return username || "—";
 
@@ -362,7 +258,6 @@ export default function GuideProfilePage() {
     return "Guide";
   }, [isOwner, username, itineraries, viewedGuideId]);
 
-  // badge name:
   const selectedBadgeName = useMemo(() => {
     if (isOwner) {
       return selectedBadge?.name || profile?.selectedBadge?.name || null;
@@ -377,10 +272,6 @@ export default function GuideProfilePage() {
     }
     return null;
   }, [isOwner, selectedBadge, profile, itineraries]);
-
-  /* =========================
-     ✅ ITINERARY STATS
-  ========================= */
 
   const itineraryStats = useMemo(() => {
     const all = Array.isArray(itineraries) ? itineraries : [];
@@ -428,12 +319,7 @@ export default function GuideProfilePage() {
       const city = String(getCity(it) || "").toLowerCase();
       const country = String(getCountry(it) || "").toLowerCase();
       const status = statusLabel(it.status).toLowerCase();
-      return (
-        title.includes(q) ||
-        city.includes(q) ||
-        country.includes(q) ||
-        status.includes(q)
-      );
+      return title.includes(q) || city.includes(q) || country.includes(q) || status.includes(q);
     });
   }, [search, itineraries]);
 
@@ -460,32 +346,22 @@ export default function GuideProfilePage() {
     setSelected(null);
   }
 
+  // ✅ adaptare DTO nou -> ce vrea GamificationCard-ul tău
+  const gamiForCard = useMemo(() => {
+    if (!gami) return null;
+    return {
+      ...gami,
+      currentXp: gami?.currentXp ?? gami?.xp ?? 0,
+      xpForNextLevel: gami?.xpForNextLevel ?? gami?.nextLevelMinXp ?? null,
+    };
+  }, [gami]);
+
   return (
     <div className="gp-page">
-      {/* ✅ Level-up popup + confetti (Guide) */}
-      {levelUpOpen && (
-        <div className="gp-levelup-overlay" onClick={() => setLevelUpOpen(false)}>
-          <div className="gp-levelup-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="gp-levelup-title">
-              Congratulations! You've leveled up to <b>{levelUpTo}</b>!
-            </div>
-            <div className="gp-levelup-sub">Keep going 🚀</div>
-
-            <div className="gp-confetti" aria-hidden="true">
-              {Array.from({ length: 18 }).map((_, i) => (
-                <span key={i} className="gp-confetti-piece" />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= HEADER CARD ================= */}
       <section className="gp-header-card">
-        {/* ROW 1 */}
         <div className="gp-header-main">
           <div className="gp-header-left">
-            <div className={`gp-avatar ${levelUpGlow ? "gp-avatar-glow" : ""}`}>
+            <div className="gp-avatar">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <circle cx="12" cy="8" r="4" fill="rgba(15,23,42,.35)" />
                 <path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6" fill="rgba(15,23,42,.20)" />
@@ -530,11 +406,11 @@ export default function GuideProfilePage() {
           </div>
         </div>
 
-        {/* ROW 2 – Gamification (owner only) */}
+        {/* Gamification (owner only) */}
         {isOwner && (
           <div className="gp-header-gamification">
             <GamificationCard
-              summary={gami}
+              summary={gamiForCard}
               loading={gamiLoading}
               error={gamiErr}
               isMock={false}
@@ -543,14 +419,12 @@ export default function GuideProfilePage() {
         )}
       </section>
 
-      {/* ================= BADGES CARD ================= */}
       {isOwner && (
         <section className="gp-card gp-section-card">
           <MyBadgesSection onSelectedChange={setSelectedBadge} />
         </section>
       )}
 
-      {/* ================= ITINERARIES CARD ================= */}
       <section className="gp-card gp-section-card">
         <div className="gp-itins-head">
           <div>
@@ -587,11 +461,7 @@ export default function GuideProfilePage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
               {search && (
-                <button
-                  className="gp-search-clear"
-                  onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                >
+                <button className="gp-search-clear" onClick={() => setSearch("")} aria-label="Clear search">
                   ✕
                 </button>
               )}
@@ -622,8 +492,7 @@ export default function GuideProfilePage() {
 
               const city = getCity(it);
               const country = getCountry(it);
-              const location =
-                country && country !== "—" ? `${city}, ${country}` : city;
+              const location = country && country !== "—" ? `${city}, ${country}` : city;
 
               const canShowOwnerActions = !isPublicView;
 
@@ -635,7 +504,6 @@ export default function GuideProfilePage() {
                         <h3 className="gp-itin-title" title={title}>
                           {title}
                         </h3>
-
                         <span className={`gp-status-badge ${statusClass(it.status)}`}>
                           {statusLabel(it.status)}
                         </span>
@@ -660,31 +528,21 @@ export default function GuideProfilePage() {
                   </div>
 
                   <div className="gp-itin-actions-right">
-                    <button
-                      className="gp-btn gp-btn-primary"
-                      onClick={() => navigate(`/itineraries/${it.id}`)}
-                    >
+                    <button className="gp-btn gp-btn-primary" onClick={() => navigate(`/itineraries/${it.id}`)}>
                       View
                     </button>
 
-                    {canShowOwnerActions &&
-                      perms.showEditDelete &&
-                      perms.canEdit && (
-                        <button className="gp-btn" onClick={() => handleEditOpen(it)}>
-                          Edit
-                        </button>
-                      )}
+                    {canShowOwnerActions && perms.showEditDelete && perms.canEdit && (
+                      <button className="gp-btn" onClick={() => handleEditOpen(it)}>
+                        Edit
+                      </button>
+                    )}
 
-                    {canShowOwnerActions &&
-                      perms.showEditDelete &&
-                      perms.canDelete && (
-                        <button
-                          className="gp-btn gp-btn-danger"
-                          onClick={() => handleDelete(it.id)}
-                        >
-                          Delete
-                        </button>
-                      )}
+                    {canShowOwnerActions && perms.showEditDelete && perms.canDelete && (
+                      <button className="gp-btn gp-btn-danger" onClick={() => handleDelete(it.id)}>
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </article>
               );
@@ -693,7 +551,6 @@ export default function GuideProfilePage() {
         )}
       </section>
 
-      {/* EDIT MODAL: owner only */}
       {isOwner && (
         <ItineraryForm
           visible={showModal}

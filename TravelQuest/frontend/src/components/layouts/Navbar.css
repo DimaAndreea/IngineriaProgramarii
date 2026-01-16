@@ -230,3 +230,30 @@
 @media (max-width: 560px) {
     .logo { font-size: 18px; }
 }
+
+.nav-gami{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 12px;
+}
+
+.nav-gami-pill{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(37,99,235,.10);
+  border: 1px solid rgba(37,99,235,.18);
+  color: #0b2a6b;
+  font-weight: 900;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.nav-gami-pill b{
+  color: #0f172a;
+  font-weight: 950;
+}

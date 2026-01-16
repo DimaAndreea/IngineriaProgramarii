@@ -16,16 +16,19 @@ export default function GamificationCard({
     summary?.levelNumber ??
     null;
 
+  // ✅ New backend: xp (total xp)
   const xp =
     Number(
-      summary?.currentXp ??
-        summary?.xp ??
+      summary?.xp ??
+        summary?.currentXp ??
         summary?.currentPoints ??
         summary?.points ??
         0
     ) || 0;
 
-  const xpForNext =
+  // ✅ New backend: nextLevelMinXp (threshold for next level, total xp)
+  const nextMin =
+    summary?.nextLevelMinXp ??
     summary?.xpForNextLevel ??
     summary?.requiredXp ??
     summary?.xpRequired ??
@@ -33,16 +36,31 @@ export default function GamificationCard({
     summary?.nextLevelPoints ??
     null;
 
+  // ✅ New backend: progress 0..1 (or null when max level)
   const progressPct = useMemo(() => {
-    const nextN = Number(xpForNext);
-    if (!xpForNext || !Number.isFinite(nextN) || nextN <= 0) return 0;
+    const p = summary?.progress;
+    if (typeof p === "number" && Number.isFinite(p)) {
+      return Math.max(0, Math.min(100, p * 100));
+    }
+
+    const nextN = Number(nextMin);
+    if (!nextMin || !Number.isFinite(nextN) || nextN <= 0) {
+      // dacă nu avem next threshold (ex: max level), considerăm complet
+      return 100;
+    }
+
     const pct = (xp / nextN) * 100;
     return Math.max(0, Math.min(100, pct));
-  }, [xp, xpForNext]);
+  }, [summary?.progress, xp, nextMin]);
+
+  const fractionText = useMemo(() => {
+    const nextN = Number(nextMin);
+    if (!nextMin || !Number.isFinite(nextN) || nextN <= 0) return `${xp} / —`;
+    return `${xp} / ${nextN}`;
+  }, [xp, nextMin]);
 
   return (
     <div className={`gami-card ${variant === "embedded" ? "gami-embedded" : ""}`}>
-      {/* TOP: ONLY LEVEL (no XP box on the right) */}
       <div className="gami-top">
         <div>
           <div className="gami-kicker">
@@ -55,27 +73,18 @@ export default function GamificationCard({
         </div>
       </div>
 
-      {/* PROGRESS: bar + fraction on the right (no "XP progress" text) */}
       <div className="gami-progress">
         <div className="gami-bar">
-            <div
+          <div
             className="gami-bar-fill"
             style={{ width: `${loading ? 0 : progressPct}%` }}
-            />
-
-            <div className="gami-bar-text">
-            {loading
-                ? "…"
-                : xpForNext
-                ? `${xp} / ${Number(xpForNext)}`
-                : "—"}
-            </div>
+          />
+          {/* ✅ text centrat în bară */}
+          <div className="gami-bar-text">{loading ? "…" : fractionText}</div>
         </div>
 
         {error ? <div className="gami-err">{error}</div> : null}
-        </div>
-
-
+      </div>
     </div>
   );
 }

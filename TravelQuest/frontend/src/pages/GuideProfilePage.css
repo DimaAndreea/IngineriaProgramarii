@@ -549,3 +549,8 @@
 .gp-header-gamification{
   margin-top: 14px;
 }
+
+.gp-avatar-glow {
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12), 0 0 34px rgba(37, 99, 235, 0.35);
+  border-radius: 999px;
+}

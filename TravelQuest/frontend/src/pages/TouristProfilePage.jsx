@@ -3,12 +3,12 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import "./TouristProfilePage.css";
 
 import { useAuth } from "../context/AuthContext";
+import { useGamification } from "../context/GamificationContext";
 import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
 import GamificationCard from "../components/gamification/GamificationCard";
-import { getGamificationSummary } from "../services/gamificationService";
 
 /* ---------------- helpers ---------------- */
 
@@ -35,12 +35,15 @@ const parseDate = (value, { endOfDay = false } = {}) => {
   return new Date(value);
 };
 
-/** returnează true dacă turistul e înscris în itinerariu (după datele venite din backend) */
 function isTouristInItinerary(it, touristId) {
   if (!touristId) return false;
 
   const participants =
-    it?.participants || it?.enrolledTourists || it?.tourists || it?.joinedUsers || [];
+    it?.participants ||
+    it?.enrolledTourists ||
+    it?.tourists ||
+    it?.joinedUsers ||
+    [];
 
   if (Array.isArray(participants)) {
     return participants.some((p) => {
@@ -52,6 +55,7 @@ function isTouristInItinerary(it, touristId) {
 
   const participantIds =
     it?.participantIds || it?.touristIds || it?.participantsIds;
+
   if (Array.isArray(participantIds)) {
     return participantIds.map(Number).includes(Number(touristId));
   }
@@ -142,18 +146,9 @@ export default function TouristProfilePage() {
   const navigate = useNavigate();
   const params = useParams();
   const location = useLocation();
+
   const { userId, username, role } = useAuth();
-
-  // Gamification state (NO MOCK)
-  const [gami, setGami] = useState(null);
-  const [gamiLoading, setGamiLoading] = useState(false);
-  const [gamiErr, setGamiErr] = useState("");
-
-  // Level up UI states
-  const [levelUpOpen, setLevelUpOpen] = useState(false);
-  const [levelUpGlow, setLevelUpGlow] = useState(false);
-  const [levelUpTo, setLevelUpTo] = useState(null);
-  const prevLevelRef = React.useRef(null);
+  const { summary: gami, loading: gamiLoading, err: gamiErr } = useGamification();
 
   // /tourists/:id => public mode
   const publicTouristId = params?.id ? Number(params.id) : null;
@@ -162,10 +157,8 @@ export default function TouristProfilePage() {
   const isOwnerMode = !publicTouristId && role?.toLowerCase() === "tourist";
   const isPublicMode = !!publicTouristId;
 
-  // state primit din Link (poate să lipsească)
   const touristFromState = location?.state?.tourist || null;
 
-  // pe cine afișăm
   const targetTouristId = isOwnerMode
     ? Number(userId)
     : Number(publicTouristId || touristFromState?.id || 0) || null;
@@ -184,7 +177,6 @@ export default function TouristProfilePage() {
 
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [profile, setProfile] = useState(null);
-
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -194,17 +186,7 @@ export default function TouristProfilePage() {
       setLoading(true);
       setErr("");
 
-      // reset gamification state on route changes
-      if (isOwnerMode) {
-        setGamiErr("");
-      } else {
-        setGami(null);
-        setGamiErr("");
-        setGamiLoading(false);
-      }
-
       try {
-        // 1) Itinerarii
         if (!targetTouristId) throw new Error("Missing tourist id.");
 
         const itData = await filterItineraries({ participant: true }, targetTouristId);
@@ -212,10 +194,8 @@ export default function TouristProfilePage() {
 
         const list = Array.isArray(itData) ? itData : [];
 
-        // 2) Filtrare sigură
         let filtered = list.filter((it) => isTouristInItinerary(it, targetTouristId));
 
-        // 3) Fallback localStorage (owner only)
         if (isOwnerMode) {
           const enrollments = readEnrollments();
           filtered = list.filter((it) => {
@@ -227,30 +207,12 @@ export default function TouristProfilePage() {
 
         setItineraries(filtered);
 
-        // 4) Profil (owner only)
         if (isOwnerMode) {
           const prof = await getMyProfile().catch(() => null);
           if (!alive) return;
           setProfile(prof || null);
         } else {
           setProfile(null);
-        }
-
-        // 5) Gamification (owner only) — ONLY BACKEND
-        if (isOwnerMode) {
-          setGamiLoading(true);
-          setGamiErr("");
-          try {
-            const gs = await getGamificationSummary();
-            if (!alive) return;
-            setGami(gs || null);
-          } catch (e2) {
-            if (!alive) return;
-            setGami(null);
-            setGamiErr(e2?.message || "Failed to load gamification.");
-          } finally {
-            if (alive) setGamiLoading(false);
-          }
         }
       } catch (e) {
         if (!alive) return;
@@ -268,47 +230,9 @@ export default function TouristProfilePage() {
     };
   }, [isOwnerMode, targetTouristId]);
 
-  // Detect level-up (for animation)
-  useEffect(() => {
-    if (!isOwnerMode) return;
-
-    const lvl =
-      gami?.level ??
-      gami?.lvl ??
-      gami?.currentLevel ??
-      gami?.levelNumber ??
-      null;
-
-    if (lvl == null) return;
-
-    const next = Number(lvl);
-
-    // init
-    if (prevLevelRef.current == null) {
-      prevLevelRef.current = next;
-      return;
-    }
-
-    const prev = Number(prevLevelRef.current);
-
-    // level up only when it increases
-    if (Number.isFinite(prev) && Number.isFinite(next) && next > prev) {
-      setLevelUpTo(next);
-      setLevelUpOpen(true);
-      setLevelUpGlow(true);
-
-      window.setTimeout(() => setLevelUpOpen(false), 2400);
-      window.setTimeout(() => setLevelUpGlow(false), 1800);
-    }
-
-    prevLevelRef.current = next;
-  }, [gami, isOwnerMode]);
-
-  // contact doar pentru owner (private)
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
 
-  // status (Active / Upcoming / Completed)
   const withStatus = useMemo(() => {
     const nowTs = Date.now();
 
@@ -373,32 +297,26 @@ export default function TouristProfilePage() {
 
   const showBadgesSection = isOwnerMode;
 
+  // ✅ adaptare DTO nou -> ce vrea GamificationCard-ul tău
+  const gamiForCard = useMemo(() => {
+    if (!gami) return null;
+    return {
+      ...gami,
+      currentXp: gami?.currentXp ?? gami?.xp ?? 0,
+      xpForNextLevel:
+        gami?.xpForNextLevel ??
+        gami?.nextLevelMinXp ??
+        null,
+    };
+  }, [gami]);
+
   return (
     <div className="tourist-profile-page">
-      {/* Level-up popup + confetti */}
-      {levelUpOpen && (
-        <div className="tp-levelup-overlay" onClick={() => setLevelUpOpen(false)}>
-          <div className="tp-levelup-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="tp-levelup-title">
-              Congratulations! You've leveled up to <b>{levelUpTo}</b>!
-            </div>
-            <div className="tp-levelup-sub">Keep going 🚀</div>
-
-            <div className="tp-confetti">
-              {Array.from({ length: 18 }).map((_, i) => (
-                <span key={i} className="tp-confetti-piece" />
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* PROFILE HEADER */}
       <div className="tourist-header-card">
-        {/* ROW 1 */}
         <div className="tourist-header-main">
           <div className="tourist-header-left">
-            <div className={`tp-avatar ${levelUpGlow ? "tp-avatar-glow" : ""}`}>
+            <div className="tp-avatar">
               <AvatarIcon />
             </div>
 
@@ -440,11 +358,11 @@ export default function TouristProfilePage() {
           </div>
         </div>
 
-        {/* ROW 2: gamification full width (owner only) */}
+        {/* Gamification (owner only) */}
         {isOwnerMode && (
           <div className="tourist-header-gamification">
             <GamificationCard
-              summary={gami}
+              summary={gamiForCard}
               loading={gamiLoading}
               error={gamiErr}
               isMock={false}
@@ -465,7 +383,6 @@ export default function TouristProfilePage() {
         <div className="itins-head">
           <div>
             <h2 className="itins-title">My itineraries</h2>
-
             <div className="itins-sub">
               <b>{counts.active}</b> active <span className="dot">•</span>{" "}
               <b>{counts.upcoming}</b> upcoming <span className="dot">•</span>{" "}
@@ -524,7 +441,6 @@ export default function TouristProfilePage() {
                         <h3 className="itinerary-title" title={title}>
                           {title}
                         </h3>
-
                         <span className={`pill ${pillClass}`}>{it.__status}</span>
                       </div>
                     </div>
