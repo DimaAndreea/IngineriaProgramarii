@@ -15,18 +15,21 @@ public class PointsService {
     private final UserRepository userRepository;
     private final UserPointsHistoryRepository userPointsHistoryRepository;
     private final LevelService levelService;
+    private final BadgeService badgeService;
 
     public PointsService(UserRepository userRepository,
                          UserPointsHistoryRepository userPointsHistoryRepository,
-                         LevelService levelService) {
+                         LevelService levelService,
+                         BadgeService badgeService) {
         this.userRepository = userRepository;
         this.userPointsHistoryRepository = userPointsHistoryRepository;
         this.levelService = levelService;
+        this.badgeService = badgeService;
     }
 
     /**
      * Adaugă puncte (XP) unui user, salvează în users, scrie istoric și recalculează nivelul.
-     * Este extensibil: actionType + metadata (itineraryId/objectiveId/submissionId).
+     * Dacă nivelul crește, deblochează automat badge-urile eligibile.
      */
     @Transactional
     public int addPoints(Long userId,
@@ -36,20 +39,19 @@ public class PointsService {
                          Long objectiveId,
                          Long submissionId) {
 
-        if (pointsDelta == 0) {
-            // nu facem nimic, dar returnăm nivelul curent
-            User u = userRepository.findById(userId)
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
-            return u.getLevel();
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (pointsDelta == 0) {
+            return user.getLevel();
+        }
 
         // Defensive: nu permitem XP negativ (poți schimba regula dacă vrei)
         if (pointsDelta < 0) {
             throw new RuntimeException("Negative pointsDelta is not allowed");
         }
+
+        int oldLevel = user.getLevel();
 
         // 1) update XP
         user.setXp(user.getXp() + pointsDelta);
@@ -66,7 +68,14 @@ public class PointsService {
         userPointsHistoryRepository.save(h);
 
         // 3) recalc level
-        return levelService.recalculateLevel(userId);
+        int newLevel = levelService.recalculateLevel(userId);
+
+        // 4) auto-unlock badges (doar dacă a crescut nivelul)
+        if (newLevel > oldLevel) {
+            badgeService.unlockBadgesForUser(userId);
+        }
+
+        return newLevel;
     }
 
     // Overload-uri “confort” (fără metadata)
