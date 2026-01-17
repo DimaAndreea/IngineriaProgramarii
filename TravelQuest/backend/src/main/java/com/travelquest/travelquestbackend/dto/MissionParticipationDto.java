@@ -1,14 +1,28 @@
 package com.travelquest.travelquestbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MissionParticipationDto {
+
+    @JsonProperty("mission_id")
     private Long missionId;
+
+    @JsonProperty("user_id")
     private Long userId;
-    private String status;      // "PENDING"
-    private int progress;       // 0 la început
 
-    public MissionParticipationDto() {}
+    private String status;   // PENDING, COMPLETED etc.
 
-    public MissionParticipationDto(Long missionId, Long userId, String status, int progress) {
+    private int progress;    // 0 la început
+
+    public MissionParticipationDto() {
+    }
+
+    public MissionParticipationDto(
+            Long missionId,
+            Long userId,
+            String status,
+            int progress
+    ) {
         this.missionId = missionId;
         this.userId = userId;
         this.status = status;
