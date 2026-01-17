@@ -1,44 +1,64 @@
 package com.travelquest.travelquestbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import com.travelquest.travelquestbackend.model.MissionStatus;
-import com.travelquest.travelquestbackend.model.MissionScope;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 
 public class MissionDto {
+
     @NotBlank
     private String title;
 
     private String description;
 
-    @NotNull
-    private LocalDate deadline;
+    @JsonProperty("start_at")
+    private String startAt;  // ISO string
 
-    @NotNull
-    @Min(0)
-    @JsonProperty("reward_points")
-    private Integer rewardPoints;
+    @JsonProperty("end_at")
+    @NotBlank
+    private String endAt;    // ISO string
 
-    @NotNull
-    private MissionStatus status;
+    @NotBlank
+    private String role;
 
-    @NotNull
-    private MissionScope scope;
+    @NotBlank
+    private String type;
+
+    @JsonProperty("target_value")
+    @Min(1)
+    private Integer targetValue;
+
+    private Map<String, Object> params;
+
+    @JsonProperty("reward")
+    private RewardDto reward;
 
     // Getters & setters
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public LocalDate getDeadline() { return deadline; }
-    public void setDeadline(LocalDate deadline) { this.deadline = deadline; }
-    public Integer getRewardPoints() { return rewardPoints; }
-    public void setRewardPoints(Integer rewardPoints) { this.rewardPoints = rewardPoints; }
-    public MissionStatus getStatus() { return status; }
-    public void setStatus(MissionStatus status) { this.status = status; }
-    public MissionScope getScope() { return scope; }
-    public void setScope(MissionScope scope) { this.scope = scope; }
+
+    public String getStartAt() { return startAt; }
+    public void setStartAt(String startAt) { this.startAt = startAt; }
+
+    public String getEndAt() { return endAt; }
+    public void setEndAt(String endAt) { this.endAt = endAt; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
+
+    public Integer getTargetValue() { return targetValue; }
+    public void setTargetValue(Integer targetValue) { this.targetValue = targetValue; }
+
+    public Map<String, Object> getParams() { return params; }
+    public void setParams(Map<String, Object> params) { this.params = params; }
+
+    public RewardDto getReward() { return reward; }
+    public void setReward(RewardDto reward) { this.reward = reward; }
 }

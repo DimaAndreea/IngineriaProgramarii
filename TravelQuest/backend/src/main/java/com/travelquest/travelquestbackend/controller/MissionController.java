@@ -6,11 +6,10 @@ import com.travelquest.travelquestbackend.service.MissionService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/missions")
@@ -22,27 +21,39 @@ public class MissionController {
         this.missionService = missionService;
     }
 
+    // ===============================
+    // LIST ALL MISSIONS
+    // ===============================
     @GetMapping
     public ResponseEntity<List<Mission>> getAllMissions() {
         List<Mission> missions = missionService.getAllMissions();
         return ResponseEntity.ok(missions);
     }
 
+    // ===============================
+    // CREATE MISSION
+    // ===============================
     @PostMapping
     public ResponseEntity<Mission> createMission(@RequestBody @Valid MissionDto dto) {
-        System.out.println("=== CREATE MISSION REQUEST ===");
-        System.out.println("Title: " + dto.getTitle());
-        System.out.println("Description: " + dto.getDescription());
-        System.out.println("Deadline: " + dto.getDeadline());
-        System.out.println("Reward Points: " + dto.getRewardPoints());
-        System.out.println("Status: " + dto.getStatus());
-        System.out.println("Scope: " + dto.getScope());
-        System.out.println("=============================");
-
-        Long adminId = 1L;
+        Long adminId = 1L; // MOCK admin
         Mission mission = missionService.createMission(dto, adminId);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(mission);
     }
 
+    // ===============================
+    // MISSION METADATA (for frontend)
+    // ===============================
+    @GetMapping("/meta")
+    public ResponseEntity<?> getMissionMeta() {
+        // MOCK metadata, poți înlocui cu valori reale din DB
+        Map<String, Object> meta = Map.of(
+                "roles", List.of("TOURIST", "GUIDE"),
+                "types", List.of(
+                        Map.of("value", "VISIT_MUSEUM", "role", "TOURIST", "label", "Visit museum", "paramsSchema", Map.of("category", true)),
+                        Map.of("value", "WALK_TOUR", "role", "GUIDE", "label", "Organize tour", "paramsSchema", Map.of())
+                ),
+                "categories", List.of("History", "Art", "Nature")
+        );
+        return ResponseEntity.ok(meta);
+    }
 }
