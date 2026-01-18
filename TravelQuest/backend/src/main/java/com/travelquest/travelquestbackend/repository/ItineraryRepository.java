@@ -73,4 +73,10 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
             @Param("today") LocalDate today
     );
 
+    @Query("SELECT COUNT(i) FROM Itinerary i WHERE i.creator.id = :userId")
+    int countPublishedByUser(Long userId);
+
+    @Query("SELECT COUNT(p) FROM Itinerary i JOIN i.participants p WHERE i.creator.id = :userId AND i.category = :category")
+    int countParticipantsInCategoryByUser(Long userId, String category);
+
 }

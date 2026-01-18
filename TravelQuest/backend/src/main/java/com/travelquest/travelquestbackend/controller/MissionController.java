@@ -26,8 +26,7 @@ public class MissionController {
     // ===============================
     @GetMapping
     public ResponseEntity<List<Mission>> getAllMissions() {
-        List<Mission> missions = missionService.getAllMissions();
-        return ResponseEntity.ok(missions);
+        return ResponseEntity.ok(missionService.getAllMissions());
     }
 
     // ===============================
@@ -41,19 +40,85 @@ public class MissionController {
     }
 
     // ===============================
-    // MISSION METADATA (for frontend)
+    // MISSION METADATA (FRONTEND)
     // ===============================
     @GetMapping("/meta")
     public ResponseEntity<?> getMissionMeta() {
-        // MOCK metadata, poți înlocui cu valori reale din DB
-        Map<String, Object> meta = Map.of(
-                "roles", List.of("TOURIST", "GUIDE"),
-                "types", List.of(
-                        Map.of("value", "VISIT_MUSEUM", "role", "TOURIST", "label", "Visit museum", "paramsSchema", Map.of("category", true)),
-                        Map.of("value", "WALK_TOUR", "role", "GUIDE", "label", "Organize tour", "paramsSchema", Map.of())
-                ),
-                "categories", List.of("History", "Art", "Nature")
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "roles", List.of("TOURIST", "GUIDE"),
+
+                        "types", List.of(
+                                // ================= GUIDE =================
+                                Map.of(
+                                        "value", "GUIDE_PUBLISH_ITINERARY_COUNT",
+                                        "role", "GUIDE",
+                                        "label", "Publish itineraries",
+                                        "paramsSchema", Map.of()
+                                ),
+                                Map.of(
+                                        "value", "GUIDE_ITINERARY_CATEGORY_PARTICIPANTS_COUNT",
+                                        "role", "GUIDE",
+                                        "label", "Participants in itinerary category",
+                                        "paramsSchema", Map.of(
+                                                "category", true
+                                        )
+                                ),
+                                Map.of(
+                                        "value", "GUIDE_EVALUATE_SUBMISSIONS_COUNT",
+                                        "role", "GUIDE",
+                                        "label", "Evaluate submissions",
+                                        "paramsSchema", Map.of()
+                                ),
+
+                                // ================= TOURIST =================
+                                Map.of(
+                                        "value", "TOURIST_JOIN_ITINERARY_COUNT",
+                                        "role", "TOURIST",
+                                        "label", "Join itineraries",
+                                        "paramsSchema", Map.of()
+                                ),
+                                Map.of(
+                                        "value", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT",
+                                        "role", "TOURIST",
+                                        "label", "Join itineraries in category",
+                                        "paramsSchema", Map.of(
+                                                "category", true
+                                        )
+                                ),
+                                Map.of(
+                                        "value", "TOURIST_APPROVED_SUBMISSIONS_COUNT",
+                                        "role", "TOURIST",
+                                        "label", "Approved submissions",
+                                        "paramsSchema", Map.of()
+                                ),
+                                Map.of(
+                                        "value", "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT",
+                                        "role", "TOURIST",
+                                        "label", "Approved submissions in category",
+                                        "paramsSchema", Map.of(
+                                                "category", true
+                                        )
+                                ),
+                                Map.of(
+                                        "value", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT",
+                                        "role", "TOURIST",
+                                        "label", "Approved submissions in same itinerary",
+                                        "paramsSchema", Map.of(
+                                                "itinerary", true
+                                        )
+                                )
+                        ),
+
+                        "categories", List.of(
+                                "History",
+                                "Art",
+                                "Nature",
+                                "Food",
+                                "Adventure"
+                        )
+                )
         );
-        return ResponseEntity.ok(meta);
     }
 }

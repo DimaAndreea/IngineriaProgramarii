@@ -2,12 +2,14 @@ package com.travelquest.travelquestbackend.service;
 
 import com.travelquest.travelquestbackend.dto.MissionParticipationDto;
 import com.travelquest.travelquestbackend.dto.RewardDto;
+import com.travelquest.travelquestbackend.model.GamifiedActionType;
 import com.travelquest.travelquestbackend.model.Mission;
 import com.travelquest.travelquestbackend.model.MissionParticipation;
 import com.travelquest.travelquestbackend.model.User;
-import com.travelquest.travelquestbackend.model.UserRole;
+import com.travelquest.travelquestbackend.model.UserPointsHistory;
 import com.travelquest.travelquestbackend.repository.MissionParticipationRepository;
 import com.travelquest.travelquestbackend.repository.MissionRepository;
+import com.travelquest.travelquestbackend.repository.UserPointsHistoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,74 +21,105 @@ public class MissionParticipationService {
 
     private final MissionRepository missionRepository;
     private final MissionParticipationRepository participationRepository;
+    private final UserPointsHistoryRepository pointsHistoryRepository;
 
     public MissionParticipationService(
             MissionRepository missionRepository,
-            MissionParticipationRepository participationRepository
+            MissionParticipationRepository participationRepository,
+            UserPointsHistoryRepository pointsHistoryRepository
     ) {
         this.missionRepository = missionRepository;
         this.participationRepository = participationRepository;
+        this.pointsHistoryRepository = pointsHistoryRepository;
     }
 
     // ===============================
-    // JOIN MISSION
+    // JOIN MISSION (TOURIST or GUIDE)
     // ===============================
     @Transactional
     public MissionParticipationDto joinMission(Long missionId, User user) {
 
-        if (user.getRole() != UserRole.TOURIST) {
-            throw new IllegalArgumentException("Only tourists can join missions");
-        }
-
         Mission mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new EntityNotFoundException("Mission not found"));
 
-        boolean alreadyJoined =
-                participationRepository.existsByMissionAndUser(mission, user);
+        // verificăm dacă rolul utilizatorului corespunde rolului misiunii
+        if (!mission.getRole().equalsIgnoreCase(user.getRole().name())) {
+            throw new IllegalArgumentException(
+                    "User role (" + user.getRole() + ") cannot join mission for role " + mission.getRole()
+            );
+        }
 
+        boolean alreadyJoined = participationRepository.existsByMissionAndUser(mission, user);
         if (alreadyJoined) {
             throw new IllegalArgumentException("User already joined this mission");
         }
 
+        // creăm participarea
         MissionParticipation participation = new MissionParticipation();
         participation.setMission(mission);
         participation.setUser(user);
-        participation.setStatus("COMPLETED"); // MOCK pentru frontend
+
+        // pentru teste frontend: completăm automat misiunea
+        participation.setStatus("COMPLETED");
         participation.setProgress(100);
 
         participationRepository.save(participation);
+
+        // auto-claim imediat dacă e completă
+        RewardDto reward = autoClaim(participation, user);
 
         return new MissionParticipationDto(
                 mission.getId(),
                 user.getId(),
                 participation.getStatus(),
-                participation.getProgress()
+                participation.getProgress(),
+                reward.getXpReward() // punctele acordate
         );
     }
 
     // ===============================
-    // CLAIM MISSION
+    // CLAIM MISSION MANUAL
     // ===============================
     @Transactional
     public RewardDto claimMission(Long missionId, User user) {
-
-        MissionParticipation participation =
-                participationRepository
-                        .findByMissionIdAndUserId(missionId, user.getId())
-                        .orElseThrow(() ->
-                                new IllegalArgumentException("Mission not joined")
-                        );
+        MissionParticipation participation = participationRepository
+                .findByMissionIdAndUserId(missionId, user.getId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Mission not joined")
+                );
 
         if (!"COMPLETED".equals(participation.getStatus())) {
             throw new IllegalStateException("Mission not completed");
         }
 
-        participation.setStatus("CLAIMED");
+        return autoClaim(participation, user);
+    }
 
+    // ===============================
+    // AUTO-CLAIM (internal)
+    // ===============================
+    @Transactional
+    public RewardDto autoClaim(MissionParticipation participation, User user) {
+
+        // dacă nu e încă CLAIMED
+        if (!"CLAIMED".equals(participation.getStatus())) {
+            participation.setStatus("CLAIMED");
+            participationRepository.save(participation);
+
+            // salvăm punctele în user_points_history
+            UserPointsHistory history = new UserPointsHistory();
+            history.setUser(user);
+            history.setPointsDelta(participation.getMission().getRewardPoints());
+            history.setActionType(GamifiedActionType.OBJECTIVE_APPROVED);
+            history.setObjectiveId(participation.getMission().getId());
+            pointsHistoryRepository.save(history);
+        }
+
+        // returnăm reward
         RewardDto reward = new RewardDto();
         reward.setXpReward(participation.getMission().getRewardPoints());
         reward.setRealRewardTitle(participation.getMission().getTitle());
-        reward.setRealRewardDescription("Mission completed successfully");
+        reward.setRealRewardDescription("Mission completed and auto-claimed");
 
         return reward;
     }
@@ -95,7 +128,6 @@ public class MissionParticipationService {
     // MY REWARDS
     // ===============================
     public List<RewardDto> getMyRewards(User user) {
-
         return participationRepository
                 .findByUserAndStatus(user, "CLAIMED")
                 .stream()

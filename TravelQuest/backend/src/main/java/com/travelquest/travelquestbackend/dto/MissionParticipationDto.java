@@ -10,9 +10,12 @@ public class MissionParticipationDto {
     @JsonProperty("user_id")
     private Long userId;
 
-    private String status;   // PENDING, COMPLETED etc.
+    private String status;   // PENDING, COMPLETED, CLAIMED
 
-    private int progress;    // 0 la început
+    private int progress;    // 0..100
+
+    @JsonProperty("xp_reward")
+    private int xpReward;    // punctele câștigate (0 dacă nu a fost claim)
 
     public MissionParticipationDto() {
     }
@@ -21,12 +24,14 @@ public class MissionParticipationDto {
             Long missionId,
             Long userId,
             String status,
-            int progress
+            int progress,
+            int xpReward
     ) {
         this.missionId = missionId;
         this.userId = userId;
         this.status = status;
         this.progress = progress;
+        this.xpReward = xpReward;
     }
 
     public Long getMissionId() {
@@ -59,5 +64,13 @@ public class MissionParticipationDto {
 
     public void setProgress(int progress) {
         this.progress = progress;
+    }
+
+    public int getXpReward() {
+        return xpReward;
+    }
+
+    public void setXpReward(int xpReward) {
+        this.xpReward = xpReward;
     }
 }
