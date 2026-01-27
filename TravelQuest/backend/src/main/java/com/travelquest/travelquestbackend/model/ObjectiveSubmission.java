@@ -2,6 +2,8 @@ package com.travelquest.travelquestbackend.model;
 
 import jakarta.persistence.*;
 import java.time.ZonedDateTime;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "objective_submission")
@@ -28,6 +30,7 @@ public class ObjectiveSubmission {
     private String submissionBase64;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false)
     @org.hibernate.annotations.ColumnTransformer(write = "?::submission_status")
     private SubmissionStatus status = SubmissionStatus.PENDING;

@@ -79,4 +79,14 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     @Query("SELECT COUNT(p) FROM Itinerary i JOIN i.participants p WHERE i.creator.id = :userId AND i.category = :category")
     int countParticipantsInCategoryByUser(Long userId, String category);
 
+    @Query("""
+    SELECT COUNT(p)
+    FROM Itinerary i
+    JOIN i.participants p
+    WHERE p.tourist.id = :userId
+      AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+""")
+    int countUserJoinedItineraries(@Param("userId") Long userId);
+
+
 }

@@ -22,7 +22,7 @@ public class MissionClaim {
     @JoinColumn(name = "mission_id", nullable = false)
     private Mission mission;
 
-    @Column(name = "claimed_at")
+    @Column(name = "claimed_at", nullable = false)
     private LocalDateTime claimedAt = LocalDateTime.now();
 
     // Getters & Setters
