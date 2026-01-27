@@ -54,10 +54,26 @@ export default function MissionsPage() {
   }, [missions]);
 
   async function loadAll() {
-    setLoading(true);
     try {
       const data = await listMissions();
-      setMissions(Array.isArray(data) ? data : []);
+      const newData = Array.isArray(data) ? data : [];
+      
+      // Smart update: only update state if meaningful data changed
+      // Avoid unnecessary re-renders for unchanged missions
+      setMissions(prev => {
+        // Check if any mission data actually changed (not just object reference)
+        const hasChanges = prev.length !== newData.length ||
+          prev.some((p, i) => {
+            const n = newData[i];
+            return !n || 
+              p.mission_id !== n.mission_id ||
+              p.progress_value !== n.progress_value ||
+              p.my_state !== n.my_state ||
+              p.title !== n.title;
+          });
+        
+        return hasChanges ? newData : prev;
+      });
 
       // OPTIONAL endpoint: if not available, ignore silently
       try {
@@ -78,6 +94,23 @@ export default function MissionsPage() {
 
   useEffect(() => {
     loadAll();
+    
+    // 🔄 Poll pentru actualizări la fiecare 2 secunde (mai responsive)
+    const interval = setInterval(() => {
+      loadAll();
+    }, 2000);
+    
+    // 📡 Listen for submission evaluation events from Active Itinerary page
+    const handleSubmissionEvaluated = () => {
+      loadAll(); // Refresh missions immediately
+    };
+    
+    window.addEventListener("submissionEvaluated", handleSubmissionEvaluated);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("submissionEvaluated", handleSubmissionEvaluated);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

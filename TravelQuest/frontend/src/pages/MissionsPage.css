@@ -3,8 +3,8 @@
   margin: 0 auto;
   padding: 28px 20px 40px;
 
-  height: calc(100vh - 90px); /* ✅ ajustează 90px dacă navbar-ul tău e mai mare/mic */
-  overflow: hidden;          /* ✅ stop page scroll */
+  min-height: calc(100vh - 90px); /* ✅ ajustează 90px dacă navbar-ul tău e mai mare/mic */
+  overflow-y: auto;          /* ✅ allow page scroll */
   display: flex;
   flex-direction: column;
 }

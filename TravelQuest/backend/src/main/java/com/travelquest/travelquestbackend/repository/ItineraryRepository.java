@@ -118,17 +118,22 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     int countPublishedByUser(@Param("userId") Long userId);
 
     // Total itineraries published by user in a specific category
-    @Query("SELECT COUNT(i) FROM Itinerary i WHERE i.creator.id = :userId AND i.category = :category")
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM itinerary
+        WHERE creator_id = :userId
+          AND category::text = :category
+    """, nativeQuery = true)
     int countPublishedByUserAndCategory(@Param("userId") Long userId, @Param("category") String category);
 
     // Total participants in itineraries published by guide in a category
-    @Query("""
-        SELECT COUNT(p)
-        FROM Itinerary i
-        JOIN i.participants p
-        WHERE i.creator.id = :userId
-          AND i.category = :category
-    """)
+    @Query(value = """
+        SELECT COUNT(p.participant_id)
+        FROM itinerary i
+        JOIN itinerary_participant p ON i.itinerary_id = p.itinerary_id
+        WHERE i.creator_id = :userId
+          AND i.category::text = :category
+    """, nativeQuery = true)
     int countParticipantsInCategoryByUser(@Param("userId") Long userId, @Param("category") String category);
 
     // Count participants in a specific itinerary

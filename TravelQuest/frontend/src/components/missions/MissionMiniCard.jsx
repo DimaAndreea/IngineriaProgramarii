@@ -1,17 +1,21 @@
+import React from "react";
 import "./missions.css";
 
 function getRewardLabel(m) {
   return m?.reward?.real_reward_title || "Voucher";
 }
 
-export default function MissionMiniCard({ mission, onJoin, onClaim, canParticipate }) {
+function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate }) {
   const id = mission?.mission_id ?? mission?.id;
 
   const state = mission?.my_state || "NOT_JOINED";
   const target = Number(mission?.target_value || 1);
-  const progress = Number(mission?.progress_value || 0);
-
-  const pct = Math.max(0, Math.min(100, Math.round((progress / target) * 100)));
+  
+  // progress_value from backend is already a percentage (0-100)
+  const pct = Math.max(0, Math.min(100, Number(mission?.progress_value || 0)));
+  
+  // Calculate the actual count from percentage for display (e.g., "1/3")
+  const count = Math.round((pct / 100) * target);
 
   return (
     <div className="mr-mission-card">
@@ -31,7 +35,7 @@ export default function MissionMiniCard({ mission, onJoin, onClaim, canParticipa
           <div className="mr-progress-wrap">
             <div className="mr-progress-top">
               <span className="mr-progress-text">
-                {progress}/{target}
+                {count}/{target}
               </span>
               <span className="mr-progress-text">{pct}%</span>
             </div>
@@ -61,3 +65,7 @@ export default function MissionMiniCard({ mission, onJoin, onClaim, canParticipa
     </div>
   );
 }
+
+// Memoize to prevent re-renders when props haven't changed
+export default React.memo(MissionMiniCardComponent);
+

@@ -152,6 +152,9 @@ export default function ActiveItineraryPage() {
     try {
       // 1) PATCH status
       await apiUpdateSubmissionStatus(itineraryId, sid, status);
+      
+      // 📡 Notify Missions page to refresh immediately
+      window.dispatchEvent(new Event("submissionEvaluated"));
 
       // 2) ✅ refetch submissions ca să se actualizeze badge-ul din listă
       const fresh = await getSubmissionsForGuide(itineraryId);

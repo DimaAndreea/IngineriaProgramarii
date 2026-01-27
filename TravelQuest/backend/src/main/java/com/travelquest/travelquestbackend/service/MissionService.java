@@ -1,11 +1,13 @@
 package com.travelquest.travelquestbackend.service;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.travelquest.travelquestbackend.dto.MissionDto;
 import com.travelquest.travelquestbackend.dto.RewardDto;
 import com.travelquest.travelquestbackend.model.Mission;
 import com.travelquest.travelquestbackend.model.MissionParticipation;
+import com.travelquest.travelquestbackend.model.MissionScope;
 import com.travelquest.travelquestbackend.model.MissionStatus;
 import com.travelquest.travelquestbackend.model.Reward;
 import com.travelquest.travelquestbackend.repository.MissionParticipationRepository;
@@ -15,6 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +70,7 @@ public class MissionService {
                     dto.setClaimedAt(mp.getClaimedAt()); // LocalDateTime compatibil
                 }, () -> {
                     dto.setMyProgress(0);
-                    dto.setMyStatus("PENDING");
+                    dto.setMyStatus("NOT_JOINED");
                     dto.setClaimedAt(null);
                 });
             }
@@ -86,16 +90,27 @@ public class MissionService {
                 dto.getTitle(), dto.getRole(), dto.getType());
 
         Mission mission = new Mission();
+        mission.setCode(dto.getCode());
         mission.setTitle(dto.getTitle());
         mission.setDescription(dto.getDescription());
         mission.setCreatorId(creatorId);
 
-        // Start / End
-        if (dto.getStartAt() != null) {
-            mission.setStartAt(LocalDateTime.parse(dto.getStartAt()));
+        // Start / End - parse ISO 8601 with timezone
+        if (dto.getStartAt() != null && !dto.getStartAt().trim().isEmpty()) {
+            try {
+                mission.setStartAt(OffsetDateTime.parse(dto.getStartAt()).toLocalDateTime());
+            } catch (Exception e) {
+                // Fallback to LocalDateTime if no timezone
+                mission.setStartAt(LocalDateTime.parse(dto.getStartAt()));
+            }
         }
-        if (dto.getEndAt() != null) {
-            mission.setEndAt(LocalDateTime.parse(dto.getEndAt()));
+        if (dto.getEndAt() != null && !dto.getEndAt().trim().isEmpty()) {
+            try {
+                mission.setEndAt(OffsetDateTime.parse(dto.getEndAt()).toLocalDateTime());
+            } catch (Exception e) {
+                // Fallback to LocalDateTime if no timezone
+                mission.setEndAt(LocalDateTime.parse(dto.getEndAt()));
+            }
         } else {
             mission.setEndAt(LocalDateTime.now().plusDays(7));
         }
@@ -113,18 +128,37 @@ public class MissionService {
             }
         }
 
+        // Setare scope bazat pe rol
+        if ("TOURIST".equalsIgnoreCase(dto.getRole())) {
+            mission.setScope(MissionScope.TOURIST);
+        } else if ("GUIDE".equalsIgnoreCase(dto.getRole())) {
+            mission.setScope(MissionScope.GUIDE);
+        } else {
+            mission.setScope(MissionScope.BOTH);
+        }
+
         // Reward
         if (dto.getReward() != null) {
             Reward reward = new Reward();
             reward.setTitle(dto.getReward().getTitle() != null ? dto.getReward().getTitle() : "Voucher");
+            
+            // Setare XP reward din DTO
+            Integer xpReward = dto.getReward().getXpReward() != null ? dto.getReward().getXpReward() : 0;
+            reward.setXpReward(xpReward);
+            
+            // Setare description dacă există
+            if (dto.getReward().getDescription() != null) {
+                reward.setDescription(dto.getReward().getDescription());
+            }
+            
             reward.setMission(mission);
             mission.setReward(reward);
-            mission.setRewardPoints(reward.getXpReward());
+            mission.setRewardPoints(xpReward);
         } else {
             mission.setRewardPoints(0);
         }
 
-        mission.setStatus(MissionStatus.DRAFT);
+        mission.setStatus(MissionStatus.ACTIVE);
 
         return missionRepository.save(mission);
     }
@@ -152,10 +186,16 @@ public class MissionService {
         private String description;
         private String role;
         private String type;
+        
+        @JsonProperty("target_value")
         private int target;
 
+        @JsonProperty("progress_value")
         private int myProgress;
+        
+        @JsonProperty("my_state")
         private String myStatus;
+        
         private LocalDateTime claimedAt; // LocalDateTime compatibil cu backend
 
         private RewardDto reward;
@@ -181,5 +221,67 @@ public class MissionService {
         public void setClaimedAt(LocalDateTime claimedAt) { this.claimedAt = claimedAt; }
         public RewardDto getReward() { return reward; }
         public void setReward(RewardDto reward) { this.reward = reward; }
+    }
+
+    // ===============================
+    // GET MISSION METADATA
+    // ===============================
+    public Object getMissionMetadata() {
+        // Returnează metadata pentru frontend
+        var metadata = new java.util.HashMap<String, Object>();
+        
+        // Roles
+        metadata.put("roles", java.util.List.of("TOURIST", "GUIDE"));
+        
+        // Categories - get from ItineraryCategory enum
+        var categories = new java.util.ArrayList<String>();
+        for (com.travelquest.travelquestbackend.model.ItineraryCategory cat : 
+             com.travelquest.travelquestbackend.model.ItineraryCategory.values()) {
+            categories.add(cat.name());
+        }
+        metadata.put("categories", categories);
+        
+        // Mission types pentru fiecare rol
+        var types = new java.util.ArrayList<java.util.Map<String, Object>>();
+        
+        // TOURIST types
+        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_COUNT", 
+            "Join itineraries", null));
+        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT", 
+            "Join itineraries of specific category", "category"));
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_COUNT", 
+            "Get approved submissions", null));
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT", 
+            "Get approved submissions in category", "category"));
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT", 
+            "Get approved submissions in same itinerary", null));
+        
+        // GUIDE types
+        types.add(createTypeMetadata("GUIDE", "GUIDE_PUBLISH_ITINERARY_COUNT", 
+            "Publish itineraries", null));
+        types.add(createTypeMetadata("GUIDE", "GUIDE_ITINERARY_CATEGORY_PARTICIPANTS_COUNT", 
+            "Get participants in category itinerary", "category"));
+        types.add(createTypeMetadata("GUIDE", "GUIDE_EVALUATE_SUBMISSIONS_COUNT", 
+            "Evaluate submissions", null));
+        
+        metadata.put("types", types);
+        
+        return metadata;
+    }
+    
+    private java.util.Map<String, Object> createTypeMetadata(
+            String role, String value, String label, String categoryParam) {
+        var type = new java.util.HashMap<String, Object>();
+        type.put("role", role);
+        type.put("value", value);
+        type.put("label", label);
+        
+        if (categoryParam != null) {
+            var paramsSchema = new java.util.HashMap<String, Boolean>();
+            paramsSchema.put(categoryParam, true);
+            type.put("paramsSchema", paramsSchema);
+        }
+        
+        return type;
     }
 }

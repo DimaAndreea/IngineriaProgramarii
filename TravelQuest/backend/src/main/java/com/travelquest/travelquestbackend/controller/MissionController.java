@@ -3,8 +3,10 @@ package com.travelquest.travelquestbackend.controller;
 import com.travelquest.travelquestbackend.dto.MissionDto;
 import com.travelquest.travelquestbackend.dto.RewardDto;
 import com.travelquest.travelquestbackend.model.Mission;
+import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.repository.RewardRepository;
 import com.travelquest.travelquestbackend.service.MissionService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +32,10 @@ public class MissionController {
     // ===============================
     @GetMapping
     public ResponseEntity<List<MissionService.MissionForUserDto>> getAllMissions(
-            @RequestParam(required = false) Long userId
+            HttpServletRequest request
     ) {
+        User user = (User) request.getSession().getAttribute("user");
+        Long userId = user != null ? user.getId() : null;
         List<MissionService.MissionForUserDto> result = missionService.getAllMissionsForUser(userId);
         return ResponseEntity.ok(result);
     }
@@ -46,6 +50,14 @@ public class MissionController {
         Long adminId = 1L; // TODO: replace with authenticated admin
         Mission mission = missionService.createMission(dto, adminId);
         return ResponseEntity.status(HttpStatus.CREATED).body(mission);
+    }
+
+    // ===============================
+    // GET MISSION METADATA
+    // ===============================
+    @GetMapping("/meta")
+    public ResponseEntity<?> getMissionMetadata() {
+        return ResponseEntity.ok(missionService.getMissionMetadata());
     }
 
 //    // ===============================

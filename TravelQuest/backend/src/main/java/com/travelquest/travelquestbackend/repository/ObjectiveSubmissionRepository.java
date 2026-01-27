@@ -55,7 +55,7 @@ public interface ObjectiveSubmissionRepository
         SELECT COUNT(os)
         FROM ObjectiveSubmission os
         WHERE os.guide.id = :guideId
-          AND os.status <> com.travelquest.travelquestbackend.model.SubmissionStatus.PENDING
+          AND os.status != 'PENDING'
     """)
     long countEvaluatedByGuide(@Param("guideId") Long guideId);
 
