@@ -58,4 +58,9 @@ public interface ObjectiveSubmissionRepository
           AND os.status <> com.travelquest.travelquestbackend.model.SubmissionStatus.PENDING
     """)
     long countEvaluatedByGuide(@Param("guideId") Long guideId);
+
+    // Numărul de submissions aprobate într-un anumit itinerariu
+    @Query("SELECT COUNT(s) FROM Submission s WHERE s.user.id = :userId AND s.status = 'APPROVED' AND s.itineraryId = :itineraryId")
+    long countByTouristAndStatusAndItinerary(@Param("userId") Long userId, @Param("status") SubmissionStatus status, @Param("itineraryId") Long itineraryId);
+
 }
