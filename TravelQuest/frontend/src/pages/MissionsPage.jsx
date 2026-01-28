@@ -34,11 +34,26 @@ export default function MissionsPage() {
   const [rewards, setRewards] = useState([]); // optional endpoint
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [missionFilter, setMissionFilter] = useState("ALL"); // Filter state
 
   const visibleMissions = useMemo(() => {
-    if (isAdmin) return missions;
-    return missions.filter((m) => (m.role || "").toUpperCase() === role);
-  }, [missions, isAdmin, role]);
+    let filtered = missions;
+    
+    // Filter by role (non-admin only see their role's missions)
+    if (!isAdmin) {
+      filtered = filtered.filter((m) => (m.role || "").toUpperCase() === role);
+    }
+    
+    // Filter by state
+    if (missionFilter !== "ALL") {
+      filtered = filtered.filter((m) => {
+        const state = (m.my_state || m.state || "NOT_JOINED").toUpperCase();
+        return state === missionFilter;
+      });
+    }
+    
+    return filtered;
+  }, [missions, isAdmin, role, missionFilter]);
 
   // fallback rewards from claimed missions (still REAL backend data)
   const derivedRewards = useMemo(() => {
@@ -200,6 +215,40 @@ export default function MissionsPage() {
             <div className="mr-card-header">
               <h3 className="mr-section-title">Missions</h3>
               <p className="mr-section-hint">Only missions for your role are shown.</p>
+            </div>
+
+            {/* Filter buttons */}
+            <div className="mr-filter-bar">
+              <button 
+                className={`mr-filter-btn ${missionFilter === "ALL" ? "mr-filter-active" : ""}`}
+                onClick={() => setMissionFilter("ALL")}
+              >
+                All
+              </button>
+              <button 
+                className={`mr-filter-btn ${missionFilter === "NOT_JOINED" ? "mr-filter-active" : ""}`}
+                onClick={() => setMissionFilter("NOT_JOINED")}
+              >
+                Available
+              </button>
+              <button 
+                className={`mr-filter-btn ${missionFilter === "IN_PROGRESS" ? "mr-filter-active" : ""}`}
+                onClick={() => setMissionFilter("IN_PROGRESS")}
+              >
+                In Progress
+              </button>
+              <button 
+                className={`mr-filter-btn ${missionFilter === "COMPLETED" ? "mr-filter-active" : ""}`}
+                onClick={() => setMissionFilter("COMPLETED")}
+              >
+                Completed
+              </button>
+              <button 
+                className={`mr-filter-btn ${missionFilter === "CLAIMED" ? "mr-filter-active" : ""}`}
+                onClick={() => setMissionFilter("CLAIMED")}
+              >
+                Claimed
+              </button>
             </div>
 
             <div className="mr-scroll">

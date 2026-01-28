@@ -1,3 +1,5 @@
+import { IconGift } from "./MissionIcons";
+
 export default function RewardsList({ rewards, loading }) {
   if (loading) return <p className="mr-muted">Loading...</p>;
   if (!rewards?.length) return <p className="mr-muted">No claimed rewards yet.</p>;
@@ -6,6 +8,9 @@ export default function RewardsList({ rewards, loading }) {
     <div className="mr-rewards-grid">
       {rewards.map((r) => (
         <div key={r.id || `${r.title}-${r.claimed_at || ""}`} className="mr-reward-card">
+          <div className="mr-reward-icon">
+            <IconGift size={28} color="#22c55e" />
+          </div>
           <div className="mr-reward-title">{r.title}</div>
           {r.fromMissionTitle ? (
             <div className="mr-reward-sub">From: {r.fromMissionTitle}</div>
