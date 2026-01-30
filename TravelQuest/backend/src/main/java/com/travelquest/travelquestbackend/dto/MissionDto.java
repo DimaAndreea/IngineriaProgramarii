@@ -7,7 +7,8 @@ import java.util.Map;
 
 public class MissionDto {
 
-    @NotBlank
+    private String code;
+
     private String title;
 
     private String description;
@@ -32,9 +33,33 @@ public class MissionDto {
     private Map<String, Object> params;
 
     @JsonProperty("reward")
-    private RewardDto reward;
+    private RewardInMissionDto reward;
+
+    // Nested DTO pentru reward în mission creation
+    public static class RewardInMissionDto {
+        @JsonProperty("real_reward_title")
+        private String title;
+        
+        @JsonProperty("xp_reward")
+        private Integer xpReward;
+        
+        @JsonProperty("real_reward_description")
+        private String description;
+
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        
+        public Integer getXpReward() { return xpReward; }
+        public void setXpReward(Integer xpReward) { this.xpReward = xpReward; }
+        
+        public String getDescription() { return description; }
+        public void setDescription(String description) { this.description = description; }
+    }
 
     // Getters & setters
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code = code; }
+
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
 
@@ -59,6 +84,6 @@ public class MissionDto {
     public Map<String, Object> getParams() { return params; }
     public void setParams(Map<String, Object> params) { this.params = params; }
 
-    public RewardDto getReward() { return reward; }
-    public void setReward(RewardDto reward) { this.reward = reward; }
+    public RewardInMissionDto getReward() { return reward; }
+    public void setReward(RewardInMissionDto reward) { this.reward = reward; }
 }

@@ -29,3 +29,11 @@ async function request(url, options = {}) {
 export function getActiveItineraryForTourist() {
   return request(`${BASE}/active/tourist`);
 }
+
+export function submitFeedbackForGuide(itineraryId, payload) {
+  if (!itineraryId) throw new Error("Missing itineraryId");
+  return request(`${BASE}/${itineraryId}/feedback`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}

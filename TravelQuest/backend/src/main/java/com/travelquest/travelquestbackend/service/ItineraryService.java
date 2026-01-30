@@ -189,6 +189,15 @@ public class ItineraryService {
             throw new RuntimeException("Only tourist users can join an itinerary");
         }
 
+        // =========================
+        // PAID ITINERARY CHECK (VARIANTA A)
+        // Join NU este permis fără cumpărare.
+        // Frontend trebuie să folosească: POST /api/itineraries/{id}/buy
+        // =========================
+        if (itinerary.getPrice() > 0) {
+            throw new RuntimeException("This itinerary requires purchase. Please buy first.");
+        }
+
         boolean alreadyJoined = itineraryParticipantRepository.existsByItineraryAndTourist(itinerary, user.getId());
         if (alreadyJoined) {
             throw new RuntimeException("You already joined this itinerary");

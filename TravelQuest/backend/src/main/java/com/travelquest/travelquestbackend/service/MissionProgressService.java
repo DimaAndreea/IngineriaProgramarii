@@ -3,136 +3,233 @@ package com.travelquest.travelquestbackend.service;
 import com.travelquest.travelquestbackend.dto.RewardDto;
 import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
-import com.travelquest.travelquestbackend.repository.SubmissionRepository;
-import com.travelquest.travelquestbackend.repository.UserMissionItineraryRepository;
-import com.travelquest.travelquestbackend.repository.UserMissionRepository;
+import com.travelquest.travelquestbackend.repository.MissionParticipationRepository;
+import com.travelquest.travelquestbackend.repository.ObjectiveSubmissionRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class MissionProgressService {
 
-    private final UserMissionRepository userMissionRepository;
-    private final UserMissionItineraryRepository userMissionItineraryRepository;
-    private final SubmissionRepository submissionRepository;
+    private static final Logger logger = LoggerFactory.getLogger(MissionProgressService.class);
+
+    private final MissionParticipationRepository participationRepository;
+    private final ObjectiveSubmissionRepository submissionRepository;
     private final ItineraryRepository itineraryRepository;
-    private final MissionParticipationService missionParticipationService;
+    private final ObjectMapper objectMapper; // pentru parsarea params_json
 
     public MissionProgressService(
-            UserMissionRepository userMissionRepository,
-            UserMissionItineraryRepository userMissionItineraryRepository,
-            SubmissionRepository submissionRepository,
+            MissionParticipationRepository participationRepository,
+            ObjectiveSubmissionRepository submissionRepository,
             ItineraryRepository itineraryRepository,
-            MissionParticipationService missionParticipationService
+            ObjectMapper objectMapper
     ) {
-        this.userMissionRepository = userMissionRepository;
-        this.userMissionItineraryRepository = userMissionItineraryRepository;
+        this.participationRepository = participationRepository;
         this.submissionRepository = submissionRepository;
         this.itineraryRepository = itineraryRepository;
-        this.missionParticipationService = missionParticipationService;
+        this.objectMapper = objectMapper;
     }
 
-    /**
-     * Actualizează progresul utilizatorului pentru o misiune.
-     * Dacă progresul ajunge la 100%, auto-claim și returnează reward-ul.
-     */
+    // ============================================================
+    // SCHEDULER: actualizează toate misiunile IN_PROGRESS
+    // ============================================================
+    @Scheduled(fixedRate = 10000)
+    public void updateAllMissionsProgressLoop() {
+        List<MissionParticipation> participations =
+                participationRepository.findByStatusIn(List.of(MissionParticipationStatus.IN_PROGRESS));
+
+        logger.info("\n====================\nUpdating all IN_PROGRESS missions\nTotal: {}\n====================",
+                participations.size());
+
+        for (MissionParticipation mp : participations) {
+            try {
+                updateProgress(mp.getUser().getId(), mp.getMission().getId());
+            } catch (Exception e) {
+                logger.error(
+                        "Failed to update progress for user {} mission {}",
+                        mp.getUser().getId(),
+                        mp.getMission().getId(),
+                        e
+                );
+            }
+        }
+    }
+
+    // ============================================================
+    // UPDATE PROGRESS
+    // ============================================================
     @Transactional
-    public RewardDto updateProgressForUser(Long userId, Long missionId) {
-        UserMission userMission = userMissionRepository
-                .findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new RuntimeException("UserMission not found"));
+    public void updateProgress(Long userId, Long missionId) {
+        MissionParticipation participation =
+                participationRepository.findByMission_IdAndUser_Id(missionId, userId)
+                        .orElseThrow(() -> new IllegalStateException("MissionParticipation not found"));
 
-        Mission mission = userMission.getMission();
-        int progress = calculateProgress(userId, userMission, mission);
+        if (participation.getStatus() != MissionParticipationStatus.IN_PROGRESS) return;
 
-        userMission.setProgressValue(progress);
-        userMissionRepository.save(userMission);
+        Mission mission = participation.getMission();
 
-        // Dacă progresul >= 100%, completăm misiunea și auto-claim
-        if (progress >= 100) {
-            userMission.setState("COMPLETED");
-            userMission.setCompletedAt(java.time.LocalDateTime.now());
-            userMissionRepository.save(userMission);
+        int currentValue = calculateCurrentValue(userId, mission);
+        int targetValue = mission.getTargetValue();
+        int progressPercent = calculateProgressPercent(currentValue, targetValue);
 
-            // Creează participarea și auto-claim
-            MissionParticipation participation = new MissionParticipation();
-            participation.setMission(mission);
-            participation.setUser(userMission.getUser());
-            participation.setStatus("COMPLETED");
-            participation.setProgress(100);
+        logger.info("\n====================\nMission Progress Update\n--------------------\n" +
+                        "User ID       : {}\n" +
+                        "Mission ID    : {}\n" +
+                        "Title         : '{}'\n" +
+                        "Target Value  : {}\n" +
+                        "Current Value : {}\n" +
+                        "Progress (%)  : {}\n" +
+                        "Status        : {}\n====================",
+                userId, missionId, mission.getTitle(), targetValue, currentValue, progressPercent, participation.getStatus());
 
-            return missionParticipationService.autoClaim(participation, userMission.getUser());
+        participation.setProgress(progressPercent);
+
+        if (currentValue >= targetValue) {
+            participation.setStatus(MissionParticipationStatus.COMPLETED);
+            participation.setCompletedAt(ZonedDateTime.now().toLocalDateTime());
+            logger.info("\n====================\n✅ Mission COMPLETED\nUser ID  : {}\nMission ID : {}\nTitle     : '{}'\n====================",
+                    userId, missionId, mission.getTitle());
         }
 
-        return null; // nu s-a completat încă, deci nici reward
+        participationRepository.save(participation);
     }
 
-    // ==========================
-    // CALCULATE PROGRESS
-    // ==========================
-    private int calculateProgress(Long userId, UserMission userMission, Mission mission) {
-        int progress = 0;
+    // ============================================================
+    // CALCULATE CURRENT VALUE (SUPORTA TOATE 8 TIPURI)
+    // ============================================================
+    private int calculateCurrentValue(Long userId, Mission mission) {
+        String type = mission.getType();
 
-        switch (mission.getType()) {
-            case "TOURIST_JOIN_ITINERARY_COUNT":
-                progress = userMissionItineraryRepository.countByUserMissionId(userMission.getId());
-                break;
-            case "TOURIST_APPROVED_SUBMISSIONS_COUNT":
-                progress = submissionRepository.countApprovedByUser(userId);
-                break;
-            case "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT":
-                String category = extractCategoryFromParams(mission.getParamsJson());
-                progress = userMissionItineraryRepository.countByUserMissionIdAndCategory(userMission.getId(), category);
-                break;
-            case "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT":
-                category = extractCategoryFromParams(mission.getParamsJson());
-                progress = submissionRepository.countApprovedByUserAndCategory(userId, category);
-                break;
-            case "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT":
-                Long itineraryId = extractItineraryIdFromParams(mission.getParamsJson());
-                progress = submissionRepository.countApprovedByUserAndItinerary(userId, itineraryId);
-                break;
-
-            case "GUIDE_PUBLISH_ITINERARY_COUNT":
-                progress = itineraryRepository.countPublishedByUser(userId);
-                break;
-            case "GUIDE_ITINERARY_CATEGORY_PARTICIPANTS_COUNT":
-                category = extractCategoryFromParams(mission.getParamsJson());
-                progress = itineraryRepository.countParticipantsInCategoryByUser(userId, category);
-                break;
-            case "GUIDE_EVALUATE_SUBMISSIONS_COUNT":
-                progress = submissionRepository.countEvaluatedByUser(userId);
-                break;
-
-            default:
-                progress = 0;
-        }
-
-        return progress;
-    }
-
-    // ==========================
-    // HELPER METHODS
-    // ==========================
-    private String extractCategoryFromParams(String paramsJson) {
-        if (paramsJson == null || paramsJson.isEmpty()) return null;
         try {
-            com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(paramsJson);
-            if (node.has("category")) return node.get("category").asText();
+            JsonNode params = mission.getParamsJson() != null
+                    ? objectMapper.readTree(mission.getParamsJson())
+                    : null;
+
+            return switch (type) {
+                // ------------------------
+                // TOURIST MISSIONS
+                // ------------------------
+                case "TOURIST_JOIN_ITINERARY_COUNT" ->
+                        itineraryRepository.countUserJoinedItineraries(userId);
+
+                case "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT" -> {
+                    String category = params != null && params.has("category") ? params.get("category").asText() : null;
+                    if (category != null) {
+                        yield itineraryRepository.countUserJoinedItinerariesByCategory(userId, category);
+                    } else {
+                        yield itineraryRepository.countUserJoinedItineraries(userId);
+                    }
+                }
+
+//
+//                case "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT" -> {
+//                    String category = params != null && params.has("category") ? params.get("category").asText() : null;
+//                    if (category != null) {
+//                        yield submissionRepository.countByTouristAndStatusAndCategory(userId, SubmissionStatus.APPROVED, category);
+//                    } else {
+//                        yield submissionRepository.countByTouristAndStatus(userId, SubmissionStatus.APPROVED);
+//                    }
+//                }
+//
+                case "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT" -> {
+                    Long itineraryId = params != null && params.has("itineraryId") ? params.get("itineraryId").asLong() : null;
+                    if (itineraryId != null) {
+                        yield (int) submissionRepository.countByTouristAndStatusAndItinerary(userId, SubmissionStatus.APPROVED, itineraryId);
+                    } else {
+                        yield 0;
+                    }
+                }
+
+
+                // ------------------------
+                // GUIDE MISSIONS
+                // ------------------------
+                case "GUIDE_PUBLISH_ITINERARY_COUNT" ->
+                        itineraryRepository.countPublishedByUser(userId);
+
+                case "GUIDE_ITINERARY_CATEGORY_PARTICIPANTS_COUNT" -> {
+                    String category = params != null && params.has("category") ? params.get("category").asText() : null;
+                    if (category != null) {
+                        yield itineraryRepository.countParticipantsInCategoryByUser(userId, category);
+                    } else {
+                        yield itineraryRepository.countPublishedByUser(userId);
+                    }
+                }
+
+                case "GUIDE_EVALUATE_SUBMISSIONS_COUNT" ->
+                        (int) submissionRepository.countEvaluatedByGuide(userId);
+
+                default -> 0;
+            };
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error parsing params_json for mission {}: {}", mission.getId(), e.getMessage());
+            return 0;
         }
-        return null;
     }
 
-    private Long extractItineraryIdFromParams(String paramsJson) {
-        if (paramsJson == null || paramsJson.isEmpty()) return null;
-        try {
-            com.fasterxml.jackson.databind.JsonNode node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(paramsJson);
-            if (node.has("itinerary")) return node.get("itinerary").asLong();
-        } catch (Exception e) {
-            e.printStackTrace();
+
+    private int calculateProgressPercent(int current, int target) {
+        if (target <= 0) return 0;
+        return Math.min(100, (current * 100) / target);
+    }
+
+    // ============================================================
+    // GET USER REWARDS (COMPLETED & CLAIMED)
+    // ============================================================
+    @Transactional(readOnly = true)
+    public List<RewardDto> getUserRewards(Long userId) {
+        List<MissionParticipation> participations = participationRepository.findByUserAndStatusIn(
+                new User(userId),
+                List.of(MissionParticipationStatus.COMPLETED, MissionParticipationStatus.CLAIMED)
+        );
+
+        logger.info("\n====================\nFetching user rewards\nUser ID: {}\nParticipations found: {}\n====================",
+                userId, participations.size());
+
+        List<RewardDto> rewards = new ArrayList<>();
+        for (MissionParticipation p : participations) {
+            Mission mission = p.getMission();
+            Reward reward = mission.getReward();
+
+            int progressPercent = calculateProgressPercent(p.getProgress(), mission.getTargetValue());
+
+            logger.info("\n--------------------\n🎯 Mission Details\n" +
+                            "Mission ID    : {}\n" +
+                            "Title         : '{}'\n" +
+                            "Status        : {}\n" +
+                            "Target Value  : {}\n" +
+                            "Current Value : {}\n" +
+                            "Progress (%)  : {}\n--------------------",
+                    mission.getId(), mission.getTitle(), p.getStatus(), mission.getTargetValue(), p.getProgress(), progressPercent
+            );
+
+            RewardDto dto = new RewardDto();
+            dto.setId(reward != null ? reward.getId() : null);
+            dto.setTitle(reward != null ? reward.getTitle() : "Reward");
+            dto.setFromMissionTitle(mission.getTitle());
+
+            if (p.getClaimedAt() != null) {
+                dto.setClaimedAt(p.getClaimedAt().atZone(ZoneId.systemDefault()));
+            } else {
+                dto.setClaimedAt(null);
+            }
+
+            rewards.add(dto);
         }
-        return null;
+
+        logger.info("\n====================\nUser rewards prepared\nUser ID: {}\nTotal Rewards: {}\n====================",
+                userId, rewards.size());
+
+        return rewards;
     }
 }

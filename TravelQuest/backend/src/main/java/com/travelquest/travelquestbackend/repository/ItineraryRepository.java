@@ -9,13 +9,18 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 
-
 public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
 
+    // ================================
+    // Basic queries
+    // ================================
     List<Itinerary> findByCreatorId(Long creatorId);
 
     List<Itinerary> findByStatus(ItineraryStatus status);
 
+    // ================================
+    // Active itineraries for guide
+    // ================================
     @Query("""
         SELECT i 
         FROM Itinerary i
@@ -29,13 +34,16 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
             @Param("today") LocalDate today
     );
 
+    // ================================
+    // Overlapping check for guide
+    // ================================
     @Query("""
         SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END
         FROM Itinerary i
         WHERE i.creator.id = :creatorId
           AND i.status <> com.travelquest.travelquestbackend.model.ItineraryStatus.REJECTED
           AND i.startDate <= :newEndDate
-          AND i.endDate   >= :newStartDate
+          AND i.endDate >= :newStartDate
     """)
     boolean existsOverlappingItineraryForGuide(
             @Param("creatorId") Long creatorId,
@@ -50,7 +58,7 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
           AND i.status <> com.travelquest.travelquestbackend.model.ItineraryStatus.REJECTED
           AND i.id <> :itineraryId
           AND i.startDate <= :newEndDate
-          AND i.endDate   >= :newStartDate
+          AND i.endDate >= :newStartDate
     """)
     boolean existsOverlappingItineraryForGuideExcludingItinerary(
             @Param("creatorId") Long creatorId,
@@ -59,24 +67,81 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
             @Param("newEndDate") LocalDate newEndDate
     );
 
+    // ================================
+    // Active itineraries for tourist
+    // ================================
     @Query("""
-    SELECT i
-    FROM Itinerary i
-    JOIN i.participants p
-    WHERE p.tourist.id = :touristId
-      AND i.startDate <= :today
-      AND i.endDate >= :today
-      AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+        SELECT i
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :touristId
+          AND i.startDate <= :today
+          AND i.endDate >= :today
+          AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
     """)
     List<Itinerary> findActiveItinerariesForTourist(
             @Param("touristId") Long touristId,
             @Param("today") LocalDate today
     );
 
+    // ================================
+    // Counting methods for missions
+    // ================================
+
+    // ---- TOURIST ----
+
+    // Total itineraries joined by user
+    @Query("""
+        SELECT COUNT(p)
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :userId
+          AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+    """)
+    int countUserJoinedItineraries(@Param("userId") Long userId);
+
+    // Total itineraries joined by user in a specific category
+    @Query("""
+        SELECT COUNT(p)
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :userId
+          AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+          AND i.category = :category
+    """)
+    int countUserJoinedItinerariesByCategory(@Param("userId") Long userId, @Param("category") String category);
+
+    // ---- GUIDE ----
+
+    // Total itineraries published by user
     @Query("SELECT COUNT(i) FROM Itinerary i WHERE i.creator.id = :userId")
-    int countPublishedByUser(Long userId);
+    int countPublishedByUser(@Param("userId") Long userId);
 
-    @Query("SELECT COUNT(p) FROM Itinerary i JOIN i.participants p WHERE i.creator.id = :userId AND i.category = :category")
-    int countParticipantsInCategoryByUser(Long userId, String category);
+    // Total itineraries published by user in a specific category
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM itinerary
+        WHERE creator_id = :userId
+          AND category::text = :category
+    """, nativeQuery = true)
+    int countPublishedByUserAndCategory(@Param("userId") Long userId, @Param("category") String category);
 
+    // Total participants in itineraries published by guide in a category
+    @Query(value = """
+        SELECT COUNT(p.participant_id)
+        FROM itinerary i
+        JOIN itinerary_participant p ON i.itinerary_id = p.itinerary_id
+        WHERE i.creator_id = :userId
+          AND i.category::text = :category
+    """, nativeQuery = true)
+    int countParticipantsInCategoryByUser(@Param("userId") Long userId, @Param("category") String category);
+
+    // Count participants in a specific itinerary
+    @Query("""
+        SELECT COUNT(p)
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE i.id = :itineraryId
+    """)
+    int countParticipantsInItinerary(@Param("itineraryId") Long itineraryId);
 }

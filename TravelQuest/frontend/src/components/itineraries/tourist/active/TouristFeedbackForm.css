@@ -1,0 +1,159 @@
+.tourist-feedback-wrapper {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.feedback-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* FORM CARD */
+.feedback-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+/* STAR RATING */
+.star-rating {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.star {
+  font-size: 32px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  opacity: 0.3;
+  user-select: none;
+}
+
+.star.filled {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.star:hover {
+  transform: scale(1.2);
+}
+
+.rating-text {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* TEXTAREA */
+.feedback-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #4b7cff;
+  box-shadow: 0 0 0 3px rgba(75, 124, 255, 0.1);
+}
+
+/* SUBMIT BUTTON */
+.submit-feedback-btn {
+  width: 100%;
+  padding: 14px;
+  background: #4b7cff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-feedback-btn:hover {
+  background: #3c6ae6;
+}
+
+.submit-feedback-btn:active {
+  transform: scale(0.98);
+}
+
+.submit-feedback-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* SUBMITTED FEEDBACK VIEW */
+.feedback-submitted-card {
+  background: #f8f9fa;
+  border: 2px solid #16a34a;
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.feedback-submitted-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.feedback-guide-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.guide-link {
+  color: #4b7cff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.guide-link:hover {
+  text-decoration: underline;
+}
+
+.feedback-stars {
+  font-size: 20px;
+}
+
+.feedback-text {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.feedback-notice {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+  text-align: center;
+}

@@ -3,8 +3,8 @@
   margin: 0 auto;
   padding: 28px 20px 40px;
 
-  height: calc(100vh - 90px); /* ✅ ajustează 90px dacă navbar-ul tău e mai mare/mic */
-  overflow: hidden;          /* ✅ stop page scroll */
+  min-height: calc(100vh - 90px); /* ✅ ajustează 90px dacă navbar-ul tău e mai mare/mic */
+  overflow-y: auto;          /* ✅ allow page scroll */
   display: flex;
   flex-direction: column;
 }
@@ -72,78 +72,157 @@
   color: rgba(17, 24, 39, 0.55);
 }
 
+/* Filter bar */
+.mr-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.mr-filter-btn {
+  padding: 8px 14px;
+  border: 1px solid rgba(47, 111, 237, 0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  color: rgba(47, 111, 237, 0.7);
+  font-weight: 800;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mr-filter-btn:hover {
+  border-color: rgba(47, 111, 237, 0.4);
+  background: rgba(47, 111, 237, 0.05);
+}
+
+.mr-filter-active {
+  background: #2f6fed;
+  color: white;
+  border-color: #2f6fed;
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.2);
+}
+
 /* Missions cards */
 .mr-missions-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .mr-mission-card {
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 16px;
-  padding: 14px;
+  border: 1px solid rgba(47, 111, 237, 0.15);
+  border-radius: 20px;
+  padding: 28px 24px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 0;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(47, 111, 237, 0.03) 100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(47, 111, 237, 0.08);
+}
+
+.mr-mission-card:hover {
+  box-shadow: 0 8px 24px rgba(47, 111, 237, 0.12);
+  border-color: rgba(47, 111, 237, 0.25);
+}
+
+.mr-mission-top {
+  display: flex;
   justify-content: space-between;
-  gap: 14px;
-  background: linear-gradient(
-    180deg,
-    rgba(47, 111, 237, 0.05),
-    rgba(255, 255, 255, 0)
-  );
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .mr-mission-title {
   font-weight: 950;
-  font-size: 16px;
+  font-size: 20px;
   color: #111827;
+  line-height: 1.4;
+  flex: 1;
 }
 
 .mr-mission-meta {
-  margin-top: 8px;
+  margin-bottom: 12px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
 .mr-meta {
   font-size: 12px;
   font-weight: 800;
-  color: rgba(17, 24, 39, 0.6);
+  color: rgba(47, 111, 237, 0.7);
+  background: rgba(47, 111, 237, 0.08);
+  padding: 6px 10px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .mr-reward {
-  margin-top: 8px;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  padding: 16px 16px;
+  background: #f0f4ff;
+  border-left: 4px solid #8b5cf6;
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 800;
-  color: rgba(17, 24, 39, 0.8);
+  color: #111827;
+}
+
+.mr-reward-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .mr-reward-label {
-  color: rgba(17, 24, 39, 0.55);
-  margin-right: 6px;
+  color: #8b5cf6;
+  font-weight: 950;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .mr-mission-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  justify-content: flex-end;
+  min-height: 0;
+  margin-top: auto;
 }
 
 .mr-btn {
   border: none;
   border-radius: 14px;
-  padding: 10px 14px;
+  padding: 12px 18px;
   font-weight: 950;
   cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
 }
 
 .mr-btn-primary {
   background: #2f6fed;
   color: white;
   box-shadow: 0 10px 22px rgba(47, 111, 237, 0.22);
+}
+
+.mr-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(47, 111, 237, 0.28);
 }
 
 .mr-btn-primary:disabled {
@@ -153,47 +232,101 @@
 }
 
 .mr-btn-success {
-  background: #16a34a;
+  background: #22c55e;
   color: white;
-  box-shadow: 0 10px 22px rgba(22, 163, 74, 0.18);
+  box-shadow: 0 10px 22px rgba(34, 197, 74, 0.22);
+}
+
+.mr-btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(34, 197, 74, 0.28);
 }
 
 .mr-status {
   font-weight: 950;
-  color: rgba(17, 24, 39, 0.6);
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mr-status-claimed {
+  color: #22c55e;
+  background: rgba(34, 197, 74, 0.1);
+  border: 1px solid rgba(34, 197, 74, 0.2);
+}
+
+.mr-status-progress {
+  color: rgba(245, 158, 11, 0.8);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 /* Rewards */
 .mr-rewards-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding-bottom: 8px;
 }
 
 .mr-reward-card {
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 16px;
-  padding: 14px;
-  background: #fff;
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  border-radius: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, rgba(34, 197, 94, 0.03) 100%);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.mr-reward-card:hover {
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.25);
+  transform: translateY(-2px);
+}
+
+.mr-reward-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(34, 197, 74, 0.1);
+  border-radius: 12px;
+  margin-bottom: 12px;
 }
 
 .mr-reward-title {
   font-weight: 950;
   color: #111827;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  line-height: 1.4;
 }
 
 .mr-reward-sub {
   font-size: 13px;
   font-weight: 800;
-  color: rgba(17, 24, 39, 0.7);
+  color: rgba(17, 24, 39, 0.6);
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: 10px;
+  border-left: 3px solid #22c55e;
 }
 
 .mr-reward-date {
-  margin-top: 10px;
+  margin-top: auto;
+  padding-top: 10px;
   font-size: 12px;
   font-weight: 800;
   color: rgba(17, 24, 39, 0.55);
+  border-top: 1px solid rgba(34, 197, 94, 0.1);
 }
 
 .mr-muted {
@@ -210,6 +343,7 @@
 .mr-scroll {
   overflow-y: auto;
   padding-right: 6px;
+  max-height: 600px;
 }
 
 .mr-scroll::-webkit-scrollbar {
@@ -231,7 +365,8 @@
 
 /* progress */
 .mr-progress-wrap {
-  margin-top: 12px;
+  margin-top: 14px;
+  margin-bottom: 8px;
 }
 
 .mr-progress-top {

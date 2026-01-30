@@ -5,6 +5,8 @@ import com.travelquest.travelquestbackend.dto.ProfileLevelDto;
 import com.travelquest.travelquestbackend.dto.ProfilePointsDto;
 import com.travelquest.travelquestbackend.model.User;
 import com.travelquest.travelquestbackend.service.ProfileGamificationService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,17 +21,29 @@ public class ProfileGamificationController {
     }
 
     @GetMapping("/points")
-    public ResponseEntity<ProfilePointsDto> getPoints(@SessionAttribute("user") User user) {
+    public ResponseEntity<ProfilePointsDto> getPoints(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(profileGamificationService.getPoints(user.getId()));
     }
 
     @GetMapping("/level")
-    public ResponseEntity<ProfileLevelDto> getLevel(@SessionAttribute("user") User user) {
+    public ResponseEntity<ProfileLevelDto> getLevel(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(profileGamificationService.getLevelProgress(user.getId()));
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<GamificationSummaryDto> getSummary(@SessionAttribute("user") User user) {
+    public ResponseEntity<GamificationSummaryDto> getSummary(HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute("user");
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(profileGamificationService.getSummary(user.getId()));
     }
 }

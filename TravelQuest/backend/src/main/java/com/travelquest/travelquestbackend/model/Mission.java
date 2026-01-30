@@ -12,6 +12,9 @@ public class Mission {
     @Column(name = "mission_id")
     private Long id;
 
+    @Column(length = 100, unique = true)
+    private String code;
+
     @Column(nullable = false)
     private String title;
 
@@ -64,6 +67,9 @@ public class Mission {
     // =========================
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code = code; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }

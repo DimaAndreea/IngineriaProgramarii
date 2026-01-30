@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { joinItinerary } from "../../services/itineraryService";
 import "./ItineraryCard.css";
 
 export default function ItineraryCard({
@@ -9,6 +8,7 @@ export default function ItineraryCard({
   onEdit,
   onDelete,
   canParticipate,
+  onJoin,
 }) {
   const navigate = useNavigate();
 
@@ -54,15 +54,10 @@ export default function ItineraryCard({
 
   const openDetails = () => navigate(`/itineraries/${id}`);
 
-  const handleJoinClick = async e => {
+    const handleJoinClick = e => {
     e.stopPropagation();
-    try {
-      await joinItinerary(id);
-      console.log("Join succeeded for itinerary:", id);
-      // TODO: toast / mesaj de succes
-    } catch (err) {
-      console.error("Join failed:", err);
-      // TODO: mesaj de eroare vizibil
+      if (onJoin) {
+        onJoin();
     }
   };
 

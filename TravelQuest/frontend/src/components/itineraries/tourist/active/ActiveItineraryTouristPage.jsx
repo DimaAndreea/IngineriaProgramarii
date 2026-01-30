@@ -1,10 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getActiveItineraryForTourist } from "../../../../services/activeItineraryTouristService";
+import {
+  getActiveItineraryForTourist,
+  submitFeedbackForGuide,
+} from "../../../../services/activeItineraryTouristService";
+import { getItineraryById } from "../../../../services/itineraryService";
 import { uploadSubmission } from "../../../../services/submissionService";
 
 import ProgressBar from "../../active/ProgressBar";
 import MissionListTourist from "./MissionListTourist";
 import SubmissionModal from "./SubmissionModal";
+import TouristFeedbackForm from "./TouristFeedbackForm";
 
 import "../../../../pages/ActiveItineraryPage.css";
 
@@ -21,6 +26,10 @@ export default function ActiveItineraryTouristPage() {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [selectedMission, setSelectedMission] = useState(null);
   const [submissions, setSubmissions] = useState([]);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [existingFeedback, setExistingFeedback] = useState(null);
+  const [guideDetails, setGuideDetails] = useState({ id: null, name: null });
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -36,6 +45,12 @@ export default function ActiveItineraryTouristPage() {
         setItinerary(data || null);
         setCurrentStageIndex(data?.currentStageIndex ?? 0);
         setSubmissions(data?.submissions || []);
+        
+          // Check dacă turistul a dat deja feedback
+          if (data?.feedback) {
+            setFeedbackSubmitted(true);
+            setExistingFeedback(data.feedback);
+          }
       } catch (err) {
         console.error("Failed to load active itinerary:", err);
         setLoadError(normalizeErrorMessage(err?.message));
@@ -46,15 +61,42 @@ export default function ActiveItineraryTouristPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadGuideDetails() {
+      if (!itinerary?.id) return;
+
+      try {
+        const details = await getItineraryById(itinerary.id);
+        if (!isActive) return;
+
+        setGuideDetails({
+          id: details?.creator?.id ?? null,
+          name: details?.creator?.username ?? null,
+        });
+      } catch (err) {
+        console.error("Failed to load itinerary details for guide:", err);
+      }
+    }
+
+    loadGuideDetails();
+
+    return () => {
+      isActive = false;
+    };
+  }, [itinerary?.id]);
+
   const clearSubmitMessages = () => {
     setSubmitError("");
     setSubmitSuccess("");
   };
 
+    // Calculăm numărul total de etape: locații + feedback
+    const totalStages = (itinerary?.locations?.length || 0) + 1;
+  
   const goNext = () =>
-    setCurrentStageIndex((prev) =>
-      Math.min(prev + 1, Math.max((itinerary?.locations?.length ?? 1) - 1, 0))
-    );
+      setCurrentStageIndex((prev) => Math.min(prev + 1, totalStages - 1));
 
   const goPrev = () => setCurrentStageIndex((prev) => Math.max(prev - 1, 0));
 
@@ -115,6 +157,25 @@ export default function ActiveItineraryTouristPage() {
     }
   };
 
+  const handleSubmitFeedback = async (feedbackData) => {
+    clearSubmitMessages();
+    setFeedbackSubmitting(true);
+
+    try {
+      const saved = await submitFeedbackForGuide(itinerary.id, feedbackData);
+      const storedFeedback = saved || feedbackData;
+
+      setFeedbackSubmitted(true);
+      setExistingFeedback(storedFeedback);
+      setSubmitSuccess("Thank you for your feedback!");
+    } catch (err) {
+      console.error("Failed to submit feedback:", err);
+      setSubmitError(err?.message || "Failed to submit feedback. Please try again.");
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="active-itinerary-page">
@@ -140,17 +201,54 @@ export default function ActiveItineraryTouristPage() {
     );
 
   const { title, locations = [] } = itinerary;
-  const currentLocation = locations[currentStageIndex] || {};
+  
+    // Verificăm dacă suntem pe etapa de feedback (ultima etapă)
+    const isOnFeedbackStage = currentStageIndex === locations.length;
+  
+    const currentLocation = isOnFeedbackStage ? {} : (locations[currentStageIndex] || {});
 
   // suportă ambele: missions sau objectives
   const currentMissions =
     currentLocation.missions || currentLocation.objectives || [];
+    
+    // Creăm array-ul de stage-uri pentru ProgressBar (locații + feedback)
+    const stageNames = [
+      ...locations.map((loc, idx) => {
+        if (loc.city && loc.country) return loc.city;
+        if (loc.city) return loc.city;
+        if (loc.name) return loc.name;
+        return `Location ${idx + 1}`;
+      }),
+      "Feedback"
+    ];
+
+  const guideId =
+    guideDetails.id ??
+    itinerary?.guideId ??
+    itinerary?.creatorId ??
+    itinerary?.creator?.id ??
+    itinerary?.guide?.id ??
+    itinerary?.guide?.userId ??
+    itinerary?.guide?.user_id ??
+    null;
+
+  const guideName =
+    guideDetails.name ??
+    itinerary?.guideUsername ??
+    itinerary?.creatorName ??
+    itinerary?.creator?.username ??
+    itinerary?.guide?.username ??
+    itinerary?.guide?.userName ??
+    itinerary?.guide?.name ??
+    itinerary?.guideName ??
+    itinerary?.guideFullName ??
+    null;
 
   return (
     <div className="active-itinerary-page">
       <h1 className="page-title">{title || "Active itinerary"}</h1>
 
-      <ProgressBar stages={locations} currentStage={currentStageIndex} />
+      <ProgressBar stages={stageNames} currentStage={currentStageIndex} />
 
       <div className="nav-buttons">
         <button
@@ -164,7 +262,7 @@ export default function ActiveItineraryTouristPage() {
         <button
           className="nav-btn next"
           onClick={goNext}
-          disabled={currentStageIndex === locations.length - 1}
+          disabled={currentStageIndex === totalStages - 1}
         >
           Next →
         </button>
@@ -182,11 +280,22 @@ export default function ActiveItineraryTouristPage() {
       )}
 
       <div className="stage-content">
-        <MissionListTourist
-          missions={currentMissions}
-          submissionsByMission={submissionsByMission}
-          onMakeSubmission={openSubmissionModal}
-        />
+        {!isOnFeedbackStage ? (
+          <MissionListTourist
+            missions={currentMissions}
+            submissionsByMission={submissionsByMission}
+            onMakeSubmission={openSubmissionModal}
+          />
+        ) : (
+          <TouristFeedbackForm
+            guideId={guideId}
+            guideName={guideName}
+            onSubmit={handleSubmitFeedback}
+            isSubmitting={feedbackSubmitting}
+            hasFeedback={feedbackSubmitted}
+            existingFeedback={existingFeedback}
+          />
+        )}
       </div>
 
       {selectedMission && (

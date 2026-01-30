@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface MissionClaimRepository extends JpaRepository<MissionClaim, Long> {
 
-    Optional<MissionClaim> findByUserIdAndMissionId(Long userId, Long missionId);
+    Optional<MissionClaim> findByUserIdAndMission_Id(Long userId, Long missionId);
 
-    boolean existsByUserIdAndMissionId(Long userId, Long missionId);
+    boolean existsByUserIdAndMission_Id(Long userId, Long missionId);
 }

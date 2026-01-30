@@ -8,6 +8,9 @@ import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
+import Modal from "../components/common/Modal";
+import { addFunds, getWalletBalance } from "../services/walletService";
+
 import GamificationCard from "../components/gamification/GamificationCard";
 
 /* ---------------- helpers ---------------- */
@@ -179,6 +182,12 @@ export default function TouristProfilePage() {
   const [profile, setProfile] = useState(null);
   const [query, setQuery] = useState("");
 
+  // Wallet (owner only)
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [walletAmount, setWalletAmount] = useState("");
+  const [walletErr, setWalletErr] = useState("");
+
   useEffect(() => {
     let alive = true;
 
@@ -211,6 +220,11 @@ export default function TouristProfilePage() {
           const prof = await getMyProfile().catch(() => null);
           if (!alive) return;
           setProfile(prof || null);
+
+          // load wallet balance
+          const bal = await getWalletBalance();
+          if (!alive) return;
+          setWalletBalance(bal);
         } else {
           setProfile(null);
         }
@@ -228,7 +242,37 @@ export default function TouristProfilePage() {
     return () => {
       alive = false;
     };
-  }, [isOwnerMode, targetTouristId]);
+  }, [isOwnerMode, targetTouristId, userId, username]);
+
+  // refresh wallet when auth changes
+  useEffect(() => {
+    if (!isOwnerMode) return;
+    let alive = true;
+    
+    async function refreshBalance() {
+      try {
+        const bal = await getWalletBalance();
+        if (alive) setWalletBalance(bal);
+      } catch (e) {
+        if (alive) setWalletErr(e?.message || "Failed to load wallet balance");
+      }
+    }
+    
+    refreshBalance();
+    return () => { alive = false; };
+  }, [isOwnerMode, userId, username]);
+
+  async function handleAddFunds() {
+    setWalletErr("");
+    try {
+      const newBal = await addFunds({ userId, username }, walletAmount);
+      setWalletBalance(newBal);
+      setWalletAmount("");
+      setWalletOpen(false);
+    } catch (e) {
+      setWalletErr(e?.message || "Failed to add funds");
+    }
+  }
 
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
@@ -303,10 +347,7 @@ export default function TouristProfilePage() {
     return {
       ...gami,
       currentXp: gami?.currentXp ?? gami?.xp ?? 0,
-      xpForNextLevel:
-        gami?.xpForNextLevel ??
-        gami?.nextLevelMinXp ??
-        null,
+      xpForNextLevel: gami?.xpForNextLevel ?? gami?.nextLevelMinXp ?? null,
     };
   }, [gami]);
 
@@ -370,6 +411,72 @@ export default function TouristProfilePage() {
           </div>
         )}
       </div>
+
+      {/* WALLET (owner only) */}
+      {isOwnerMode && (
+        <div className="tourist-card">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <h2 className="itins-title" style={{ marginBottom: 4 }}>My Wallet</h2>
+              <div className="tourist-muted">Manage your travel funds</div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ textAlign: "right" }}>
+                <div className="badge-kicker">Current Balance</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>
+                  {Number(walletBalance || 0).toFixed(2)} RON
+                </div>
+              </div>
+
+              <button
+                className="tourist-blue-btn"
+                onClick={() => {
+                  setWalletErr("");
+                  setWalletAmount("");
+                  setWalletOpen(true);
+                }}
+              >
+                Add funds
+              </button>
+            </div>
+          </div>
+
+          <Modal open={walletOpen} title="Add Funds" onClose={() => setWalletOpen(false)}>
+            <div style={{ display: "grid", gap: 12 }}>
+              <div>
+                <label style={{ fontWeight: 600, fontSize: 14 }}>Amount (RON)</label>
+                <p style={{ fontSize: 13, color: "#666", marginTop: 4 }}>Enter the amount you want to add to your wallet</p>
+              </div>
+              <input
+                type="number"
+                value={walletAmount}
+                onChange={(e) => setWalletAmount(e.target.value)}
+                placeholder="e.g. 100"
+                min="0"
+                step="0.01"
+                inputMode="decimal"
+                style={{ padding: 12, borderRadius: 8, border: "1px solid #ddd", fontSize: 16 }}
+              />
+
+              {walletErr && <div className="tourist-banner">{walletErr}</div>}
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+                <button
+                  className="tourist-blue-btn"
+                  style={{ opacity: 0.75 }}
+                  onClick={() => setWalletOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button className="tourist-blue-btn" onClick={handleAddFunds}>
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </Modal>
+        </div>
+      )}
 
       {/* BADGES (owner only) */}
       {showBadgesSection && (
