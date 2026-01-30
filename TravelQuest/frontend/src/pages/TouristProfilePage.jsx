@@ -8,6 +8,9 @@ import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
+import Modal from "../components/common/Modal";
+import { addFunds, getWalletBalance } from "../services/walletService";
+
 import GamificationCard from "../components/gamification/GamificationCard";
 
 /* ---------------- helpers ---------------- */
@@ -179,6 +182,12 @@ export default function TouristProfilePage() {
   const [profile, setProfile] = useState(null);
   const [query, setQuery] = useState("");
 
+  // Wallet (owner only)
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [walletAmount, setWalletAmount] = useState("");
+  const [walletErr, setWalletErr] = useState("");
+
   useEffect(() => {
     let alive = true;
 
@@ -211,6 +220,9 @@ export default function TouristProfilePage() {
           const prof = await getMyProfile().catch(() => null);
           if (!alive) return;
           setProfile(prof || null);
+
+          // load wallet balance
+          setWalletBalance(getWalletBalance({ userId, username }));
         } else {
           setProfile(null);
         }
@@ -228,7 +240,25 @@ export default function TouristProfilePage() {
     return () => {
       alive = false;
     };
-  }, [isOwnerMode, targetTouristId]);
+  }, [isOwnerMode, targetTouristId, userId, username]);
+
+  // refresh wallet when auth changes
+  useEffect(() => {
+    if (!isOwnerMode) return;
+    setWalletBalance(getWalletBalance({ userId, username }));
+  }, [isOwnerMode, userId, username]);
+
+  function handleAddFunds() {
+    setWalletErr("");
+    try {
+      const newBal = addFunds({ userId, username }, walletAmount);
+      setWalletBalance(newBal);
+      setWalletAmount("");
+      setWalletOpen(false);
+    } catch (e) {
+      setWalletErr(e?.message || "Failed to add funds");
+    }
+  }
 
   const email = isOwnerMode ? profile?.email || "—" : "—";
   const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
@@ -303,10 +333,7 @@ export default function TouristProfilePage() {
     return {
       ...gami,
       currentXp: gami?.currentXp ?? gami?.xp ?? 0,
-      xpForNextLevel:
-        gami?.xpForNextLevel ??
-        gami?.nextLevelMinXp ??
-        null,
+      xpForNextLevel: gami?.xpForNextLevel ?? gami?.nextLevelMinXp ?? null,
     };
   }, [gami]);
 
@@ -370,6 +397,66 @@ export default function TouristProfilePage() {
           </div>
         )}
       </div>
+
+      {/* WALLET (owner only) */}
+      {isOwnerMode && (
+        <div className="tourist-card">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <h2 className="itins-title" style={{ marginBottom: 4 }}>Wallet</h2>
+              <div className="tourist-muted">Fictiv (demo). No real money.</div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ textAlign: "right" }}>
+                <div className="badge-kicker">Balance</div>
+                <div style={{ fontSize: 20, fontWeight: 800 }}>
+                  {Number(walletBalance || 0).toFixed(2)} TQ
+                </div>
+              </div>
+
+              <button
+                className="tourist-blue-btn"
+                onClick={() => {
+                  setWalletErr("");
+                  setWalletAmount("");
+                  setWalletOpen(true);
+                }}
+              >
+                Add funds
+              </button>
+            </div>
+          </div>
+
+          <Modal open={walletOpen} title="Add funds" onClose={() => setWalletOpen(false)}>
+            <div style={{ display: "grid", gap: 10 }}>
+              <label style={{ fontWeight: 600 }}>Amount (TQ)</label>
+              <input
+                value={walletAmount}
+                onChange={(e) => setWalletAmount(e.target.value)}
+                placeholder="e.g. 50"
+                inputMode="decimal"
+                style={{ padding: 10, borderRadius: 10, border: "1px solid #ddd" }}
+              />
+
+              {walletErr && <div className="tourist-banner">{walletErr}</div>}
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
+                <button
+                  className="tourist-blue-btn"
+                  style={{ opacity: 0.75 }}
+                  onClick={() => setWalletOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button className="tourist-blue-btn" onClick={handleAddFunds}>
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </Modal>
+        </div>
+      )}
 
       {/* BADGES (owner only) */}
       {showBadgesSection && (
