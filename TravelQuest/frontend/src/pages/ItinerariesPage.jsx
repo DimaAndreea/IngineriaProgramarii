@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import ItineraryCard from "../components/itineraries/ItineraryCard";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import FiltersSidebar from "../components/itineraries/FiltersSidebar";
+import PaymentModal from "../components/common/PaymentModal";
 
 import { useAuth } from "../context/AuthContext";
 import {
@@ -12,6 +13,7 @@ import {
   deleteItinerary,
   filterItineraries,
 } from "../services/itineraryService";
+import { getWalletBalance, purchaseItinerary, addFunds } from "../services/walletService";
 
 import "./ItinerariesPage.css";
 
@@ -30,6 +32,14 @@ export default function ItinerariesPage() {
   const [itineraries, setItineraries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedItineraryForPayment, setSelectedItineraryForPayment] = useState(null);
+    const [walletBalance, setWalletBalance] = useState(0);
+    const [joinMessage, setJoinMessage] = useState("");
+    const [joinError, setJoinError] = useState("");
+    const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+    const [addFundsAmount, setAddFundsAmount] = useState("");
 
     // dacă venim din profile cu state.openEdit, deschidem modalul direct
   useEffect(() => {
@@ -141,6 +151,24 @@ export default function ItinerariesPage() {
   useEffect(() => {
     loadItineraries(filters);
   }, [filters, loadItineraries]);
+  
+    // Load wallet balance for tourists
+    useEffect(() => {
+      if (!isTourist || !userId) return;
+    
+      let alive = true;
+      async function loadBalance() {
+        try {
+          const balance = await getWalletBalance();
+          if (alive) setWalletBalance(balance);
+        } catch (err) {
+          console.error("Failed to load wallet balance:", err);
+        }
+      }
+    
+      loadBalance();
+      return () => { alive = false; };
+    }, [isTourist, userId]);
 
   // ----------------------------------- CRUD (GHID) -----------------------------------
   async function handleCreate(values) {
@@ -159,6 +187,42 @@ export default function ItinerariesPage() {
     await deleteItinerary(id);
     await loadItineraries(filters);
   }
+  
+    // ----------------------------------- PAYMENT & JOIN (TOURIST) -----------------------------------
+    function handleJoinClick(itinerary) {
+      setJoinMessage("");
+      setJoinError("");
+      setSelectedItineraryForPayment(itinerary);
+      setShowPaymentModal(true);
+    }
+  
+    async function handlePurchaseConfirm() {
+      if (!selectedItineraryForPayment) return;
+    
+      const itinId = selectedItineraryForPayment.id || selectedItineraryForPayment.itineraryId;
+      const price = Number(selectedItineraryForPayment.price || 0);
+    
+      try {
+        // Process payment
+        const result = await purchaseItinerary(itinId, price);
+      
+        // Update local wallet balance
+        setWalletBalance(result.balance);
+      
+        setShowPaymentModal(false);
+        setSelectedItineraryForPayment(null);
+        setJoinMessage(result.message || "Payment successful! You have joined this itinerary.");
+        setJoinError("");
+      
+        // Reload itineraries to update UI
+        await loadItineraries(filters);
+      } catch (err) {
+        setShowPaymentModal(false);
+        setSelectedItineraryForPayment(null);
+        setJoinError(err?.message || "Failed to complete purchase");
+        setJoinMessage("");
+      }
+    }
 
   // ----------------------------------- RENDER -----------------------------------
   return (
@@ -186,6 +250,18 @@ export default function ItinerariesPage() {
 
         {/* ERROR MESSAGE */}
         {error && <div className="error-box">{error}</div>}
+        
+          {/* JOIN SUCCESS/ERROR MESSAGES */}
+          {joinMessage && (
+            <div className="success-box" style={{ margin: "10px 0", padding: "12px", background: "#d1fae5", borderRadius: "8px", color: "#065f46", fontWeight: 600 }}>
+              {joinMessage}
+            </div>
+          )}
+          {joinError && (
+            <div className="error-box" style={{ margin: "10px 0" }}>
+              {joinError}
+            </div>
+          )}
 
         {/* LOADING */}
         {loading && (
@@ -215,6 +291,7 @@ export default function ItinerariesPage() {
                 }}
                 onDelete={() => handleDelete(it.id)}
                 canParticipate={isTourist}
+                  onJoin={() => handleJoinClick(it)}
               />
             ))}
           </div>
@@ -232,6 +309,90 @@ export default function ItinerariesPage() {
             }}
           />
         )}
+        
+          {/* PAYMENT MODAL */}
+          {isTourist && (
+            <PaymentModal
+              open={showPaymentModal}
+              onClose={() => {
+                setShowPaymentModal(false);
+                setSelectedItineraryForPayment(null);
+              }}
+              onConfirm={handlePurchaseConfirm}
+              itinerary={selectedItineraryForPayment}
+              currentBalance={walletBalance}
+              onAddFundsClick={() => {
+                setShowPaymentModal(false);
+                setShowAddFundsModal(true);
+              }}
+            />
+          )}
+
+          {/* ADD FUNDS MODAL - Quick add from payment modal */}
+          {isTourist && showAddFundsModal && (
+            <div className="modal-overlay" onClick={() => setShowAddFundsModal(false)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>Add Funds to Wallet</h2>
+                  <button
+                    className="modal-close"
+                    onClick={() => setShowAddFundsModal(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <p>Enter the amount you want to add to your wallet:</p>
+                  <input
+                    type="number"
+                    min="1"
+                    max="999999"
+                    value={addFundsAmount}
+                    onChange={(e) => setAddFundsAmount(e.target.value)}
+                    placeholder="Amount (RON)"
+                    className="modal-input"
+                  />
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-cancel"
+                    onClick={() => {
+                      setShowAddFundsModal(false);
+                      setAddFundsAmount("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    onClick={async () => {
+                      if (!addFundsAmount || Number(addFundsAmount) <= 0) {
+                        alert("Please enter a valid amount");
+                        return;
+                      }
+                      try {
+                        await addFunds(
+                          { userId, username: "user" },
+                          Number(addFundsAmount)
+                        );
+                        const newBalance = await getWalletBalance();
+                        setWalletBalance(newBalance);
+                        setShowAddFundsModal(false);
+                        setAddFundsAmount("");
+                        setJoinMessage("Funds added successfully!");
+                        setTimeout(() => setJoinMessage(""), 3000);
+                      } catch (err) {
+                        setJoinError(err.message || "Failed to add funds");
+                        setTimeout(() => setJoinError(""), 3000);
+                      }
+                    }}
+                  >
+                    Add Funds
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );

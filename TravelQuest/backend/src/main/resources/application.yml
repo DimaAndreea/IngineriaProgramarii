@@ -23,6 +23,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           use_get_generated_keys: true
+        types:
+          print:
+            banner: false
   servlet:
     multipart:
       enabled: true

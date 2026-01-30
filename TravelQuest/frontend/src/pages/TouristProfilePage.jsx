@@ -222,7 +222,9 @@ export default function TouristProfilePage() {
           setProfile(prof || null);
 
           // load wallet balance
-          setWalletBalance(getWalletBalance({ userId, username }));
+          const bal = await getWalletBalance();
+          if (!alive) return;
+          setWalletBalance(bal);
         } else {
           setProfile(null);
         }
@@ -245,13 +247,25 @@ export default function TouristProfilePage() {
   // refresh wallet when auth changes
   useEffect(() => {
     if (!isOwnerMode) return;
-    setWalletBalance(getWalletBalance({ userId, username }));
+    let alive = true;
+    
+    async function refreshBalance() {
+      try {
+        const bal = await getWalletBalance();
+        if (alive) setWalletBalance(bal);
+      } catch (e) {
+        if (alive) setWalletErr(e?.message || "Failed to load wallet balance");
+      }
+    }
+    
+    refreshBalance();
+    return () => { alive = false; };
   }, [isOwnerMode, userId, username]);
 
-  function handleAddFunds() {
+  async function handleAddFunds() {
     setWalletErr("");
     try {
-      const newBal = addFunds({ userId, username }, walletAmount);
+      const newBal = await addFunds({ userId, username }, walletAmount);
       setWalletBalance(newBal);
       setWalletAmount("");
       setWalletOpen(false);
@@ -403,15 +417,15 @@ export default function TouristProfilePage() {
         <div className="tourist-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
             <div>
-              <h2 className="itins-title" style={{ marginBottom: 4 }}>Wallet</h2>
-              <div className="tourist-muted">Fictiv (demo). No real money.</div>
+              <h2 className="itins-title" style={{ marginBottom: 4 }}>My Wallet</h2>
+              <div className="tourist-muted">Manage your travel funds</div>
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ textAlign: "right" }}>
-                <div className="badge-kicker">Balance</div>
-                <div style={{ fontSize: 20, fontWeight: 800 }}>
-                  {Number(walletBalance || 0).toFixed(2)} TQ
+                <div className="badge-kicker">Current Balance</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>
+                  {Number(walletBalance || 0).toFixed(2)} RON
                 </div>
               </div>
 
@@ -428,15 +442,21 @@ export default function TouristProfilePage() {
             </div>
           </div>
 
-          <Modal open={walletOpen} title="Add funds" onClose={() => setWalletOpen(false)}>
-            <div style={{ display: "grid", gap: 10 }}>
-              <label style={{ fontWeight: 600 }}>Amount (TQ)</label>
+          <Modal open={walletOpen} title="Add Funds" onClose={() => setWalletOpen(false)}>
+            <div style={{ display: "grid", gap: 12 }}>
+              <div>
+                <label style={{ fontWeight: 600, fontSize: 14 }}>Amount (RON)</label>
+                <p style={{ fontSize: 13, color: "#666", marginTop: 4 }}>Enter the amount you want to add to your wallet</p>
+              </div>
               <input
+                type="number"
                 value={walletAmount}
                 onChange={(e) => setWalletAmount(e.target.value)}
-                placeholder="e.g. 50"
+                placeholder="e.g. 100"
+                min="0"
+                step="0.01"
                 inputMode="decimal"
-                style={{ padding: 10, borderRadius: 10, border: "1px solid #ddd" }}
+                style={{ padding: 12, borderRadius: 8, border: "1px solid #ddd", fontSize: 16 }}
               />
 
               {walletErr && <div className="tourist-banner">{walletErr}</div>}

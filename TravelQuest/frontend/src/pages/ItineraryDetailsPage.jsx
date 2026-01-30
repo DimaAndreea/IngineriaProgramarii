@@ -4,10 +4,11 @@ import {
   getItineraryById,
   updateItinerary,
   deleteItinerary,
-  joinItinerary,
 } from "../services/itineraryService";
+import { getWalletBalance, purchaseItinerary, addFunds } from "../services/walletService";
 import { useAuth } from "../context/AuthContext";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
+import PaymentModal from "../components/common/PaymentModal";
 import "./ItineraryDetailsPage.css";
 
 export default function ItineraryDetailsPage() {
@@ -21,6 +22,11 @@ export default function ItineraryDetailsPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [joinMessage, setJoinMessage] = useState("");
   const [joinError, setJoinError] = useState("");
+  
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [addFundsAmount, setAddFundsAmount] = useState("");
 
   const isCreator =
     itinerary?.creator?.id && Number(itinerary.creator.id) === Number(userId);
@@ -57,6 +63,12 @@ export default function ItineraryDetailsPage() {
       try {
         const data = await getItineraryById(id);
         setItinerary(data);
+        
+        // Load wallet balance for tourists
+        if (isTourist) {
+          const balance = await getWalletBalance();
+          setWalletBalance(balance);
+        }
       } catch (err) {
         console.error("Failed to load itinerary:", err);
       } finally {
@@ -64,7 +76,7 @@ export default function ItineraryDetailsPage() {
       }
     }
     load();
-  }, [id]);
+  }, [id, isTourist, userId]);
 
   // ======================
   // DELETE
@@ -101,18 +113,31 @@ export default function ItineraryDetailsPage() {
   }
 
   // ======================
-  // JOIN TOUR (TOURIST)
+  // JOIN TOUR (TOURIST) - WITH PAYMENT
   // ======================
-  async function handleJoin() {
-    const realId =
-      itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
+  function handleJoinClick() {
+    setJoinMessage("");
+    setJoinError("");
+    setShowPaymentModal(true);
+  }
+
+  async function handlePurchaseConfirm() {
+    const realId = itinerary.id || itinerary.itineraryId || itinerary.itinerary_id;
+    const price = Number(itinerary.price || 0);
 
     try {
-      const message = await joinItinerary(realId);
-      setJoinMessage(message || "Tour successfully joined!");
+      // Process payment
+      const result = await purchaseItinerary(realId, price);
+      
+      // Update local wallet balance
+      setWalletBalance(result.balance);
+      
+      setShowPaymentModal(false);
+      setJoinMessage(result.message || "Payment successful! You have joined this itinerary.");
       setJoinError("");
     } catch (err) {
-      setJoinError(err?.message || "Failed to join the tour");
+      setShowPaymentModal(false);
+      setJoinError(err?.message || "Failed to complete purchase");
       setJoinMessage("");
     }
   }
@@ -182,7 +207,7 @@ export default function ItineraryDetailsPage() {
           <div className="creator-action-row" style={{ marginTop: "20px" }}>
             <button
               className="soft-btn primary"
-              onClick={handleJoin}
+              onClick={handleJoinClick}
               style={{ width: "100%", justifyContent: "center" }}
             >
               Join tour
@@ -246,6 +271,85 @@ export default function ItineraryDetailsPage() {
         onSubmit={handleUpdate}
         onClose={() => setShowEditModal(false)}
       />
+      
+      {/* PAYMENT MODAL */}
+      <PaymentModal
+        open={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onConfirm={handlePurchaseConfirm}
+        itinerary={itinerary}
+        currentBalance={walletBalance}
+        onAddFundsClick={() => {
+          setShowPaymentModal(false);
+          setShowAddFundsModal(true);
+        }}
+      />
+
+      {/* ADD FUNDS MODAL - Quick add from payment modal */}
+      {showAddFundsModal && (
+        <div className="modal-overlay" onClick={() => setShowAddFundsModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add Funds to Wallet</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowAddFundsModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Enter the amount you want to add to your wallet:</p>
+              <input
+                type="number"
+                min="1"
+                max="999999"
+                value={addFundsAmount}
+                onChange={(e) => setAddFundsAmount(e.target.value)}
+                placeholder="Amount (RON)"
+                className="modal-input"
+              />
+            </div>
+            <div className="modal-footer">
+              <button
+                className="btn btn-cancel"
+                onClick={() => {
+                  setShowAddFundsModal(false);
+                  setAddFundsAmount("");
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={async () => {
+                  if (!addFundsAmount || Number(addFundsAmount) <= 0) {
+                    alert("Please enter a valid amount");
+                    return;
+                  }
+                  try {
+                    await addFunds(
+                      { userId, username: "user" },
+                      Number(addFundsAmount)
+                    );
+                    const newBalance = await getWalletBalance();
+                    setWalletBalance(newBalance);
+                    setShowAddFundsModal(false);
+                    setAddFundsAmount("");
+                    setJoinMessage("Funds added successfully!");
+                    setTimeout(() => setJoinMessage(""), 3000);
+                  } catch (err) {
+                    setJoinError(err.message || "Failed to add funds");
+                    setTimeout(() => setJoinError(""), 3000);
+                  }
+                }}
+              >
+                Add Funds
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
