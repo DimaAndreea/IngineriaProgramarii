@@ -140,11 +140,11 @@ export default function LoginForm() {
             {errors.password && <p className="error">{errors.password}</p>}
 
             <button className="login-btn" disabled={loading}>
-                {loading ? "Loading..." : "LOGIN"}
+                {loading ? "Loading..." : "LOG IN"}
             </button>
 
             <p className="login-link">
-                New here? <a href="/register">Register</a>
+                New here? <a href="/register" className="btn-tertiary">Register</a>
             </p>
         </form>
     );
