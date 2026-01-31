@@ -19,7 +19,7 @@ public class ItineraryParticipant {
     @JsonBackReference
     private Itinerary itinerary;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tourist_id", nullable = false)
     private User tourist;
 

@@ -51,9 +51,13 @@ public class Itinerary {
     private List<ItineraryLocation> locations = new ArrayList<>();
 
 
-    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<ItineraryParticipant> participants = new ArrayList<>();
+
+    @OneToMany(mappedBy = "itinerary", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Feedback> feedback = new ArrayList<>();
 
     public List<ItineraryParticipant> getParticipants() {
         return participants;
@@ -61,6 +65,14 @@ public class Itinerary {
 
     public void setParticipants(List<ItineraryParticipant> participants) {
         this.participants = participants;
+    }
+
+    public List<Feedback> getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(List<Feedback> feedback) {
+        this.feedback = feedback;
     }
 
     @PrePersist

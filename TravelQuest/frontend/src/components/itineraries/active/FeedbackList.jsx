@@ -2,12 +2,27 @@ import React from "react";
 import "./FeedbackList.css";
 
 export default function FeedbackList({ participants = [], feedback = [] }) {
-    const feedbackMap = new Map(feedback.map(f => [f.id, f]));
+    // Debug: log ce primim
+    console.log("🎯 FeedbackList received:");
+    console.log("   Participants:", participants);
+    console.log("   Feedback:", feedback);
 
-    const combined = participants.map(p => ({
-        ...p,
-        feedback: feedbackMap.get(p.id) || null
-    }));
+    // Map feedback by fromUserId (turist care a dat feedback)
+    const feedbackMap = new Map(feedback.map(f => [f.fromUserId, f]));
+    console.log("   FeedbackMap keys:", Array.from(feedbackMap.keys()));
+
+    const combined = participants.map(p => {
+        // Extract user data - participant poate fi ItineraryParticipant (cu .tourist) sau User direct
+        const user = p.tourist || p;
+        const foundFeedback = feedbackMap.get(user.id);
+        console.log(`   Participant ${user.id} (${user.username}): feedback =`, foundFeedback);
+        return {
+            id: user.id,
+            name: user.username,
+            avatar: user.avatar,
+            feedback: foundFeedback || null
+        };
+    });
 
     return (
         <div className="feedback-wrapper">
@@ -21,7 +36,7 @@ export default function FeedbackList({ participants = [], feedback = [] }) {
                 >
                     <div className="feedback-header">
                         <img
-                            src={p.avatar}
+                            src={p.avatar || "https://via.placeholder.com/40?text=Avatar"}
                             alt={p.name}
                             className="feedback-avatar"
                         />
@@ -41,7 +56,7 @@ export default function FeedbackList({ participants = [], feedback = [] }) {
 
                     <p className={`feedback-text ${!p.feedback ? "pending-text" : ""}`}>
                         {p.feedback
-                            ? p.feedback.text
+                            ? p.feedback.comment
                             : "This participant has not submitted feedback yet…"}
                     </p>
                 </div>

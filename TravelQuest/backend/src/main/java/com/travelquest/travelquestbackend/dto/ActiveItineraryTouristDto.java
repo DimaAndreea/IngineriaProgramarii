@@ -10,9 +10,12 @@ public class ActiveItineraryTouristDto {
 
     private Long id;
     private String title;
+    private Long guideId;
+    private String guideName;
     private List<LocationDto> locations;
     private List<ObjectiveSubmission> submissions;
     private int currentStageIndex = 0;
+    private FeedbackDto feedback;  // feedback dat de turist (null dacă nu a dat)
 
     @Data
     public static class LocationDto {
@@ -37,6 +40,13 @@ public class ActiveItineraryTouristDto {
         dto.id = itinerary.getId();
         dto.title = itinerary.getTitle();
         dto.submissions = submissions;
+        dto.feedback = null; // va fi setat în controller dacă există
+        
+        // Set guide info
+        if (itinerary.getCreator() != null) {
+            dto.guideId = itinerary.getCreator().getId();
+            dto.guideName = itinerary.getCreator().getUsername();
+        }
 
         dto.locations = itinerary.getLocations().stream().map(loc -> {
             LocationDto locDto = new LocationDto();
