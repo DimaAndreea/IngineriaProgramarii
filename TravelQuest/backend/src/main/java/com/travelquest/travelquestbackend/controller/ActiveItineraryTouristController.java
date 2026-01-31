@@ -1,7 +1,9 @@
 package com.travelquest.travelquestbackend.controller;
 
 import com.travelquest.travelquestbackend.dto.ActiveItineraryTouristDto;
+import com.travelquest.travelquestbackend.dto.FeedbackDto;
 import com.travelquest.travelquestbackend.model.*;
+import com.travelquest.travelquestbackend.repository.FeedbackRepository;
 import com.travelquest.travelquestbackend.repository.ItineraryRepository;
 import com.travelquest.travelquestbackend.service.ItinerarySubmissionService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/itineraries")
@@ -18,11 +21,14 @@ public class ActiveItineraryTouristController {
 
     private final ItineraryRepository itineraryRepository;
     private final ItinerarySubmissionService submissionService;
+    private final FeedbackRepository feedbackRepository;
 
     public ActiveItineraryTouristController(ItineraryRepository itineraryRepository,
-                                            ItinerarySubmissionService submissionService) {
+                                            ItinerarySubmissionService submissionService,
+                                            FeedbackRepository feedbackRepository) {
         this.itineraryRepository = itineraryRepository;
         this.submissionService = submissionService;
+        this.feedbackRepository = feedbackRepository;
     }
 
     @GetMapping("/active/tourist")
@@ -60,12 +66,25 @@ public class ActiveItineraryTouristController {
         // Construim DTO-ul folosind metoda statică din DTO
         ActiveItineraryTouristDto dto = ActiveItineraryTouristDto.fromItinerary(itinerary, submissions);
 
+        // Preluăm feedback-ul dat de turist pentru itinerariu (dacă există)
+        Optional<Feedback> feedback = feedbackRepository.findByFromUserIdAndItineraryId(user.getId(), itinerary.getId());
+        if (feedback.isPresent()) {
+            Feedback f = feedback.get();
+            FeedbackDto feedbackDto = new FeedbackDto();
+            feedbackDto.setId(f.getId());
+            feedbackDto.setRating(f.getRating());
+            feedbackDto.setComment(f.getComment());
+            feedbackDto.setCreatedAt(f.getCreatedAt());
+            dto.setFeedback(feedbackDto);
+        }
+
         // Log clar pentru debugging
         System.out.println("=== Active Itinerary DTO for tourist ===");
         System.out.println("Itinerary ID: " + itinerary.getId());
         System.out.println("Title: " + itinerary.getTitle());
         System.out.println("Locations count: " + (itinerary.getLocations() != null ? itinerary.getLocations().size() : 0));
         System.out.println("Submissions count: " + (submissions != null ? submissions.size() : 0));
+        System.out.println("Has feedback: " + (dto.getFeedback() != null));
 
         return dto;
     }

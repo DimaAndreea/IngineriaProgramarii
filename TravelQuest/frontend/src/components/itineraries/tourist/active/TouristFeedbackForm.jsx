@@ -11,7 +11,7 @@ export default function TouristFeedbackForm({
   existingFeedback = null,
 }) {
   const [rating, setRating] = useState(existingFeedback?.rating || 0);
-  const [text, setText] = useState(existingFeedback?.text || "");
+  const [text, setText] = useState(existingFeedback?.comment || "");
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const handleSubmit = (e) => {
@@ -27,7 +27,7 @@ export default function TouristFeedbackForm({
       return;
     }
 
-    onSubmit({ rating, text: text.trim() });
+    onSubmit({ rating, comment: text.trim() });
   };
 
   const guideLabel = guideName || "Your Guide";
@@ -56,7 +56,7 @@ export default function TouristFeedbackForm({
             </span>
           </div>
           
-          <p className="feedback-text">{existingFeedback.text}</p>
+          <p className="feedback-text">{existingFeedback.comment}</p>
           
           <p className="feedback-notice">
             ✓ You have already submitted feedback for this itinerary.

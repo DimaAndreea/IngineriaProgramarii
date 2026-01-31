@@ -1,13 +1,30 @@
 import React from "react";
 import "./FeedbackList.css";
 
-export default function FeedbackList({ participants = [], feedback = [] }) {
-    const feedbackMap = new Map(feedback.map(f => [f.id, f]));
+const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+    });
+};
 
-    const combined = participants.map(p => ({
-        ...p,
-        feedback: feedbackMap.get(p.id) || null
-    }));
+export default function FeedbackList({ participants = [], feedback = [] }) {
+    // Map feedback by fromUserId (turist care a dat feedback)
+    const feedbackMap = new Map(feedback.map(f => [f.fromUserId, f]));
+
+    const combined = participants.map(p => {
+        // Extract user data - participant poate fi ItineraryParticipant (cu .tourist) sau User direct
+        const user = p.tourist || p;
+        const foundFeedback = feedbackMap.get(user.id);
+        return {
+            id: user.id,
+            name: user.username,
+            feedback: foundFeedback || null
+        };
+    });
 
     return (
         <div className="feedback-wrapper">
@@ -20,19 +37,18 @@ export default function FeedbackList({ participants = [], feedback = [] }) {
                     className={`feedback-card ${!p.feedback ? "pending" : ""}`}
                 >
                     <div className="feedback-header">
-                        <img
-                            src={p.avatar}
-                            alt={p.name}
-                            className="feedback-avatar"
-                        />
-
                         <div className="feedback-user">
                             <span className="feedback-name">{p.name}</span>
 
                             {p.feedback ? (
-                                <span className="feedback-stars">
-                                    {"⭐".repeat(p.feedback.rating)}
-                                </span>
+                                <>
+                                    <span className="feedback-stars">
+                                        {"⭐".repeat(p.feedback.rating)}
+                                    </span>
+                                    <span className="feedback-date">
+                                        {formatDate(p.feedback.createdAt)}
+                                    </span>
+                                </>
                             ) : (
                                 <span className="feedback-pending">No feedback yet</span>
                             )}
@@ -41,7 +57,7 @@ export default function FeedbackList({ participants = [], feedback = [] }) {
 
                     <p className={`feedback-text ${!p.feedback ? "pending-text" : ""}`}>
                         {p.feedback
-                            ? p.feedback.text
+                            ? p.feedback.comment
                             : "This participant has not submitted feedback yet…"}
                     </p>
                 </div>

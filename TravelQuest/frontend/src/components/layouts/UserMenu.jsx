@@ -78,9 +78,11 @@ export default function UserMenu() {
 
       {open && (
         <div className="user-dropdown">
-          <button type="button" className="dropdown-item" onClick={goProfile}>
-            View Profile
-          </button>
+          {role !== "admin" && (
+            <button type="button" className="dropdown-item" onClick={goProfile}>
+              View Profile
+            </button>
+          )}
 
           <button
             type="button"

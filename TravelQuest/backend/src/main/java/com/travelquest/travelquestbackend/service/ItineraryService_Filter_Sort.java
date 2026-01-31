@@ -163,7 +163,14 @@ public class ItineraryService_Filter_Sort {
         if (filterDTO.rating != null && !filterDTO.rating.isEmpty()) {
             try {
                 Integer minRating = Integer.parseInt(filterDTO.rating);
-                predicates.add(cb.greaterThanOrEqualTo(root.get("rating"), minRating));
+                Subquery<Double> avgRatingSub = cq.subquery(Double.class);
+                Root<Feedback> feedbackRoot = avgRatingSub.from(Feedback.class);
+                avgRatingSub.select(cb.avg(feedbackRoot.get("rating").as(Double.class)));
+                avgRatingSub.where(
+                        cb.equal(feedbackRoot.get("toUser").get("id"), root.get("creator").get("id"))
+                );
+
+                predicates.add(cb.greaterThanOrEqualTo(avgRatingSub, minRating.doubleValue()));
             } catch (NumberFormatException ignored) {}
         }
 

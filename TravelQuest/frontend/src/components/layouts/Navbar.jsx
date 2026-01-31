@@ -10,7 +10,7 @@ function GamificationHud() {
   const { summary, loading } = useGamification();
 
   // nu afișăm nimic dacă nu e logat sau e public
-  if (!role) return null;
+  if (!role || role === "admin") return null;
 
   const lvl = summary?.level ?? summary?.lvl ?? summary?.currentLevel ?? summary?.levelNumber ?? null;
   const xp = summary?.xp ?? summary?.currentXp ?? 0;

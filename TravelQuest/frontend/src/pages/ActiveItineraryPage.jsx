@@ -88,6 +88,10 @@ export default function ActiveItineraryPage() {
 
         setFeedback(active.feedback || []);
 
+        // ✅ DEBUG: Log participants și feedback
+        console.log("🎯 Participants:", active.participants);
+        console.log("💬 Feedback:", active.feedback);
+
         // ✅ submissions pentru ghid (istoric inclus)
         try {
           const subs = await getSubmissionsForGuide(active.id);

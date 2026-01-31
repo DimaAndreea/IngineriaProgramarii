@@ -84,6 +84,31 @@
   font-size: 12px;
 }
 
+.gp-rating{
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.gp-rating-value{
+  color: #f4c150;
+  font-weight: 900;
+}
+
+.gp-rating-count{
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.gp-rating-text{
+  color: var(--muted);
+  font-weight: 700;
+}
+
 .gp-header-center{
   min-width: 320px;
 }
