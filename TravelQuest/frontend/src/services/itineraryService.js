@@ -169,3 +169,14 @@ export function getSubmissionsForGuide(itineraryId) {
 export function getActiveItineraryForTourist() {
   return request(`${BASE}/active/tourist`);
 }
+
+/* =========================
+   GUIDE REVIEWS
+========================= */
+export function getGuideReviews(guideId) {
+  return request(`${API_BASE_URL}/api/guides/${guideId}/reviews`);
+}
+
+export function getGuideRating(guideId) {
+  return request(`${API_BASE_URL}/api/guides/${guideId}/rating`);
+}

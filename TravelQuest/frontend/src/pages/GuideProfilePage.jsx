@@ -8,6 +8,7 @@ import {
   deleteItinerary,
   updateItinerary,
   getPublicItineraries,
+  getGuideRating,
 } from "../services/itineraryService";
 
 import ItineraryForm from "../components/itineraries/ItineraryForm";
@@ -15,6 +16,7 @@ import "./GuideProfilePage.css";
 
 import { getMyProfile } from "../services/userService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
+import GuideReviewsSection from "../components/guides/GuideReviewsSection";
 
 import GamificationCard from "../components/gamification/GamificationCard";
 
@@ -152,6 +154,9 @@ export default function GuideProfilePage() {
 
   const [profile, setProfile] = useState(null);
 
+  const [ratingInfo, setRatingInfo] = useState(null);
+  const [ratingLoading, setRatingLoading] = useState(false);
+
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
 
@@ -221,6 +226,32 @@ export default function GuideProfilePage() {
       alive = false;
     };
   }, [isOwner, isPublicView, userId, viewedGuideId]);
+
+  useEffect(() => {
+    const guideId = viewedGuideId || userId;
+    if (!guideId) return;
+
+    let alive = true;
+
+    async function loadRating() {
+      try {
+        setRatingLoading(true);
+        const data = await getGuideRating(guideId);
+        if (!alive) return;
+        setRatingInfo(data || null);
+      } catch {
+        if (!alive) return;
+        setRatingInfo(null);
+      } finally {
+        if (alive) setRatingLoading(false);
+      }
+    }
+
+    loadRating();
+    return () => {
+      alive = false;
+    };
+  }, [viewedGuideId, userId]);
 
   const email = isOwner ? profile?.email || "—" : "—";
   const phone = isOwner ? profile?.phone || profile?.phoneNumber || "—" : "—";
@@ -371,6 +402,23 @@ export default function GuideProfilePage() {
             <div>
               <h1 className="gp-name">{headerUsername}</h1>
               <div className="gp-role">Guide</div>
+
+              <div className="gp-rating">
+                {ratingLoading ? (
+                  <span className="gp-rating-text">Loading rating…</span>
+                ) : ratingInfo && ratingInfo.totalReviews > 0 ? (
+                  <>
+                    <span className="gp-rating-value">
+                      {Number(ratingInfo.averageRating).toFixed(1)} ⭐
+                    </span>
+                    <span className="gp-rating-count">
+                      ({ratingInfo.totalReviews} reviews)
+                    </span>
+                  </>
+                ) : (
+                  <span className="gp-rating-text">No reviews yet</span>
+                )}
+              </div>
 
               {isOwner && (
                 <div className="gp-contact">
@@ -549,6 +597,11 @@ export default function GuideProfilePage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* Reviews Section - for all guides */}
+      <section className="gp-card gp-section-card">
+        <GuideReviewsSection guideId={viewedGuideId || userId} />
       </section>
 
       {isOwner && (
