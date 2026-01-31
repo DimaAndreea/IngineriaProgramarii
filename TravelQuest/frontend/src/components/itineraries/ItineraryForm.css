@@ -19,9 +19,10 @@
 ============================ */
 .modal-container {
   background: white;
-  padding: 28px;
+  padding: 32px;
   border-radius: 14px;
-  width: 520px;
+  width: 750px;
+  max-width: 95vw;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
@@ -44,6 +45,12 @@
   margin-bottom: 18px;
 }
 
+.modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
 .close-btn {
   background: none;
   border: none;
@@ -58,7 +65,7 @@
 .itinerary-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 label {
@@ -69,16 +76,16 @@ label {
 /* Inputs */
 .input {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #dcdcdc;
-  border-radius: 6px;
+  padding: 11px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
   font-size: 15px;
-  background: #fafafa;
+  background: #ffffff;
 }
 
 .input:focus {
-  border-color: #7aa7ff;
-  background: #fff;
+  border-color: rgba(47, 111, 237, 0.45);
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.12);
   outline: none;
 }
 
@@ -121,9 +128,7 @@ label {
    DATES ROW
 ============================ */
 .dates-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
+  display: block;
 }
 
 /* ============================

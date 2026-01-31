@@ -1,26 +1,25 @@
-.dp-field {
+.drp-field {
   position: relative;
 }
 
-.dp-label {
+.drp-label {
   font-size: 13px;
   font-weight: 900;
   color: #111827;
   margin-bottom: 8px;
 }
 
-.dp-req {
+.drp-req {
   color: #ef4444;
 }
 
-/* input button */
-.dp-input {
+.drp-input {
   width: 100%;
-  height: 44px;
+  height: 48px;
   border-radius: 14px;
   border: 1px solid rgba(17, 24, 39, 0.12);
   background: #fff;
-  padding: 0 12px;
+  padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,36 +28,35 @@
   transition: transform 120ms ease, border-color 120ms ease;
 }
 
-.dp-input:hover {
+.drp-input:hover {
   transform: translateY(-1px);
   border-color: rgba(47, 111, 237, 0.35);
 }
 
-.dp-input-open {
+.drp-input-open {
   border-color: rgba(47, 111, 237, 0.55);
 }
 
-.dp-placeholder {
+.drp-placeholder {
   color: #9ca3af;
   font-weight: 700;
 }
 
-.dp-value {
+.drp-value {
   color: #111827;
   font-weight: 900;
 }
 
-.dp-icon {
+.drp-icon {
   opacity: 0.65;
 }
 
-/* ✅ POPOVER LIGHT */
-.dp-popover {
+.drp-popover {
   position: absolute;
   z-index: 50;
   top: calc(100% + 10px);
   left: 0;
-  width: 340px;
+  width: 680px;
   border-radius: 18px;
   border: 1px solid rgba(17, 24, 39, 0.10);
   background: #ffffff;
@@ -66,135 +64,152 @@
   padding: 14px;
 }
 
-/* DayPicker light theme vars */
-.dp-popover .rdp {
+.drp-year-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.drp-year-selector label {
+  font-weight: 950;
+  color: #111827;
+  font-size: 13px;
+}
+
+.drp-year-select {
+  padding: 8px 12px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.drp-year-select:hover {
+  border-color: rgba(47, 111, 237, 0.35);
+}
+
+.drp-year-select:focus {
+  outline: none;
+  border-color: rgba(47, 111, 237, 0.55);
+  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.12);
+}
+
+.drp-popover .rdp {
   --rdp-cell-size: 42px;
   --rdp-accent-color: #2f6fed;
   --rdp-background-color: rgba(47, 111, 237, 0.12);
   color: #111827;
 }
 
-/* header month */
-.dp-popover .rdp-caption_label {
+.drp-popover .rdp-caption_label {
   color: #111827;
   font-weight: 950;
   font-size: 16px;
 }
 
-/* arrows */
-.dp-popover .rdp-nav_button {
+.drp-popover .rdp-nav_button {
   color: #2f6fed;
   opacity: 0.85;
 }
-.dp-popover .rdp-nav_button:hover {
+
+.drp-popover .rdp-nav_button:hover {
   opacity: 1;
   background: rgba(47, 111, 237, 0.10);
   border-radius: 10px;
 }
 
-/* weekdays (Mo, Tu...) */
-.dp-popover .rdp-weekday {
+.drp-popover .rdp-weekday {
   color: #6b7280;
   font-weight: 900;
   font-size: 12px;
 }
 
-/* day numbers */
-.dp-popover .rdp-day {
+.drp-popover .rdp-day {
   color: #111827;
   border-radius: 12px;
 }
 
-/* outside month days */
-.dp-popover .rdp-day_outside {
+.drp-popover .rdp-day_outside {
   color: rgba(17, 24, 39, 0.25);
 }
 
-/* ✅ disabled days (past) grey + not clickable */
-.dp-popover .rdp-day_disabled {
+.drp-popover .rdp-day_disabled {
   color: rgba(17, 24, 39, 0.28);
   opacity: 1;
   cursor: not-allowed;
 }
 
-/* today ring */
-.dp-popover .rdp-day_today:not(.rdp-day_selected) {
+.drp-popover .rdp-day_today:not(.rdp-day_selected) {
   outline: 2px solid rgba(47, 111, 237, 0.35);
   outline-offset: -2px;
 }
 
-/* hover for active days */
-.dp-popover
-  .rdp-day:not(.rdp-day_disabled):not(.rdp-day_selected):hover {
-  background: rgba(47, 111, 237, 0.12);
-}
-
-/* selected day */
-.dp-popover .rdp-day_selected {
+.drp-popover .rdp-day_range_start,
+.drp-popover .rdp-day_range_end {
   background: #2f6fed;
   color: #ffffff;
   font-weight: 950;
 }
 
-/* highlighted range */
-.dp-popover .dp-day-range {
+.drp-popover .rdp-day_range_middle {
   background: rgba(47, 111, 237, 0.12);
-  border-radius: 12px;
 }
 
-.dp-popover .dp-day-range-start,
-.dp-popover .dp-day-range-end {
-  outline: 2px solid rgba(47, 111, 237, 0.55);
-  outline-offset: -2px;
-  border-radius: 12px;
-}
-
-/* footer actions */
-.dp-actions {
+.drp-actions {
   display: flex;
-  gap: 10px;
-  justify-content: space-between;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.dp-clear,
-.dp-today {
+.drp-clear,
+.drp-today,
+.drp-save {
   flex: 1;
   border: 1px solid rgba(17, 24, 39, 0.12);
   background: #f9fafb;
   color: #111827;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 950;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 900;
+  font-size: 13px;
   cursor: pointer;
   transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
 }
 
-.dp-clear:hover,
-.dp-today:hover {
+.drp-clear:hover,
+.drp-today:hover {
   transform: translateY(-1px);
   background: #ffffff;
   border-color: rgba(47, 111, 237, 0.35);
 }
 
-.dp-today {
+.drp-today {
   background: rgba(47, 111, 237, 0.10);
   border-color: rgba(47, 111, 237, 0.35);
 }
 
-@media (max-width: 420px) {
-  .dp-popover {
+.drp-save {
+  background: rgba(47, 111, 237, 0.15);
+  border-color: rgba(47, 111, 237, 0.45);
+  color: #2f6fed;
+  font-weight: 950;
+}
+
+.drp-save:hover {
+  transform: translateY(-1px);
+  background: rgba(47, 111, 237, 0.25);
+  border-color: rgba(47, 111, 237, 0.65);
+}
+
+@media (max-width: 820px) {
+  .drp-popover {
     width: 100%;
   }
-}
-
-/* positioning */
-.dp-popover-left {
-  left: 0;
-  right: auto;
-}
-
-.dp-popover-right {
-  right: 0;
-  left: auto;
 }

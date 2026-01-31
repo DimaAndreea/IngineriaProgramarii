@@ -27,11 +27,30 @@ export default function DatePickerField({
   minDate,
   required = false,
   align = "left", // ✅ NEW: "left" | "right"
+  rangeStart,
+  rangeEnd,
+  highlightRange = false,
 }) {
   const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(null);
   const popRef = useRef(null);
 
   const selected = useMemo(() => parseYYYYMMDD(value), [value]);
+
+  const rangeFrom = useMemo(() => parseYYYYMMDD(rangeStart), [rangeStart]);
+  const rangeTo = useMemo(() => parseYYYYMMDD(rangeEnd), [rangeEnd]);
+
+  const effectiveRangeTo = useMemo(() => {
+    if (rangeTo) return rangeTo;
+    if (highlightRange && open) return hovered;
+    return null;
+  }, [rangeTo, highlightRange, open, hovered]);
+
+  const normalizedRange = useMemo(() => {
+    if (!highlightRange || !rangeFrom || !effectiveRangeTo) return null;
+    if (rangeFrom <= effectiveRangeTo) return { from: rangeFrom, to: effectiveRangeTo };
+    return { from: effectiveRangeTo, to: rangeFrom };
+  }, [highlightRange, rangeFrom, effectiveRangeTo]);
 
   const disabled = useMemo(() => {
     if (minDate) return { before: parseYYYYMMDD(minDate) };
@@ -55,6 +74,7 @@ export default function DatePickerField({
     if (!date) return;
     onChange?.(toYYYYMMDD(date));
     setOpen(false);
+    setHovered(null);
   };
 
   return (
@@ -88,6 +108,22 @@ export default function DatePickerField({
             onSelect={handleSelect}
             disabled={disabled}
             weekStartsOn={1}
+            onDayMouseEnter={(day) => {
+              if (highlightRange && rangeFrom) setHovered(day);
+            }}
+            onDayMouseLeave={() => {
+              if (highlightRange) setHovered(null);
+            }}
+            modifiers={{
+              ...(normalizedRange ? { range: normalizedRange } : {}),
+              ...(highlightRange && rangeFrom ? { rangeStart: rangeFrom } : {}),
+              ...(highlightRange && rangeTo ? { rangeEnd: rangeTo } : {}),
+            }}
+            modifiersClassNames={{
+              range: "dp-day-range",
+              rangeStart: "dp-day-range-start",
+              rangeEnd: "dp-day-range-end",
+            }}
           />
 
           <div className="dp-actions">
@@ -97,6 +133,7 @@ export default function DatePickerField({
               onClick={() => {
                 onChange?.("");
                 setOpen(false);
+                setHovered(null);
               }}
             >
               Clear
@@ -109,6 +146,7 @@ export default function DatePickerField({
                 const today = new Date();
                 onChange?.(toYYYYMMDD(today));
                 setOpen(false);
+                setHovered(null);
               }}
             >
               Today
