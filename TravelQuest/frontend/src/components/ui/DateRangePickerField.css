@@ -5,7 +5,7 @@
 .drp-label {
   font-size: 13px;
   font-weight: 900;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.85) !important;
   margin-bottom: 8px;
 }
 
@@ -17,38 +17,42 @@
   width: 100%;
   height: 48px;
   border-radius: 14px;
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #fff;
+  border: 1px solid rgba(162, 152, 239, 0.3);
+  background: rgba(255, 255, 255, 0.08);
   padding: 0 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-  transition: transform 120ms ease, border-color 120ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+  color: white;
 }
 
 .drp-input:hover {
   transform: translateY(-1px);
-  border-color: rgba(47, 111, 237, 0.35);
+  border-color: rgba(162, 152, 239, 0.5);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .drp-input-open {
-  border-color: rgba(47, 111, 237, 0.55);
+  border-color: rgba(162, 152, 239, 0.6);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .drp-placeholder {
-  color: #9ca3af;
+  color: rgba(255, 255, 255, 0.4);
   font-weight: 700;
 }
 
 .drp-value {
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 900;
 }
 
 .drp-icon {
   opacity: 0.65;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .drp-popover {
@@ -58,9 +62,13 @@
   left: 0;
   width: 680px;
   border-radius: 18px;
-  border: 1px solid rgba(17, 24, 39, 0.10);
-  background: #ffffff;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 
+    0 8px 32px rgba(16, 0, 43, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 14px;
 }
 
@@ -70,96 +78,97 @@
   gap: 10px;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  border-bottom: 1px solid rgba(162, 152, 239, 0.2);
 }
 
 .drp-year-selector label {
   font-weight: 950;
-  color: #111827;
+  color: rgba(255, 255, 255, 0.85) !important;
   font-size: 13px;
 }
 
 .drp-year-select {
   padding: 8px 12px;
-  border: 1px solid rgba(17, 24, 39, 0.12);
+  border: 1px solid rgba(162, 152, 239, 0.3);
   border-radius: 10px;
-  background: #ffffff;
-  color: #111827;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 900;
   font-size: 13px;
   cursor: pointer;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 
 .drp-year-select:hover {
-  border-color: rgba(47, 111, 237, 0.35);
+  border-color: rgba(162, 152, 239, 0.5);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .drp-year-select:focus {
   outline: none;
-  border-color: rgba(47, 111, 237, 0.55);
-  box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.12);
+  border-color: rgba(162, 152, 239, 0.6);
+  box-shadow: 0 0 0 4px rgba(162, 152, 239, 0.15);
 }
 
 .drp-popover .rdp {
   --rdp-cell-size: 42px;
-  --rdp-accent-color: #2f6fed;
-  --rdp-background-color: rgba(47, 111, 237, 0.12);
-  color: #111827;
+  --rdp-accent-color: rgba(125, 111, 214, 0.6);
+  --rdp-background-color: rgba(125, 111, 214, 0.15);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .drp-popover .rdp-caption_label {
-  color: #111827;
+  color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 950;
   font-size: 16px;
 }
 
 .drp-popover .rdp-nav_button {
-  color: #2f6fed;
+  color: rgba(125, 111, 214, 0.8) !important;
   opacity: 0.85;
 }
 
 .drp-popover .rdp-nav_button:hover {
   opacity: 1;
-  background: rgba(47, 111, 237, 0.10);
+  background: rgba(162, 152, 239, 0.15);
   border-radius: 10px;
 }
 
 .drp-popover .rdp-weekday {
-  color: #6b7280;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 900;
   font-size: 12px;
 }
 
 .drp-popover .rdp-day {
-  color: #111827;
+  color: rgba(255, 255, 255, 0.9) !important;
   border-radius: 12px;
 }
 
 .drp-popover .rdp-day_outside {
-  color: rgba(17, 24, 39, 0.25);
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .drp-popover .rdp-day_disabled {
-  color: rgba(17, 24, 39, 0.28);
+  color: rgba(255, 255, 255, 0.2);
   opacity: 1;
   cursor: not-allowed;
 }
 
 .drp-popover .rdp-day_today:not(.rdp-day_selected) {
-  outline: 2px solid rgba(47, 111, 237, 0.35);
+  outline: 2px solid rgba(125, 111, 214, 0.5);
   outline-offset: -2px;
 }
 
 .drp-popover .rdp-day_range_start,
 .drp-popover .rdp-day_range_end {
-  background: #2f6fed;
-  color: #ffffff;
+  background: rgba(125, 111, 214, 0.6) !important;
+  color: #ffffff !important;
   font-weight: 950;
 }
 
 .drp-popover .rdp-day_range_middle {
-  background: rgba(47, 111, 237, 0.12);
+  background: rgba(125, 111, 214, 0.15) !important;
 }
 
 .drp-actions {
@@ -168,44 +177,73 @@
   margin-top: 10px;
 }
 
-.drp-clear,
-.drp-today,
-.drp-save {
+/* Clear button - Tertiary style like Register button */
+.drp-clear {
   flex: 1;
-  border: 1px solid rgba(17, 24, 39, 0.12);
-  background: #f9fafb;
-  color: #111827;
-  border-radius: 10px;
-  padding: 8px 10px;
-  font-weight: 900;
-  font-size: 13px;
+  background: transparent !important;
+  border: 2px solid rgba(162, 152, 239, 0.7) !important;
+  border-radius: 50px !important;
+  padding: 8px 10px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.08em !important;
   cursor: pointer;
-  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 5px rgba(162, 152, 239, 0.4), 0 0 5px rgba(125, 111, 214, 0.2) !important;
 }
 
-.drp-clear:hover,
-.drp-today:hover {
-  transform: translateY(-1px);
-  background: #ffffff;
-  border-color: rgba(47, 111, 237, 0.35);
+.drp-clear:hover {
+  transform: translateY(-2px);
+  background: rgba(162, 152, 239, 0.18) !important;
+  border-color: rgba(162, 152, 239, 1) !important;
+  box-shadow: 0 6px 16px rgba(162, 152, 239, 0.3);
 }
 
+/* Today button - Secondary style */
 .drp-today {
-  background: rgba(47, 111, 237, 0.10);
-  border-color: rgba(47, 111, 237, 0.35);
+  flex: 1 !important;
+  background: rgba(125, 111, 214, 0.45) !important;
+  border: 1px solid rgba(125, 111, 214, 0.65) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
 }
 
+.drp-today:hover {
+  transform: translateY(-2px);
+  background: rgba(125, 111, 214, 0.6) !important;
+  border-color: rgba(125, 111, 214, 0.8) !important;
+}
+
+/* Save button - Primary style like Login button */
 .drp-save {
-  background: rgba(47, 111, 237, 0.15);
-  border-color: rgba(47, 111, 237, 0.45);
-  color: #2f6fed;
-  font-weight: 950;
+  flex: 1 !important;
+  background: #7a5aa7 !important;
+  border: 1px solid rgba(122, 90, 167, 0.7) !important;
+  border-radius: 10px !important;
+  padding: 8px 10px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.08em !important;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45) !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .drp-save:hover {
-  transform: translateY(-1px);
-  background: rgba(47, 111, 237, 0.25);
-  border-color: rgba(47, 111, 237, 0.65);
+  transform: translateY(-2px);
+  background: #7a5aa7 !important;
+  border-color: rgba(122, 90, 167, 0.85) !important;
+  box-shadow: 0 10px 30px rgba(122, 90, 167, 0.6);
 }
 
 @media (max-width: 820px) {

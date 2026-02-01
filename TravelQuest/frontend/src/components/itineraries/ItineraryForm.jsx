@@ -241,33 +241,38 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     />
                     {errors.description && <p className="error">{errors.description}</p>}
 
-                    {/* CATEGORY — NOW DROPDOWN */}
-                    <label>Category</label>
-                    <select
-                        className={errors.category ? "input error-input" : "input"}
-                        value={form.category}
-                        onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    >
-                        <option value="">Select a category...</option>
+                    {/* CATEGORY & PRICE ROW */}
+                    <div className="form-row">
+                        <div className="form-column">
+                            <label>Category</label>
+                            <select
+                                className={errors.category ? "input error-input" : "input"}
+                                value={form.category}
+                                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                            >
+                                <option value="">Select a category...</option>
 
-                        {CATEGORY_OPTIONS.map(opt => (
-                            <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.category && <p className="error">{errors.category}</p>}
+                                {CATEGORY_OPTIONS.map(opt => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.category && <p className="error">{errors.category}</p>}
+                        </div>
 
-                    {/* PRICE */}
-                    <label>Price (RON)</label>
-                    <input
-                        type="number"
-                        className={errors.price ? "input error-input" : "input"}
-                        value={form.price}
-                        onChange={(e) => setForm({ ...form, price: e.target.value })}
-                        placeholder="Price..."
-                    />
-                    {errors.price && <p className="error">{errors.price}</p>}
+                        <div className="form-column">
+                            <label>Price (RON)</label>
+                            <input
+                                type="number"
+                                className={errors.price ? "input error-input" : "input"}
+                                value={form.price}
+                                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                                placeholder="Price..."
+                            />
+                            {errors.price && <p className="error">{errors.price}</p>}
+                        </div>
+                    </div>
 
                     {/* IMAGE */}
                     <label>Image</label>

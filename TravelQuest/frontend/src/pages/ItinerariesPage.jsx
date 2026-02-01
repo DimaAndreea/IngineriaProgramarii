@@ -336,34 +336,36 @@ export default function ItinerariesPage() {
             />
           )}
 
-          {/* ADD FUNDS MODAL - Quick add from payment modal */}
+          {/* ADD FUNDS MODAL */}
           {isTourist && showAddFundsModal && (
-            <div className="modal-overlay" onClick={() => setShowAddFundsModal(false)}>
-              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
+            <div className="add-funds-overlay" onClick={() => setShowAddFundsModal(false)}>
+              <div className="add-funds-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="add-funds-header">
                   <h2>Add Funds to Wallet</h2>
                   <button
-                    className="modal-close"
+                    className="add-funds-close"
                     onClick={() => setShowAddFundsModal(false)}
                   >
                     ✕
                   </button>
                 </div>
-                <div className="modal-body">
-                  <p>Enter the amount you want to add to your wallet:</p>
+
+                <div className="add-funds-body">
+                  <label>Amount (RON):</label>
                   <input
                     type="number"
                     min="1"
                     max="999999"
                     value={addFundsAmount}
                     onChange={(e) => setAddFundsAmount(e.target.value)}
-                    placeholder="Amount (RON)"
-                    className="modal-input"
+                    placeholder="0.00"
+                    className="add-funds-input"
                   />
                 </div>
-                <div className="modal-footer">
+
+                <div className="add-funds-footer">
                   <button
-                    className="btn btn-cancel"
+                    className="add-funds-btn cancel"
                     onClick={() => {
                       setShowAddFundsModal(false);
                       setAddFundsAmount("");
@@ -372,7 +374,7 @@ export default function ItinerariesPage() {
                     Cancel
                   </button>
                   <button
-                    className="btn btn-primary"
+                    className="add-funds-btn primary"
                     onClick={async () => {
                       if (!addFundsAmount || Number(addFundsAmount) <= 0) {
                         alert("Please enter a valid amount");

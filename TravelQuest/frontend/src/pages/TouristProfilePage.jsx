@@ -8,7 +8,6 @@ import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import { getMyProfile } from "../services/userService";
 
-import Modal from "../components/common/Modal";
 import { addFunds, getWalletBalance } from "../services/walletService";
 
 import GamificationCard from "../components/gamification/GamificationCard";
@@ -442,39 +441,56 @@ export default function TouristProfilePage() {
             </div>
           </div>
 
-          <Modal open={walletOpen} title="Add Funds" onClose={() => setWalletOpen(false)}>
-            <div style={{ display: "grid", gap: 12 }}>
-              <div>
-                <label style={{ fontWeight: 600, fontSize: 14 }}>Amount (RON)</label>
-                <p style={{ fontSize: 13, color: "#666", marginTop: 4 }}>Enter the amount you want to add to your wallet</p>
-              </div>
-              <input
-                type="number"
-                value={walletAmount}
-                onChange={(e) => setWalletAmount(e.target.value)}
-                placeholder="e.g. 100"
-                min="0"
-                step="0.01"
-                inputMode="decimal"
-                style={{ padding: 12, borderRadius: 8, border: "1px solid #ddd", fontSize: 16 }}
-              />
+          {/* ADD FUNDS MODAL */}
+          {walletOpen && (
+            <div className="add-funds-overlay" onClick={() => setWalletOpen(false)}>
+              <div className="add-funds-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="add-funds-header">
+                  <h2>Add Funds to Wallet</h2>
+                  <button
+                    className="add-funds-close"
+                    onClick={() => setWalletOpen(false)}
+                  >
+                    ✕
+                  </button>
+                </div>
 
-              {walletErr && <div className="tourist-banner">{walletErr}</div>}
+                <div className="add-funds-body">
+                  <label>Amount (RON):</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="999999"
+                    value={walletAmount}
+                    onChange={(e) => setWalletAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="add-funds-input"
+                  />
+                </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 6 }}>
-                <button
-                  className="tourist-blue-btn"
-                  style={{ opacity: 0.75 }}
-                  onClick={() => setWalletOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button className="tourist-blue-btn" onClick={handleAddFunds}>
-                  Confirm
-                </button>
+                {walletErr && <div className="tourist-banner">{walletErr}</div>}
+
+                <div className="add-funds-footer">
+                  <button
+                    className="add-funds-btn cancel"
+                    onClick={() => {
+                      setWalletOpen(false);
+                      setWalletAmount("");
+                      setWalletErr("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="add-funds-btn primary"
+                    onClick={handleAddFunds}
+                  >
+                    Add Funds
+                  </button>
+                </div>
               </div>
             </div>
-          </Modal>
+          )}
         </div>
       )}
 

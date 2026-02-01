@@ -197,12 +197,15 @@
 }
 
 .logout-btn { 
-    color: #fca5a5;
+    color: #a298ef;
+    display: flex;
+    align-items: center;
+    gap: 0;
 }
 
 .logout-btn:hover {
-    background: rgba(220, 38, 38, 0.15);
-    color: #fecaca;
+    background: rgba(162, 152, 239, 0.15);
+    color: #d5d1ff;
 }
 
 /* HAMBURGER BUTTON (MOBILE) */
