@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import DateRangePickerField from "../ui/DateRangePickerField";
 import "./ItineraryForm.css";
 
 export default function ItineraryForm({ visible, initialValues, onSubmit, onClose }) {
+
+    const fileInputRef = useRef(null);
 
     // ENUM categories from backend
     const CATEGORY_OPTIONS = [
@@ -276,12 +278,28 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
 
                     {/* IMAGE */}
                     <label>Image</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        className={errors.imageBase64 ? "input error-input" : "input"}
-                        onChange={handleImageUpload}
-                    />
+                    <div className="file-upload-wrapper">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className={errors.imageBase64 ? "input error-input file-input-hidden" : "input file-input-hidden"}
+                            onChange={handleImageUpload}
+                        />
+                        <button 
+                            type="button"
+                            className="file-upload-btn"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
+                            </svg>
+                            Browse
+                        </button>
+                        <span className="file-name">{form.imageBase64 ? "Image selected" : "No file chosen"}</span>
+                    </div>
                     {errors.imageBase64 && <p className="error">{errors.imageBase64}</p>}
 
                     {form.imageBase64 && (
@@ -407,13 +425,15 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     </button>
 
                     {/* ACTION BUTTONS */}
-                    <button className="login-btn" disabled={loading}>
-                        {loading ? "Saving..." : initialValues ? "Save" : "Create"}
-                    </button>
+                    <div className="action-buttons-row">
+                        <button className="login-btn" disabled={loading}>
+                            {loading ? "Saving..." : initialValues ? "Save" : "Create"}
+                        </button>
 
-                    <button type="button" className="cancel-btn" onClick={onClose}>
-                        Cancel
-                    </button>
+                        <button type="button" className="cancel-btn" onClick={onClose}>
+                            Cancel
+                        </button>
+                    </div>
 
                 </form>
             </div>

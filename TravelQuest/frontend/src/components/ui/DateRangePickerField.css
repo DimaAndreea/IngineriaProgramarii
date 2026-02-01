@@ -112,8 +112,8 @@
 
 .drp-popover .rdp {
   --rdp-cell-size: 42px;
-  --rdp-accent-color: rgba(125, 111, 214, 0.6);
-  --rdp-background-color: rgba(125, 111, 214, 0.15);
+  --rdp-accent-color: rgba(162, 152, 239, 0.5);
+  --rdp-background-color: rgba(162, 152, 239, 0.2);
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -124,13 +124,13 @@
 }
 
 .drp-popover .rdp-nav_button {
-  color: rgba(125, 111, 214, 0.8) !important;
+  color: rgba(162, 152, 239, 0.8) !important;
   opacity: 0.85;
 }
 
 .drp-popover .rdp-nav_button:hover {
   opacity: 1;
-  background: rgba(162, 152, 239, 0.15);
+  background: rgba(162, 152, 239, 0.25);
   border-radius: 10px;
 }
 
@@ -155,20 +155,26 @@
   cursor: not-allowed;
 }
 
-.drp-popover .rdp-day_today:not(.rdp-day_selected) {
-  outline: 2px solid rgba(125, 111, 214, 0.5);
-  outline-offset: -2px;
+.drp-popover .rdp-day_selected,
+.drp-popover .rdp-day_today:not(.rdp-day_range_middle) {
+  background: rgba(162, 152, 239, 0.5) !important;
+  color: #ffffff !important;
+  font-weight: 950;
+  border-radius: 12px;
 }
 
 .drp-popover .rdp-day_range_start,
 .drp-popover .rdp-day_range_end {
-  background: rgba(125, 111, 214, 0.6) !important;
+  background: rgba(162, 152, 239, 0.5) !important;
   color: #ffffff !important;
   font-weight: 950;
+  border-radius: 12px;
 }
 
 .drp-popover .rdp-day_range_middle {
-  background: rgba(125, 111, 214, 0.15) !important;
+  background: rgba(162, 152, 239, 0.2) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 0;
 }
 
 .drp-actions {
@@ -205,7 +211,7 @@
   flex: 1 !important;
   background: rgba(125, 111, 214, 0.45) !important;
   border: 1px solid rgba(125, 111, 214, 0.65) !important;
-  border-radius: 10px !important;
+  border-radius: 50px !important;
   padding: 8px 10px !important;
   color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 900 !important;
@@ -224,26 +230,27 @@
 /* Save button - Primary style like Login button */
 .drp-save {
   flex: 1 !important;
+  height: 42px !important;
   background: #7a5aa7 !important;
   border: 1px solid rgba(122, 90, 167, 0.7) !important;
-  border-radius: 10px !important;
-  padding: 8px 10px !important;
+  border-radius: 50px !important;
+  padding: 0 !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   font-size: 13px !important;
-  letter-spacing: 0.08em !important;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
+  letter-spacing: 0.1em !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px) !important;
   box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45) !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
 }
 
 .drp-save:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) !important;
   background: #7a5aa7 !important;
   border-color: rgba(122, 90, 167, 0.85) !important;
-  box-shadow: 0 10px 30px rgba(122, 90, 167, 0.6);
+  box-shadow: 0 10px 30px rgba(122, 90, 167, 0.6) !important;
 }
 
 @media (max-width: 820px) {

@@ -188,25 +188,29 @@
 }
 
 .mini-create-btn {
-  background: linear-gradient(135deg, var(--purple-vivid), var(--purple-light));
+  background: rgba(125, 111, 214, 0.5);
+  backdrop-filter: blur(16px);
   padding: 11px 24px;
-  border-radius: 10px;
+  border-radius: 50px;
   color: white;
-  border: 1px solid rgba(125, 111, 214, 0.3);
+  border: 1px solid rgba(162, 152, 239, 0.4);
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
+  transition: all 0.2s ease;
   letter-spacing: 0.05em;
-  box-shadow: 0 4px 14px rgba(91, 75, 183, 0.35);
+  box-shadow: 
+    0 4px 12px rgba(91, 75, 183, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .mini-create-btn:hover {
-  background: linear-gradient(135deg, var(--purple-light), var(--purple-lighter));
+  background: rgba(125, 111, 214, 0.65);
   border-color: rgba(162, 152, 239, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(91, 75, 183, 0.5);
+  box-shadow: 
+    0 6px 16px rgba(91, 75, 183, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 /* GRID */
