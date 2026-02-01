@@ -60,12 +60,4 @@ public class MissionController {
         return ResponseEntity.ok(missionService.getMissionMetadata());
     }
 
-//    // ===============================
-//    // GET CLAIMED REWARDS FOR USER
-//    // ===============================
-//    @GetMapping("/my-rewards")
-//    public ResponseEntity<List<RewardDto>> getMyRewards(@RequestParam Long userId) {
-//        List<RewardDto> rewards = rewardRepository.findClaimedRewardsByUserId(userId);
-//        return ResponseEntity.ok(rewards);
-//    }
 }

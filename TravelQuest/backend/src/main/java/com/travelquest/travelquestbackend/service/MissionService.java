@@ -247,13 +247,11 @@ public class MissionService {
         // TOURIST types
         types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_COUNT", 
             "Join itineraries", null));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT",
             "Join itineraries of specific category", "category"));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_COUNT",
             "Get approved submissions", null));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT", 
-            "Get approved submissions in category", "category"));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT",
             "Get approved submissions in same itinerary", null));
         
         // GUIDE types

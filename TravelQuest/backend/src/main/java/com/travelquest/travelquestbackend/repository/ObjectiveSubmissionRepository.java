@@ -27,22 +27,6 @@ public interface ObjectiveSubmissionRepository
             @Param("status") SubmissionStatus status
     );
 
-    /**
-     * Număr de submissions APPROVED făcute de un turist,
-     * filtrate după categoria obiectivului
-     */
-//    @Query("""
-//        SELECT COUNT(os)
-//        FROM ObjectiveSubmission os
-//        WHERE os.tourist.id = :userId
-//          AND os.status = :status
-//          AND os.objective.category = :category
-//    """)
-//    long countByTouristAndStatusAndCategory(
-//            @Param("userId") Long userId,
-//            @Param("status") SubmissionStatus status,
-//            @Param("category") String category
-//    );
 
     // =====================================================
     // GUIDE MISSIONS
@@ -59,8 +43,22 @@ public interface ObjectiveSubmissionRepository
     """)
     long countEvaluatedByGuide(@Param("guideId") Long guideId);
 
-    // Numărul de submissions aprobate într-un anumit itinerariu
-    @Query("SELECT COUNT(s) FROM Submission s WHERE s.user.id = :userId AND s.status = 'APPROVED' AND s.itineraryId = :itineraryId")
-    long countByTouristAndStatusAndItinerary(@Param("userId") Long userId, @Param("status") SubmissionStatus status, @Param("itineraryId") Long itineraryId);
+
+    /// Numărul de submissions aprobate într-un anumit itinerariu
+    @Query("""
+    SELECT COUNT(os)
+    FROM ObjectiveSubmission os
+    JOIN os.objective o
+    JOIN o.location l
+    WHERE os.tourist.id = :userId
+      AND os.status = :status
+      AND l.itinerary.id = :itineraryId
+""")
+    long countApprovedByUserAndItinerary(
+            @Param("userId") Long userId,
+            @Param("status") SubmissionStatus status,
+            @Param("itineraryId") Long itineraryId
+    );
+
 
 }

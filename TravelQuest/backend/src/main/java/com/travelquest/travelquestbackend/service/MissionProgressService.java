@@ -44,6 +44,7 @@ public class MissionProgressService {
     // SCHEDULER: actualizează toate misiunile IN_PROGRESS
     // ============================================================
     @Scheduled(fixedRate = 10000)
+    @Transactional
     public void updateAllMissionsProgressLoop() {
         List<MissionParticipation> participations =
                 participationRepository.findByStatusIn(List.of(MissionParticipationStatus.IN_PROGRESS));
@@ -123,31 +124,55 @@ public class MissionProgressService {
                         itineraryRepository.countUserJoinedItineraries(userId);
 
                 case "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT" -> {
-                    String category = params != null && params.has("category") ? params.get("category").asText() : null;
-                    if (category != null) {
-                        yield itineraryRepository.countUserJoinedItinerariesByCategory(userId, category);
+                    String categoryStr = params != null && params.has("category")
+                            ? params.get("category").asText()
+                            : null;
+
+                    if (categoryStr != null) {
+                        categoryStr = categoryStr.toUpperCase(); // normalize
+
+                        // Convert String to enum
+                        ItineraryCategory categoryEnum;
+                        try {
+                            categoryEnum = ItineraryCategory.valueOf(categoryStr);
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("[ERROR] Invalid category: " + categoryStr);
+                            yield 0;
+                        }
+
+                        System.out.println("[DEBUG] Using category enum: " + categoryEnum);
+
+                        yield itineraryRepository.countUserJoinedItinerariesByCategory(userId, categoryEnum);
                     } else {
                         yield itineraryRepository.countUserJoinedItineraries(userId);
                     }
                 }
 
-//
-//                case "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT" -> {
-//                    String category = params != null && params.has("category") ? params.get("category").asText() : null;
-//                    if (category != null) {
-//                        yield submissionRepository.countByTouristAndStatusAndCategory(userId, SubmissionStatus.APPROVED, category);
-//                    } else {
-//                        yield submissionRepository.countByTouristAndStatus(userId, SubmissionStatus.APPROVED);
-//                    }
-//                }
-//
+
+
+
                 case "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT" -> {
-                    Long itineraryId = params != null && params.has("itineraryId") ? params.get("itineraryId").asLong() : null;
-                    if (itineraryId != null) {
-                        yield (int) submissionRepository.countByTouristAndStatusAndItinerary(userId, SubmissionStatus.APPROVED, itineraryId);
-                    } else {
-                        yield 0;
+                    // obține toate itinerariile la care userul a participat
+                    List<Itinerary> joinedItineraries = itineraryRepository.findAllJoinedItineraries(userId);
+
+                    int totalApproved = 0;
+
+                    for (Itinerary itinerary : joinedItineraries) {
+                        long approvedCount = submissionRepository.countApprovedByUserAndItinerary(
+                                userId,
+                                SubmissionStatus.APPROVED,
+                                itinerary.getId()
+                        );
+                        totalApproved += approvedCount;
+
+                        // Log pentru fiecare itinerariu
+                        System.out.println("[DEBUG] User " + userId
+                                + " -> Itinerary '" + itinerary.getTitle()
+                                + "' (ID: " + itinerary.getId() + ")"
+                                + " | Approved submissions: " + approvedCount);
                     }
+
+                    yield totalApproved;
                 }
 
 
@@ -190,7 +215,7 @@ public class MissionProgressService {
     public List<RewardDto> getUserRewards(Long userId) {
         List<MissionParticipation> participations = participationRepository.findByUserAndStatusIn(
                 new User(userId),
-                List.of(MissionParticipationStatus.COMPLETED, MissionParticipationStatus.CLAIMED)
+                List.of(MissionParticipationStatus.CLAIMED)
         );
 
         logger.info("\n====================\nFetching user rewards\nUser ID: {}\nParticipations found: {}\n====================",

@@ -5,13 +5,13 @@ import com.travelquest.travelquestbackend.model.*;
 import com.travelquest.travelquestbackend.repository.MissionParticipationRepository;
 import com.travelquest.travelquestbackend.repository.MissionRepository;
 import com.travelquest.travelquestbackend.repository.UserPointsHistoryRepository;
+import com.travelquest.travelquestbackend.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,15 +21,18 @@ public class MissionParticipationService {
     private final MissionRepository missionRepository;
     private final MissionParticipationRepository participationRepository;
     private final UserPointsHistoryRepository pointsHistoryRepository;
+    private final UserRepository userRepository;
 
     public MissionParticipationService(
             MissionRepository missionRepository,
             MissionParticipationRepository participationRepository,
-            UserPointsHistoryRepository pointsHistoryRepository
+            UserPointsHistoryRepository pointsHistoryRepository,
+            UserRepository userRepository
     ) {
         this.missionRepository = missionRepository;
         this.participationRepository = participationRepository;
         this.pointsHistoryRepository = pointsHistoryRepository;
+        this.userRepository = userRepository;
     }
 
     // ===============================
@@ -70,6 +73,9 @@ public class MissionParticipationService {
     @Transactional
     public RewardDto claimMission(Long missionId, User user) {
 
+        User sessionUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         MissionParticipation participation = participationRepository
                 .findByMission_IdAndUser_Id(missionId, user.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Mission participation not found"));
@@ -87,6 +93,11 @@ public class MissionParticipationService {
 
         // Aplicăm XP reward, dacă există
         if (mission.getReward() != null) {
+
+            int xpReward = mission.getReward().getXpReward();
+            sessionUser.setXp(sessionUser.getXp() + xpReward);
+            userRepository.save(sessionUser);
+
             UserPointsHistory history = new UserPointsHistory();
             history.setUser(user);
             history.setPointsDelta(mission.getReward().getXpReward());
@@ -117,8 +128,8 @@ public class MissionParticipationService {
 
         List<MissionParticipation> participations = participationRepository
                 .findByUserAndStatusIn(user, List.of(
-                        MissionParticipationStatus.COMPLETED,
-                        MissionParticipationStatus.CLAIMED
+                        ///MissionParticipationStatus.COMPLETED
+                      MissionParticipationStatus.CLAIMED
                 ));
 
         return participations.stream().map(p -> {
@@ -139,20 +150,4 @@ public class MissionParticipationService {
         }).collect(Collectors.toList());
     }
 
-    // ===============================
-    // OPTIONAL: MARK PROGRESS (completare misiune)
-    // ===============================
-    @Transactional
-    public MissionParticipation markCompleted(Long missionId, User user) {
-
-        MissionParticipation participation = participationRepository
-                .findByMission_IdAndUser_Id(missionId, user.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Mission participation not found"));
-
-        participation.setStatus(MissionParticipationStatus.COMPLETED);
-        participation.setCompletedAt(LocalDateTime.now());
-        participationRepository.save(participation);
-
-        return participation;
-    }
 }
