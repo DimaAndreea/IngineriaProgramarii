@@ -102,56 +102,78 @@ export default function RegisterForm() {
             {success && <p className="success-msg">{success}</p>}
 
             {/* USERNAME */}
-            <label>Username</label>
-            <input
-                className={errors.username ? "input error-input" : "input"}
-                value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
-            />
-            {errors.username && <p className="error">{errors.username}</p>}
+            <div className="form-field">
+                <label>Username</label>
+                <input
+                    className={errors.username ? "input error-input" : "input"}
+                    value={form.username}
+                    onChange={(e) => setForm({ ...form, username: e.target.value })}
+                />
+                {errors.username && <p className="error">{errors.username}</p>}
+            </div>
 
             {/* EMAIL */}
-            <label>Email</label>
-            <input
-                className={errors.email ? "input error-input" : "input"}
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-            {errors.email && <p className="error">{errors.email}</p>}
+            <div className="form-field">
+                <label>Email</label>
+                <input
+                    className={errors.email ? "input error-input" : "input"}
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                />
+                {errors.email && <p className="error">{errors.email}</p>}
+            </div>
 
-            {/* PHONE */}
-            <label>Phone Number</label>
-            <input
-                className={errors.phone_number ? "input error-input" : "input"}
-                value={form.phone_number}
-                onChange={(e) =>
-                    setForm({ ...form, phone_number: e.target.value })
-                }
-            />
-            {errors.phone_number && <p className="error">{errors.phone_number}</p>}
+            {/* PHONE & ADMIN CODE ROW */}
+            {role === "admin" ? (
+                <div className="two-column-row">
+                    {/* PHONE */}
+                    <div className="form-field">
+                        <label>Phone Number</label>
+                        <input
+                            className={errors.phone_number ? "input error-input" : "input"}
+                            value={form.phone_number}
+                            onChange={(e) =>
+                                setForm({ ...form, phone_number: e.target.value })
+                            }
+                        />
+                        {errors.phone_number && <p className="error">{errors.phone_number}</p>}
+                    </div>
 
-
-            {/* ADMIN CODE — ONLY WHEN ROLE IS ADMIN */}
-            {role === "admin" && (
-                <>
-                    <label>Admin Verification Code</label>
+                    {/* ADMIN CODE */}
+                    <div className="form-field">
+                        <label>Admin Verification Code</label>
+                        <input
+                            className={errors.adminCode ? "input error-input" : "input"}
+                            value={form.adminCode}
+                            onChange={(e) =>
+                                setForm({ ...form, adminCode: e.target.value })
+                            }
+                        />
+                        {errors.adminCode && (
+                            <p className="error">{errors.adminCode}</p>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                /* PHONE ONLY when not admin */
+                <div className="form-field">
+                    <label>Phone Number</label>
                     <input
-                        className={errors.adminCode ? "input error-input" : "input"}
-                        value={form.adminCode}
+                        className={errors.phone_number ? "input error-input" : "input"}
+                        value={form.phone_number}
                         onChange={(e) =>
-                            setForm({ ...form, adminCode: e.target.value })
+                            setForm({ ...form, phone_number: e.target.value })
                         }
                     />
-                    {errors.adminCode && (
-                        <p className="error">{errors.adminCode}</p>
-                    )}
-                </>
+                    {errors.phone_number && <p className="error">{errors.phone_number}</p>}
+                </div>
             )}
 
             {/* PASSWORD */}
-            <label>Password</label>
-            <div className="password-field">
+            <div className="form-field">
+                <label>Password</label>
+                <div className="password-field">
                 <input
                     className={errors.password ? "input error-input" : "input"}
                     type={showPassword ? "text" : "password"}
@@ -179,9 +201,11 @@ export default function RegisterForm() {
                 </button>
             </div>
             {errors.password && <p className="error">{errors.password}</p>}
+            </div>
 
             {/* CONFIRM PASSWORD */}
-            <label>Confirm Password</label>
+            <div className="form-field">
+                <label>Confirm Password</label>
             <div className="password-field">
                 <input
                     className={errors.confirmPassword ? "input error-input" : "input"}
@@ -214,11 +238,12 @@ export default function RegisterForm() {
             {errors.confirmPassword && (
                 <p className="error">{errors.confirmPassword}</p>
             )}
+            </div>
 
             <button className="login-btn">REGISTER</button>
 
             <p className="login-link">
-                Already have an account? <a href="/login">Login</a>
+                Already have an account? <a href="/login" className="btn-tertiary">Login</a>
             </p>
         </form>
     );

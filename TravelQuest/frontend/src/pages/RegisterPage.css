@@ -1,8 +1,587 @@
+/* ============================================
+   REGISTER PAGE - Unified Background Design (matching LoginPage)
+   ============================================ */
+
+/* Animated SVG curves */
+.animated-curves {
+  position: absolute;
+  width: 100%;
+    --purple-darkest: #0b1230;
+    --purple-dark: #141b45;
+    --purple-medium: #23235a;
+    --purple-bright: #2f2a6f;
+    --purple-vivid: #5b4bb7;
+    --purple-light: #7d6fd6;
+    --purple-lighter: #a298ef;
+    --purple-lightest: #d5d1ff;
+    --accent-green: #9ad65c;
+    --white: #FFFFFF;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  filter: blur(0.5px);
+  opacity: 0.6;
+}
+
+.circle-outline {
+  fill: none;
+  stroke: url(#circleGradient);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 12px rgba(125, 111, 214, 0.45));
+  opacity: 0.5;
+}
+
+.curve-1 {
+  animation: curve-animate-1 8s infinite ease-in-out;
+}
+
+.curve-2 {
+  animation: curve-animate-2 9s infinite ease-in-out;
+}
+
+.curve-3 {
+  animation: curve-animate-3 10s infinite ease-in-out;
+}
+
+.curve-4 {
+  animation: curve-animate-4 11s infinite ease-in-out;
+}
+
+.curve-5 {
+  animation: curve-animate-5 12s infinite ease-in-out;
+}
+
+.circle-outline.circle-1 {
+  animation: circle-outline-1 7s infinite ease-in-out;
+}
+
+.circle-outline.circle-2 {
+  animation: circle-outline-2 8.5s infinite ease-in-out;
+}
+
+.circle-outline.circle-3 {
+  animation: circle-outline-3 9.5s infinite ease-in-out;
+}
+
+.circle-outline.circle-4 {
+  animation: circle-outline-4 10s infinite ease-in-out;
+}
+
+@keyframes curve-animate-1 {
+  0% { opacity: 0.2; stroke-width: 2.5px; }
+  50% { opacity: 0.6; stroke-width: 3.5px; }
+  100% { opacity: 0.2; stroke-width: 2.5px; }
+}
+
+@keyframes curve-animate-2 {
+  0% { opacity: 0.25; stroke-width: 2px; }
+  50% { opacity: 0.65; stroke-width: 3px; }
+  100% { opacity: 0.25; stroke-width: 2px; }
+}
+
+@keyframes curve-animate-3 {
+  0% { opacity: 0.3; stroke-width: 2.5px; }
+  50% { opacity: 0.7; stroke-width: 3.5px; }
+  100% { opacity: 0.3; stroke-width: 2.5px; }
+}
+
+@keyframes curve-animate-4 {
+  0% { opacity: 0.2; stroke-width: 2px; }
+  50% { opacity: 0.5; stroke-width: 2.8px; }
+  100% { opacity: 0.2; stroke-width: 2px; }
+}
+
+@keyframes curve-animate-5 {
+  0% { opacity: 0.22; stroke-width: 2.2px; }
+  50% { opacity: 0.58; stroke-width: 3px; }
+  100% { opacity: 0.22; stroke-width: 2.2px; }
+}
+
+@keyframes circle-outline-1 {
+  0% { opacity: 0.2; stroke-width: 1.8px; }
+  50% { opacity: 0.5; stroke-width: 2.5px; }
+  100% { opacity: 0.2; stroke-width: 1.8px; }
+}
+
+@keyframes circle-outline-2 {
+  0% { opacity: 0.18; stroke-width: 1.5px; }
+  50% { opacity: 0.48; stroke-width: 2.2px; }
+  100% { opacity: 0.18; stroke-width: 1.5px; }
+}
+
+@keyframes circle-outline-3 {
+  0% { opacity: 0.22; stroke-width: 1.8px; }
+  50% { opacity: 0.52; stroke-width: 2.5px; }
+  100% { opacity: 0.22; stroke-width: 1.8px; }
+}
+
+@keyframes circle-outline-4 {
+  0% { opacity: 0.19; stroke-width: 1.6px; }
+  50% { opacity: 0.49; stroke-width: 2.3px; }
+  100% { opacity: 0.19; stroke-width: 1.6px; }
+}
+
+/* Color Palette */
+:root {
+  --purple-darkest: #0b1230;
+  --purple-dark: #141b45;
+  --purple-medium: #23235a;
+  --purple-bright: #2f2a6f;
+  --purple-vivid: #5b4bb7;
+  --purple-light: #7d6fd6;
+  --purple-lighter: #a298ef;
+  --purple-lightest: #d5d1ff;
+  --accent-green: #9ad65c;
+  --white: #FFFFFF;
+}
+
+/* Main Container - Unified Background */
 .register-page-container {
-    display: flex;
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  
+  /* Base gradient background - from image */
+  background:
+    radial-gradient(circle at 85% 80%, rgba(154, 214, 92, 0.22) 0%, transparent 45%),
+    linear-gradient(
+      135deg,
+      var(--purple-darkest) 0%,
+      var(--purple-dark) 45%,
+      var(--purple-medium) 100%
+    );
+}
+
+/* Airplane image positioned on the left, blended into background */
+.register-page-container::before {
+  content: '';
+  position: absolute;
+  left: 5%;
+  top: 0;
+  width: 45%;
+  height: 100%;
+  background: url('/airplane-view.jpg') center left/cover no-repeat;
+  opacity: 0.25;
+  
+  /* Gradient mask to blend image into background - both sides */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.5) 15%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.6) 70%,
+    rgba(0, 0, 0, 0.2) 90%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.5) 15%,
+    rgba(0, 0, 0, 0.7) 40%,
+    rgba(0, 0, 0, 0.6) 70%,
+    rgba(0, 0, 0, 0.2) 90%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Animated light circles on the right side */
+.light-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.circle-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(125, 111, 214, 0.25) 0%, transparent 70%);
+  top: 5%;
+  right: 5%;
+  animation: float-circle-1 14s ease-in-out infinite;
+}
+
+.circle-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(154, 214, 92, 0.18) 0%, transparent 70%);
+  top: 30%;
+  right: 2%;
+  animation: float-circle-2 16s ease-in-out infinite;
+}
+
+.circle-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(162, 152, 239, 0.22) 0%, transparent 70%);
+  top: 55%;
+  right: 10%;
+  animation: float-circle-3 12s ease-in-out infinite;
+}
+
+.circle-4 {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(125, 111, 214, 0.18) 0%, transparent 70%);
+  bottom: 10%;
+  right: 8%;
+  animation: float-circle-4 15s ease-in-out infinite;
+}
+
+.circle-5 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(125, 111, 214, 0.16) 0%, transparent 70%);
+  bottom: 20%;
+  right: 20%;
+  animation: float-circle-5 13s ease-in-out infinite;
+}
+
+@keyframes float-circle-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(-30px, 30px) scale(1.1); opacity: 0.8; }
+}
+
+@keyframes float-circle-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(20px, -25px) scale(0.95); opacity: 0.7; }
+}
+
+@keyframes float-circle-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(-25px, -20px) scale(1.05); opacity: 0.85; }
+}
+
+@keyframes float-circle-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(35px, 15px) scale(0.9); opacity: 0.75; }
+}
+
+@keyframes float-circle-5 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  50% { transform: translate(-20px, 25px) scale(1.08); opacity: 0.82; }
+}
+
+/* ============================================
+   CONTENT CONTAINER
+   ============================================ */
+.register-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  padding: 3rem 5rem;
+  gap: 5rem;
+  justify-content: space-between;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Animated spotlights - positioned on the right side */
+.register-content::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(157, 78, 221, 0.2) 0%,
+    rgba(123, 44, 191, 0.12) 40%,
+    transparent 70%
+  );
+  filter: blur(60px);
+  top: 10%;
+  right: 10%;
+  animation: spotlight1 12s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.register-content::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(199, 125, 255, 0.18) 0%,
+    rgba(157, 78, 221, 0.1) 40%,
+    transparent 70%
+  );
+  filter: blur(50px);
+  bottom: 15%;
+  right: 15%;
+  animation: spotlight2 15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes spotlight1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(30px, -20px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes spotlight2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-25px, 25px) scale(1.15);
+    opacity: 0.7;
+  }
+}
+
+/* ============================================
+   LEFT SIDE - Brand Content
+   ============================================ */
+.brand-content {
+  flex: 1;
+  max-width: 550px;
+  color: var(--white);
+  padding-left: 2rem;
+}
+
+/* Brand Section */
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.logo-icon {
+  width: 52px;
+  height: 52px;
+  color: var(--purple-lightest);
+  filter: drop-shadow(0 4px 12px rgba(157, 78, 221, 0.5));
+}
+
+.logo-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.brand-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--white), var(--purple-lightest));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+/* Tagline Section */
+.tagline-section {
+  margin-top: 2rem;
+}
+
+.main-tagline {
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--white);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.main-tagline.highlight {
+  background: linear-gradient(135deg, var(--purple-lighter), var(--purple-lightest));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+}
+
+.tagline-description {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--purple-lightest);
+  max-width: 500px;
+  margin: 0;
+  opacity: 0.95;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   RIGHT SIDE - Form Content
+   ============================================ */
+.form-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 650px;
+}
+
+/* ============================================
+   GLASS FORM CONTAINER
+   ============================================ */
+.form-container {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 3rem 2.75rem;
+  box-shadow: 
+    0 8px 32px rgba(16, 0, 43, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.form-header {
+  margin-bottom: 2rem;
+  text-align: center;
+  padding-left: 1.5rem;
+}
+
+.form-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--white);
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .register-content {
+    gap: 3rem;
+    padding: 2.5rem;
+  }
+
+  .main-tagline {
+    font-size: 2.5rem;
+  }
+
+  .tagline-description {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .register-page-container::before {
+    width: 100%;
+    height: 50%;
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.2) 40%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3) 0%,
+      rgba(0, 0, 0, 0.2) 40%,
+      transparent 100%
+    );
+  }
+
+  .register-content {
+    flex-direction: column;
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .brand-content {
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .brand-section {
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f5f7fa;
-    padding: 20px;
+  }
+
+  .main-tagline {
+    font-size: 2rem;
+  }
+
+  .tagline-description {
+    font-size: 0.95rem;
+  }
+
+  .form-content {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-content {
+    padding: 1.5rem;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-name {
+    font-size: 1.5rem;
+  }
+
+  .main-tagline {
+    font-size: 1.75rem;
+  }
+
+  .tagline-description {
+    font-size: 0.875rem;
+  }
+
+  .form-container {
+    padding: 2rem;
+  }
+
+  .form-title {
+    font-size: 1.5rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.9rem;
+  }
 }

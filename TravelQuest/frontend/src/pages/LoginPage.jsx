@@ -6,10 +6,23 @@ export default function LoginPage() {
         <div className="login-page">
             {/* Animated curved spotlight elements */}
             <svg className="animated-curves" viewBox="0 0 1200 800" preserveAspectRatio="none">
+                <defs>
+                    <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style={{stopColor: '#7d6fd6', stopOpacity: 0.6}} />
+                        <stop offset="50%" style={{stopColor: '#a298ef', stopOpacity: 0.4}} />
+                        <stop offset="100%" style={{stopColor: '#d5d1ff', stopOpacity: 0.3}} />
+                    </linearGradient>
+                    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style={{stopColor: '#a298ef', stopOpacity: 0.5}} />
+                        <stop offset="100%" style={{stopColor: '#7d6fd6', stopOpacity: 0.3}} />
+                    </linearGradient>
+                </defs>
+                
                 {/* Top right curve */}
                 <path
                     d="M 900 0 Q 1000 100 1200 150"
                     className="curve curve-1"
+                    stroke="url(#curveGradient)"
                 />
                 {/* Top right semicircle */}
                 <circle cx="1100" cy="80" r="120" className="circle-outline circle-1" />
@@ -18,6 +31,7 @@ export default function LoginPage() {
                 <path
                     d="M 1100 250 Q 1000 300 950 350"
                     className="curve curve-2"
+                    stroke="url(#curveGradient)"
                 />
                 <circle cx="1050" cy="300" r="100" className="circle-outline circle-2" />
                 
@@ -25,6 +39,7 @@ export default function LoginPage() {
                 <path
                     d="M 950 500 Q 1050 550 1200 650"
                     className="curve curve-3"
+                    stroke="url(#curveGradient)"
                 />
                 <circle cx="1000" cy="700" r="110" className="circle-outline circle-3" />
                 
@@ -32,12 +47,14 @@ export default function LoginPage() {
                 <path
                     d="M 1000 100 Q 1050 200 1100 300"
                     className="curve curve-4"
+                    stroke="url(#curveGradient)"
                 />
                 <circle cx="900" cy="500" r="95" className="circle-outline circle-4" />
                 
                 <path
                     d="M 850 400 Q 950 450 1100 500"
                     className="curve curve-5"
+                    stroke="url(#curveGradient)"
                 />
             </svg>
 

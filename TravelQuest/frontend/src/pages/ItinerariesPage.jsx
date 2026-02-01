@@ -226,7 +226,15 @@ export default function ItinerariesPage() {
 
   // ----------------------------------- RENDER -----------------------------------
   return (
-    <div className="itineraries-layout">
+    <div className="itineraries-page">
+      {/* Animated light circles */}
+      <div className="light-circle circle-1"></div>
+      <div className="light-circle circle-2"></div>
+      <div className="light-circle circle-3"></div>
+      <div className="light-circle circle-4"></div>
+      <div className="light-circle circle-5"></div>
+
+      <div className="itineraries-layout">
       {(isGuide || isAdmin || isTourist) && (
         <FiltersSidebar
           filters={filters}
@@ -394,6 +402,7 @@ export default function ItinerariesPage() {
             </div>
           )}
       </div>
+    </div>
     </div>
   );
 }
