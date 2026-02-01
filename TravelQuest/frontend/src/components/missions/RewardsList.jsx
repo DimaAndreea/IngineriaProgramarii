@@ -1,5 +1,3 @@
-import { IconGift } from "./MissionIcons";
-
 export default function RewardsList({ rewards, loading }) {
   if (loading) return <p className="mr-muted">Loading...</p>;
   if (!rewards?.length) return <p className="mr-muted">No claimed rewards yet.</p>;
@@ -9,7 +7,7 @@ export default function RewardsList({ rewards, loading }) {
       {rewards.map((r) => (
         <div key={r.id || `${r.title}-${r.claimed_at || ""}`} className="mr-reward-card">
           <div className="mr-reward-icon">
-            <IconGift size={28} color="#22c55e" />
+            <img src="/coupon.png" alt="Coupon" className="mr-ticket-img" />
           </div>
           <div className="mr-reward-title">{r.title}</div>
           {r.fromMissionTitle ? (

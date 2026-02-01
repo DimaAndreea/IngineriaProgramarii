@@ -5,6 +5,7 @@ import Toast from "../components/missions/Toast";
 import MissionCardList from "../components/missions/MissionCardList";
 import RewardsList from "../components/missions/RewardsList";
 import MissionCreateForm from "../components/missions/MissionCreateForm";
+import { IconGift, IconTarget } from "../components/missions/MissionIcons";
 
 import { useAuth } from "../context/AuthContext";
 import {
@@ -35,6 +36,7 @@ export default function MissionsPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [missionFilter, setMissionFilter] = useState("ALL"); // Filter state
+  const [rewardsScrollPos, setRewardsScrollPos] = useState(0);
 
   const visibleMissions = useMemo(() => {
     let filtered = missions;
@@ -168,6 +170,17 @@ export default function MissionsPage() {
   // ✅ show rewards from endpoint if present, else derived
   const rewardsToShow = rewards?.length ? rewards : derivedRewards;
 
+  const scrollRewards = (direction) => {
+    const container = document.querySelector(".mr-rewards-scroll");
+    if (!container) return;
+    const scrollAmount = 320;
+    const newPos = direction === "left" 
+      ? Math.max(0, rewardsScrollPos - scrollAmount)
+      : rewardsScrollPos + scrollAmount;
+    container.scrollTo({ left: newPos, behavior: "smooth" });
+    setRewardsScrollPos(newPos);
+  };
+
   return (
     <div className="mr-page">
       <Toast toast={toast} onClose={() => setToast(null)} />
@@ -212,9 +225,38 @@ export default function MissionsPage() {
         </div>
       ) : (
         <>
+          <section className="mr-card mr-rewards-section">
+            <div className="mr-card-header">
+              <div className="mr-title-with-icon">
+                <h3 className="mr-section-title">My rewards</h3>
+                <IconGift size={24} color="#9ad65c" />
+              </div>
+              <p className="mr-section-hint">Your claimed vouchers appear here.</p>
+            </div>
+
+            <div className="mr-rewards-carousel-wrapper">
+              <button className="mr-rewards-arrow mr-rewards-arrow-left" onClick={() => scrollRewards("left")}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M15 18l-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button className="mr-rewards-arrow mr-rewards-arrow-right" onClick={() => scrollRewards("right")}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <div className="mr-rewards-scroll">
+                <RewardsList rewards={rewardsToShow} loading={loading} />
+              </div>
+            </div>
+          </section>
+
           <section className="mr-card">
             <div className="mr-card-header">
-              <h3 className="mr-section-title">Missions</h3>
+              <div className="mr-title-with-icon">
+                <h3 className="mr-section-title">Missions</h3>
+                <IconTarget size={24} color="#9ad65c" />
+              </div>
               <p className="mr-section-hint">Only missions for your role are shown.</p>
             </div>
 
@@ -260,17 +302,6 @@ export default function MissionsPage() {
                 onJoin={handleJoin}
                 onClaim={handleClaim}
               />
-            </div>
-          </section>
-
-          <section className="mr-card">
-            <div className="mr-card-header">
-              <h3 className="mr-section-title">My rewards</h3>
-              <p className="mr-section-hint">Your claimed vouchers appear here.</p>
-            </div>
-
-            <div className="mr-scroll">
-              <RewardsList rewards={rewardsToShow} loading={loading} />
             </div>
           </section>
         </>

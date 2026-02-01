@@ -75,6 +75,12 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
+.mr-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .mr-section-hint {
   margin: 0;
   font-size: 13px;
@@ -347,14 +353,71 @@
 }
 
 /* Rewards */
+.mr-rewards-section {
+  position: relative;
+}
+
+.mr-rewards-carousel-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mr-rewards-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 0 60px;
+}
+
+.mr-rewards-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mr-rewards-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(132, 122, 204, 0.9) 0%, rgba(106, 98, 182, 0.9) 100%);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(112, 104, 182, 0.3);
+}
+
+.mr-rewards-arrow-left {
+  left: 0;
+}
+
+.mr-rewards-arrow-right {
+  right: 0;
+}
+
+.mr-rewards-arrow:hover {
+  background: linear-gradient(135deg, rgba(142, 132, 214, 1) 0%, rgba(116, 108, 192, 1) 100%);
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 6px 16px rgba(112, 104, 182, 0.45);
+}
+
 .mr-rewards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
   gap: 16px;
   padding-bottom: 8px;
 }
 
 .mr-reward-card {
+  flex-shrink: 0;
+  width: 300px;
   border: 1px solid rgba(162, 152, 239, 0.3);
   border-radius: 20px;
   padding: 20px;
@@ -376,11 +439,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
-  background: rgba(162, 152, 239, 0.2);
-  border-radius: 12px;
+  width: 100%;
+  height: 80px;
   margin-bottom: 12px;
+}
+
+.mr-ticket-img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
 }
 
 .mr-reward-title {
@@ -389,12 +456,13 @@
   margin-bottom: 8px;
   font-size: 16px;
   line-height: 1.4;
+  text-align: center;
 }
 
 .mr-reward-sub {
   font-size: 13px;
   font-weight: 800;
-  color: rgba(162, 152, 239, 0.9);
+  color: rgba(200, 208, 225, 0.85);
   margin-bottom: 10px;
   padding: 8px 10px;
   background: rgba(125, 111, 230, 0.15);
@@ -527,9 +595,6 @@
 /* =========================
    OLD ADMIN GRID (deprecated, keeping for reference)
    ========================= */
-  overflow-y: auto;          /* ✅ scrollbar per section */
-  padding-right: 6px;
-}
 
 /* header inside cards fixed */
 .mr-admin-grid .mr-card-header {
@@ -581,3 +646,374 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Horizontal carousel layout for non-admin */
+.mr-carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mr-carousel-arrow {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, rgba(125, 111, 230, 0.8) 0%, rgba(90, 90, 219, 0.75) 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 16px rgba(125, 111, 230, 0.3);
+  z-index: 2;
+}
+
+.mr-carousel-arrow:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 20px rgba(125, 111, 230, 0.4);
+  background: linear-gradient(135deg, rgba(125, 111, 230, 0.9) 0%, rgba(90, 90, 219, 0.85) 100%);
+}
+
+.mr-carousel-arrow:active {
+  transform: scale(1.05);
+}
+
+
+.mr-missions-vertical-stack {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 5px;
+}
+
+.mr-missions-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.mr-missions-carousel::-webkit-scrollbar-track {
+  background: rgba(11, 18, 48, 0.3);
+  border-radius: 10px;
+}
+
+.mr-missions-carousel::-webkit-scrollbar-thumb {
+  background: rgba(162, 152, 239, 0.4);
+  border-radius: 10px;
+}
+
+.mr-missions-carousel::-webkit-scrollbar-thumb:hover {
+  background: rgba(162, 152, 239, 0.6);
+}
+
+/* Horizontal mission card for non-admin */
+.mr-mission-card-horizontal {
+  width: 100%;
+  min-height: 200px;
+  border: 1px solid rgba(168, 183, 201, 0.35);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(
+    135deg,
+    rgba(98, 82, 164, 0.6) 0%,
+    rgba(76, 92, 142, 0.5) 100%
+  );
+  backdrop-filter: blur(22px);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.mr-mission-card-horizontal.mr-claimed-card .mr-mission-content-horizontal,
+.mr-mission-card-horizontal.mr-claimed-card .mr-mission-badges-horizontal,
+.mr-mission-card-horizontal.mr-claimed-card .mr-btn-claim-horizontal {
+  filter: blur(1px);
+  opacity: 0.98;
+}
+
+.mr-mission-card-horizontal.mr-claimed-card {
+  background: linear-gradient(
+    135deg,
+    rgba(98, 82, 164, 0.4) 0%,
+    rgba(76, 92, 142, 0.35) 100%
+  );
+  border-color: rgba(168, 183, 201, 0.25);
+}
+
+.mr-claimed-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mr-claimed-stamp {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  opacity: 1;
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(154, 214, 92, 0.6))
+          drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
+}
+
+.mr-mission-card-horizontal:hover {
+  box-shadow: 0 14px 44px rgba(96, 160, 140, 0.24);
+  border-color: rgba(168, 183, 201, 0.55);
+}
+
+.mr-mission-icon-container {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(162, 152, 239, 0.15);
+  border-radius: 12px;
+  border: 1px solid rgba(162, 152, 239, 0.3);
+}
+
+.mr-mission-content-horizontal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mr-mission-title-horizontal {
+  font-size: 18px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.3;
+}
+
+.mr-mission-dates-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0;
+}
+
+.mr-mission-date-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mr-progress-wrap-horizontal {
+  margin-top: 8px;
+}
+
+.mr-progress-wrap-horizontal.mr-progress-disabled {
+  opacity: 0.5;
+}
+
+.mr-progress-wrap-horizontal.mr-progress-disabled .mr-progress-text-horizontal {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mr-progress-wrap-horizontal.mr-progress-disabled .mr-progress-bar-horizontal {
+  background: rgba(11, 18, 48, 0.7);
+}
+
+.mr-progress-top-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.mr-progress-text-horizontal {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mr-progress-pct-horizontal {
+  font-size: 14px;
+  font-weight: 900;
+  color: #9ad65c;
+  text-shadow: 0 0 6px rgba(154, 214, 92, 0.6);
+}
+
+.mr-progress-bar-horizontal {
+  width: 100%;
+  height: 8px;
+  background: rgba(11, 18, 48, 0.5);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.mr-progress-fill-horizontal {
+  height: 100%;
+  background: linear-gradient(90deg, #9ad65c 0%, #7ec850 100%);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px rgba(154, 214, 92, 0.5);
+}
+
+.mr-reward-horizontal {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(11, 18, 48, 0.4);
+  border-radius: 10px;
+  border: 1px solid rgba(162, 152, 239, 0.3);
+}
+
+.mr-reward-label-horizontal {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mr-reward-title-horizontal {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 900;
+  color: #9ad65c;
+  text-shadow: 0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.mr-reward-xp-horizontal {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #9ad65c;
+  text-shadow: 0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mr-mission-progress-horizontal {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mr-mission-progress-pct {
+  font-size: 16px;
+  font-weight: 900;
+  color: #9ad65c;
+  text-shadow: 0 0 6px rgba(154, 214, 92, 0.6);
+}
+
+.mr-mission-badges-horizontal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.mr-status-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mr-status-claimed-badge {
+  background: rgba(34, 197, 94, 0.25);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+}
+
+.mr-status-progress-badge {
+  background: rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.mr-status-available-badge {
+  background: rgba(59, 130, 246, 0.25);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+.mr-status-completed-badge {
+  background: rgba(139, 92, 246, 0.25);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+}
+
+.mr-reward-badge-horizontal-status {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(125, 111, 230, 0.3);
+  color: #a298ef;
+  border: 1px solid rgba(162, 152, 239, 0.4);
+  text-shadow: 0 0 8px rgba(162, 152, 239, 0.6);
+}
+
+.mr-btn-join-horizontal,
+.mr-btn-claim-horizontal {
+  position: static;
+  margin-top: 12px;
+  align-self: center;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mr-btn-join-horizontal {
+  background: linear-gradient(135deg, rgba(132, 122, 204, 0.98) 0%, rgba(106, 98, 182, 0.98) 100%);
+  color: white;
+  box-shadow: 0 6px 16px rgba(112, 104, 182, 0.45);
+}
+
+.mr-btn-join-horizontal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(112, 104, 182, 0.55);
+  background: linear-gradient(135deg, rgba(142, 132, 214, 1) 0%, rgba(116, 108, 192, 1) 100%);
+}
+
+.mr-btn-claim-horizontal {
+  background: linear-gradient(135deg, rgba(154, 214, 92, 0.95) 0%, rgba(132, 204, 72, 0.9) 100%);
+  color: rgba(11, 18, 48, 0.95);
+  box-shadow: 0 6px 16px rgba(154, 214, 92, 0.45);
+}
+
+.mr-btn-claim-horizontal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(154, 214, 92, 0.6);
+  background: linear-gradient(135deg, rgba(164, 224, 102, 1) 0%, rgba(142, 214, 82, 1) 100%);
+}
+

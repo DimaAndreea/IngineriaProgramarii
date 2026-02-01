@@ -86,3 +86,21 @@ export function IconXP({ size = 20, color = "#9ad65c" }) {
     </svg>
   );
 }
+
+export function IconTarget({ size = 20, color = "#9ad65c" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Outer circle */}
+      <circle cx="12" cy="12" r="9" stroke={color} strokeWidth="1.5" fill="none"/>
+      {/* Middle circle */}
+      <circle cx="12" cy="12" r="6" stroke={color} strokeWidth="1.5" fill="none"/>
+      {/* Inner circle (bullseye) */}
+      <circle cx="12" cy="12" r="3" fill={color} opacity="0.3"/>
+      <circle cx="12" cy="12" r="3" stroke={color} strokeWidth="1.5" fill="none"/>
+      {/* Arrow */}
+      <path d="M18 6l-6 6" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M18 6l-2 0" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M18 6l0 2" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
