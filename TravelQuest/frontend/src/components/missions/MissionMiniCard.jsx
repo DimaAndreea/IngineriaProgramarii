@@ -42,7 +42,7 @@ function formatStartDate(value) {
   });
 }
 
-function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate }) {
+function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, isAdmin = true }) {
   const id = mission?.mission_id ?? mission?.id;
 
   const state = mission?.my_state || "NOT_JOINED";
@@ -62,6 +62,83 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate }) 
     mission?.start_at || mission?.startDate || mission?.start_date || mission?.startAt;
   const startDateLabel = formatStartDate(startDateRaw);
 
+  // Non-admin: horizontal layout
+  if (!isAdmin) {
+    return (
+      <div className={`mr-mission-card-horizontal ${state === "CLAIMED" ? "mr-claimed-card" : ""}`}>
+        {state === "CLAIMED" && (
+          <div className="mr-claimed-overlay">
+            <img src="/claimed-no-bg.png" alt="Claimed" className="mr-claimed-stamp" />
+          </div>
+        )}
+        
+        <div className="mr-mission-content-horizontal">
+          <div className="mr-mission-title-horizontal">{mission?.title || "Mission"}</div>
+          
+          <div className="mr-mission-dates-horizontal">
+            {startDateLabel && (
+              <>
+                <div className="mr-mission-date-item">
+                  <IconCalendar size={14} color="#c7c0ff" />
+                  <span>Starting on: {startDateLabel}</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c7c0ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="13 6 19 12 13 18" />
+                </svg>
+              </>
+            )}
+            <div className="mr-mission-date-item">
+              <IconCalendar size={14} color="#c7c0ff" />
+              <span>Ending on: {endDateLabel}</span>
+            </div>
+          </div>
+
+          <div className={`mr-progress-wrap-horizontal ${state === "NOT_JOINED" ? "mr-progress-disabled" : ""}`}>
+            <div className="mr-progress-top-horizontal">
+              <span className="mr-progress-text-horizontal">
+                {state === "NOT_JOINED" ? "Join to track progress" : `Progress: ${count}/${target}`}
+              </span>
+              {state !== "NOT_JOINED" && (
+                <span className="mr-progress-pct-horizontal">{pct}%</span>
+              )}
+            </div>
+            <div className="mr-progress-bar-horizontal">
+              <div className="mr-progress-fill-horizontal" style={{ width: state === "NOT_JOINED" ? "0%" : `${pct}%` }} />
+            </div>
+          </div>
+
+          <div className="mr-reward-horizontal">
+            <div className="mr-reward-content">
+              <span className="mr-reward-label-horizontal">Reward</span>
+              <div className="mr-reward-title-horizontal">
+                {getRewardLabel(mission)}
+              </div>
+              {mission?.reward?.xp_reward && (
+                <div className="mr-reward-xp-horizontal">
+                  <IconXP size={14} color="#9ad65c" />
+                  <span>{mission.reward.xp_reward} XP</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {state === "NOT_JOINED" && canParticipate && (
+            <button className="mr-btn mr-btn-primary mr-btn-join-horizontal" onClick={() => onJoin?.(id)}>
+              Start Mission
+            </button>
+          )}
+          {state === "COMPLETED" && (
+            <button className="mr-btn-claim-horizontal" onClick={() => onClaim?.(id)}>
+              Claim
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Admin: vertical layout (existing)
   return (
     <div className="mr-mission-card">
       <div className="mr-mission-main">
