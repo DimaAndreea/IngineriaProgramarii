@@ -172,42 +172,43 @@ export default function MissionsPage() {
     <div className="mr-page">
       <Toast toast={toast} onClose={() => setToast(null)} />
 
-      <div className="mr-header">
-        <div>
-          <h2 className="mr-title">Missions & Rewards</h2>
+      <div className="mr-container">
+        <div className="mr-header">
+          <div>
+            <h2 className="mr-title">Missions & Rewards</h2>
+          </div>
         </div>
-      </div>
 
-      {isAdmin ? (
-        <div className="mr-admin-grid">
-          <section className="mr-card">
-            <div className="mr-card-header">
-              <h3 className="mr-section-title">All missions</h3>
-              <p className="mr-section-hint">Admin sees both GUIDE + TOURIST missions.</p>
-            </div>
-
-            <div className="mr-scroll">
-              <MissionCardList
-                missions={visibleMissions}
-                loading={loading}
-                canParticipate={false}
-                onJoin={null}
-                onClaim={handleClaim}
-                isAdmin
-              />
-            </div>
-          </section>
-
-          <section className="mr-card">
-            <div className="mr-card-header">
-              <h3 className="mr-section-title">Create mission</h3>
-              <p className="mr-section-hint">Structured fields → trackable missions.</p>
-            </div>
-
-            <div className="mr-scroll">
+        {isAdmin ? (
+          <div className="mr-admin-layout">
+          <div className="mr-admin-left">
+            <section className="mr-card mr-card-form">
+              <div className="mr-card-header">
+                <h3 className="mr-section-title">Create a mission</h3>
+              </div>
+              <hr className="mr-divider" />
               <MissionCreateForm onCreate={handleCreate} />
-            </div>
-          </section>
+            </section>
+          </div>
+
+          <div className="mr-admin-right">
+            <section className="mr-card mr-card-missions">
+              <div className="mr-card-header">
+                <h3 className="mr-section-title">All missions</h3>
+              </div>
+
+              <div className="mr-scroll">
+                <MissionCardList
+                  missions={visibleMissions}
+                  loading={loading}
+                  canParticipate={false}
+                  onJoin={null}
+                  onClaim={handleClaim}
+                  isAdmin
+                />
+              </div>
+            </section>
+          </div>
         </div>
       ) : (
         <>
@@ -274,6 +275,7 @@ export default function MissionsPage() {
           </section>
         </>
       )}
+      </div>
     </div>
   );
 }

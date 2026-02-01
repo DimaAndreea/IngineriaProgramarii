@@ -196,12 +196,12 @@ export default function MissionCreateForm({ onCreate }) {
     }
 
     if (!values.end_at) {
-      setMsg({ type: "error", text: "Deadline (end date) is required." });
+      setMsg({ type: "error", text: "End date is required." });
       return;
     }
 
     if (values.end_at < minDate) {
-      setMsg({ type: "error", text: "Deadline must be today or later." });
+      setMsg({ type: "error", text: "End date must be today or later." });
       return;
     }
     if (values.start_at && values.start_at < minDate) {
@@ -209,7 +209,7 @@ export default function MissionCreateForm({ onCreate }) {
       return;
     }
     if (values.start_at && values.end_at && values.end_at < values.start_at) {
-      setMsg({ type: "error", text: "Deadline must be the same day or after start date." });
+      setMsg({ type: "error", text: "End date must be the same day or after start date." });
       return;
     }
 
@@ -282,16 +282,6 @@ export default function MissionCreateForm({ onCreate }) {
 
   return (
     <form className="ms-form" onSubmit={onSubmit}>
-      <div className="ms-form-header">
-        <div className="ms-form-title">Create a new mission</div>
-        <div className="ms-form-subtitle">
-          {metaLoading
-            ? "Loading mission metadata..."
-            : metaError
-            ? "Mission metadata not available yet."
-            : "Structured fields → trackable missions."}
-        </div>
-      </div>
 
       {metaError ? (
         <div className="ms-form-msg ms-form-error">{metaError}</div>
@@ -351,18 +341,33 @@ export default function MissionCreateForm({ onCreate }) {
         </label>
       )}
 
-      <label className="ms-label">
-        Target value
-        <input
-          className="ms-input"
-          type="number"
-          min={1}
-          name="target_value"
-          value={values.target_value}
-          onChange={onChange}
-          disabled={disabled || submitting}
-        />
-      </label>
+      <div className="ms-row">
+        <label className="ms-label">
+          Target value
+          <input
+            className="ms-input"
+            type="number"
+            min={1}
+            name="target_value"
+            value={values.target_value}
+            onChange={onChange}
+            disabled={disabled || submitting}
+          />
+        </label>
+
+        <label className="ms-label">
+          XP reward
+          <input
+            className="ms-input"
+            type="number"
+            min={0}
+            name="xp_reward"
+            value={values.xp_reward}
+            onChange={onChange}
+            disabled={disabled || submitting}
+          />
+        </label>
+      </div>
 
       <div className="ms-row">
         <DatePickerField
@@ -381,7 +386,7 @@ export default function MissionCreateForm({ onCreate }) {
         />
 
         <DatePickerField
-          label="Deadline (end date)"
+          label="End date"
           value={values.end_at}
           onChange={(v) => setValues((prev) => ({ ...prev, end_at: v }))}
           minDate={minDate}
@@ -392,7 +397,7 @@ export default function MissionCreateForm({ onCreate }) {
       </div>
 
       <label className="ms-label">
-        Title (UI)
+        Title 
         <input
           className="ms-input"
           name="title"
@@ -408,20 +413,7 @@ export default function MissionCreateForm({ onCreate }) {
       <div className="ms-form-title2">Reward</div>
 
       <label className="ms-label">
-        XP reward
-        <input
-          className="ms-input"
-          type="number"
-          min={0}
-          name="xp_reward"
-          value={values.xp_reward}
-          onChange={onChange}
-          disabled={disabled || submitting}
-        />
-      </label>
-
-      <label className="ms-label">
-        Real reward title
+        Reward Name
         <input
           className="ms-input"
           name="real_reward_title"

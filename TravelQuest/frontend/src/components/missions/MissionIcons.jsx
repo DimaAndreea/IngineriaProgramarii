@@ -77,3 +77,12 @@ export function IconVoucher({ size = 20, color = "#8b5cf6" }) {
     </svg>
   );
 }
+
+export function IconXP({ size = 20, color = "#9ad65c" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2L20.66 7V17L12 22L3.34 17V7L12 2Z" stroke={color} strokeWidth="1.8" fill="none"/>
+      <text x="12" y="15" textAnchor="middle" fontSize="9" fontWeight="bold" fill={color}>XP</text>
+    </svg>
+  );
+}

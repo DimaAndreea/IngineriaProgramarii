@@ -55,6 +55,8 @@ public class MissionService {
             dto.setRole(mission.getRole());
             dto.setType(mission.getType());
             dto.setTarget(mission.getTargetValue());
+            dto.setStartAt(mission.getStartAt());
+            dto.setEndAt(mission.getEndAt());
 
             // Reward
             dto.setReward(mapRewardToDto(mission.getReward()));
@@ -172,6 +174,8 @@ public class MissionService {
         RewardDto dto = new RewardDto();
         dto.setId(reward.getId());
         dto.setTitle(reward.getTitle());
+        dto.setDescription(reward.getDescription());
+        dto.setXpReward(reward.getXpReward());
         dto.setFromMissionTitle(reward.getMission() != null ? reward.getMission().getTitle() : null);
         dto.setClaimedAt(null); // claimedAt depinde de participarea utilizatorului
         return dto;
@@ -186,6 +190,12 @@ public class MissionService {
         private String description;
         private String role;
         private String type;
+
+        @JsonProperty("start_at")
+        private LocalDateTime startAt;
+
+        @JsonProperty("end_at")
+        private LocalDateTime endAt;
         
         @JsonProperty("target_value")
         private int target;
@@ -211,6 +221,10 @@ public class MissionService {
         public void setRole(String role) { this.role = role; }
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
+        public LocalDateTime getStartAt() { return startAt; }
+        public void setStartAt(LocalDateTime startAt) { this.startAt = startAt; }
+        public LocalDateTime getEndAt() { return endAt; }
+        public void setEndAt(LocalDateTime endAt) { this.endAt = endAt; }
         public int getTarget() { return target; }
         public void setTarget(int target) { this.target = target; }
         public int getMyProgress() { return myProgress; }
