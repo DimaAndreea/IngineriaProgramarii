@@ -152,57 +152,90 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
       <details className="filter-box" open>
         <summary>Price</summary>
         <div className="filter-content">
-          <label>Min: {filters.price.min} RON</label>
-          <input
-            type="range"
-            min="0"
-            max="50000"
-            value={filters.price.min}
-            onChange={e =>
-              setFilters(prev => ({
-                ...prev,
-                price: { ...prev.price, min: Number(e.target.value) },
-              }))
-            }
-          />
-
-          <label>Max: {filters.price.max} RON</label>
-          <input
-            type="range"
-            min="0"
-            max="50000"
-            value={filters.price.max}
-            onChange={e =>
-              setFilters(prev => ({
-                ...prev,
-                price: { ...prev.price, max: Number(e.target.value) },
-              }))
-            }
-          />
-        </div>
-      </details>
-
-      {/* ---------- SORT ---------- */}
-      <details className="filter-box" open>
-        <summary>Sort by</summary>
-        <div className="filter-content">
-          <select
-            value={filters.sort}
-            onChange={e =>
-              setFilters(prev => ({ ...prev, sort: e.target.value }))
-            }
-            className="sort-select"
-          >
-            <option value="none">— None —</option>
-            <option value="priceAsc">Price: Low → High</option>
-            <option value="priceDesc">Price: High → Low</option>
-          </select>
+          <div className="price-labels">
+            <div className="price-input-wrapper">
+              <span className="price-prefix">lei</span>
+              <input
+                type="number"
+                min="0"
+                max="50000"
+                value={filters.price.min}
+                onChange={e => {
+                  const newMin = Number(e.target.value);
+                  if (newMin >= 0 && newMin <= filters.price.max) {
+                    setFilters(prev => ({
+                      ...prev,
+                      price: { ...prev.price, min: newMin },
+                    }));
+                  }
+                }}
+                className="price-input"
+              />
+            </div>
+            <div className="price-input-wrapper">
+              <span className="price-prefix">lei</span>
+              <input
+                type="number"
+                min="0"
+                max="50000"
+                value={filters.price.max}
+                onChange={e => {
+                  const newMin = Number(e.target.value);
+                  if (newMin >= filters.price.min && newMin <= 50000) {
+                    setFilters(prev => ({
+                      ...prev,
+                      price: { ...prev.price, max: newMin },
+                    }));
+                  }
+                }}
+                className="price-input"
+              />
+              <span className="price-suffix">+</span>
+            </div>
+          </div>
+          
+          <div className="dual-range-slider">
+            <input
+              type="range"
+              min="0"
+              max="50000"
+              step="100"
+              value={filters.price.min}
+              onChange={e => {
+                const newMin = Number(e.target.value);
+                if (newMin <= filters.price.max) {
+                  setFilters(prev => ({
+                    ...prev,
+                    price: { ...prev.price, min: newMin },
+                  }));
+                }
+              }}
+              className="range-min"
+            />
+            <input
+              type="range"
+              min="0"
+              max="50000"
+              step="100"
+              value={filters.price.max}
+              onChange={e => {
+                const newMax = Number(e.target.value);
+                if (newMax >= filters.price.min) {
+                  setFilters(prev => ({
+                    ...prev,
+                    price: { ...prev.price, max: newMax },
+                  }));
+                }
+              }}
+              className="range-max"
+            />
+          </div>
         </div>
       </details>
 
       {/* ---------- RATING ---------- */}
       <details className="filter-box" open>
-        <summary>Rating</summary>
+        <summary>Guide Rating</summary>
         <div className="filter-content">
           {[5, 4, 3, 2, 1].map(stars => (
             <label key={stars} className="rating-item">
@@ -215,13 +248,63 @@ export default function FiltersSidebar({ filters, setFilters, role }) {
                     rating: prev.rating === String(stars) ? "" : String(stars),
                   }))
                 }
+                className="rating-checkbox"
               />
               <span className="stars">
                 {"★".repeat(stars)}
                 {"☆".repeat(5 - stars)}
               </span>
+              <span className="rating-badge">
+                {stars}{stars === 5 ? "" : "+"}
+              </span>
             </label>
           ))}
+        </div>
+      </details>
+
+      {/* ---------- SORT BY PRICE ---------- */}
+      <details className="filter-box" open>
+        <summary>Sort by Price</summary>
+        <div className="filter-content">
+          <label className="sort-option">
+            <input
+              type="radio"
+              name="sort"
+              value="priceAsc"
+              checked={filters.sort === "priceAsc"}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, sort: e.target.value }))
+              }
+              className="sort-radio"
+            />
+            <span className="sort-label">Low → High</span>
+          </label>
+          <label className="sort-option">
+            <input
+              type="radio"
+              name="sort"
+              value="priceDesc"
+              checked={filters.sort === "priceDesc"}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, sort: e.target.value }))
+              }
+              className="sort-radio"
+            />
+            <span className="sort-label">High → Low</span>
+          </label>
+          <label className="sort-option">
+            <input
+              type="radio"
+              name="sort"
+              value="none"
+              checked={filters.sort === "none"}
+              onChange={e =>
+                setFilters(prev => ({ ...prev, sort: e.target.value }))
+              }
+              className="sort-radio"
+            />
+            <span className="sort-label">None</span>
+          </label>
         </div>
       </details>
 

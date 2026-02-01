@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import DateRangePickerField from "../ui/DateRangePickerField";
 import "./ItineraryForm.css";
 
 export default function ItineraryForm({ visible, initialValues, onSubmit, onClose }) {
@@ -71,7 +72,13 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
         }
     }, [visible]);
 
-    if (!visible) return null;
+    const minDate = useMemo(() => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+    }, []);
 
     // ----------------------------- VALIDATION -----------------------------
     const validate = () => {
@@ -148,6 +155,8 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
 
         setLoading(false);
     };
+
+    if (!visible) return null;
 
     // ----------------------------- IMAGE UPLOAD HANDLER -----------------------------
     const handleImageUpload = (e) => {
@@ -232,33 +241,38 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     />
                     {errors.description && <p className="error">{errors.description}</p>}
 
-                    {/* CATEGORY — NOW DROPDOWN */}
-                    <label>Category</label>
-                    <select
-                        className={errors.category ? "input error-input" : "input"}
-                        value={form.category}
-                        onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    >
-                        <option value="">Select a category...</option>
+                    {/* CATEGORY & PRICE ROW */}
+                    <div className="form-row">
+                        <div className="form-column">
+                            <label>Category</label>
+                            <select
+                                className={errors.category ? "input error-input" : "input"}
+                                value={form.category}
+                                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                            >
+                                <option value="">Select a category...</option>
 
-                        {CATEGORY_OPTIONS.map(opt => (
-                            <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.category && <p className="error">{errors.category}</p>}
+                                {CATEGORY_OPTIONS.map(opt => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.category && <p className="error">{errors.category}</p>}
+                        </div>
 
-                    {/* PRICE */}
-                    <label>Price (RON)</label>
-                    <input
-                        type="number"
-                        className={errors.price ? "input error-input" : "input"}
-                        value={form.price}
-                        onChange={(e) => setForm({ ...form, price: e.target.value })}
-                        placeholder="Price..."
-                    />
-                    {errors.price && <p className="error">{errors.price}</p>}
+                        <div className="form-column">
+                            <label>Price (RON)</label>
+                            <input
+                                type="number"
+                                className={errors.price ? "input error-input" : "input"}
+                                value={form.price}
+                                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                                placeholder="Price..."
+                            />
+                            {errors.price && <p className="error">{errors.price}</p>}
+                        </div>
+                    </div>
 
                     {/* IMAGE */}
                     <label>Image</label>
@@ -279,23 +293,17 @@ export default function ItineraryForm({ visible, initialValues, onSubmit, onClos
                     {/* DATES */}
                     <div className="dates-row">
                         <div>
-                            <label>Start date</label>
-                            <input
-                                type="date"
-                                className={errors.startDate ? "input error-input" : "input"}
-                                value={form.startDate}
-                                onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                            <DateRangePickerField
+                                label="When"
+                                startDate={form.startDate}
+                                endDate={form.endDate}
+                                onChange={(start, end) =>
+                                    setForm((prev) => ({ ...prev, startDate: start, endDate: end }))
+                                }
+                                minDate={minDate}
+                                required
                             />
                             {errors.startDate && <p className="error">{errors.startDate}</p>}
-                        </div>
-                        <div>
-                            <label>End date</label>
-                            <input
-                                type="date"
-                                className={errors.endDate ? "input error-input" : "input"}
-                                value={form.endDate}
-                                onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                            />
                             {errors.endDate && <p className="error">{errors.endDate}</p>}
                         </div>
                     </div>

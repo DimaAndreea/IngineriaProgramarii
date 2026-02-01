@@ -439,3 +439,175 @@
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
   100% { transform: translateY(220px) rotate(220deg); opacity: 0; }
 }
+
+/* ============================================
+   ADD FUNDS MODAL
+   ============================================ */
+
+.add-funds-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+.add-funds-modal {
+  background: rgba(20, 27, 69, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 152, 239, 0.35);
+  border-radius: 16px;
+  box-shadow:
+    0 8px 32px rgba(16, 0, 43, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  width: 90%;
+  max-width: 400px;
+  padding: 32px;
+  color: white;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.add-funds-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(162, 152, 239, 0.2);
+}
+
+.add-funds-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+}
+
+.add-funds-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.add-funds-close:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(162, 152, 239, 0.15);
+}
+
+.add-funds-body {
+  margin-bottom: 24px;
+}
+
+.add-funds-body label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 10px;
+}
+
+.add-funds-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(162, 152, 239, 0.3);
+  border-radius: 10px;
+  color: white;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.add-funds-input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(162, 152, 239, 0.6);
+  box-shadow: 0 0 0 3px rgba(162, 152, 239, 0.1);
+}
+
+.add-funds-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Remove spinner arrows from number input */
+.add-funds-input::-webkit-outer-spin-button,
+.add-funds-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.add-funds-input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.add-funds-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.add-funds-btn {
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-funds-btn.cancel {
+  background: rgba(162, 152, 239, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  border-color: rgba(162, 152, 239, 0.2);
+}
+
+.add-funds-btn.cancel:hover {
+  background: rgba(162, 152, 239, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(162, 152, 239, 0.25);
+  transform: translateY(-2px);
+}
+
+.add-funds-btn.primary {
+  background: rgba(125, 111, 214, 0.5);
+  color: white;
+  border-color: rgba(125, 111, 214, 0.4);
+}
+
+.add-funds-btn.primary:hover {
+  background: rgba(125, 111, 214, 0.65);
+  box-shadow: 0 6px 16px rgba(125, 111, 214, 0.5);
+  transform: translateY(-2px);
+}

@@ -80,6 +80,19 @@ export default function UserMenu() {
         <div className="user-dropdown">
           {role !== "admin" && (
             <button type="button" className="dropdown-item" onClick={goProfile}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                style={{ marginRight: "8px", verticalAlign: "middle" }}
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
               View Profile
             </button>
           )}
@@ -89,6 +102,18 @@ export default function UserMenu() {
             className="dropdown-item logout-btn"
             onClick={handleLogout}
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ marginRight: "8px", verticalAlign: "middle" }}
+            >
+              <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
+            </svg>
             Log out
           </button>
         </div>

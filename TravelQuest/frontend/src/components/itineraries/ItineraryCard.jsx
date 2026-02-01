@@ -45,6 +45,27 @@ export default function ItineraryCard({
       ? itinerary.locations[0]
       : null;
 
+  // Format date function
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
+  // Format category function
+  const formatCategory = (category) => {
+    if (!category) return "";
+    return category
+      .replace(/_/g, " ")
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toUpperCase())
+      .join(" ");
+  };
+
   // RULES:
   const canEditThis = canEdit && status === "PENDING";
   const canDeleteThis =
@@ -85,8 +106,8 @@ export default function ItineraryCard({
 
         {/* CATEGORY + AUTHOR ROW */}
         <div className="row-two-cols">
-          <span className="category-pill">{itinerary.category}</span>
-          <span className="author">By: {itinerary.creator?.username}</span>
+          <span className="category-pill">{formatCategory(itinerary.category)}</span>
+          <span className="author">Guide: {itinerary.creator?.username}</span>
         </div>
 
         {/* LOCATION + DATE */}
@@ -133,13 +154,11 @@ export default function ItineraryCard({
               </svg>
             </span>
             <span className="meta-text">
-              {itinerary.startDate} → {itinerary.endDate}
+              {formatDate(itinerary.startDate)} → {formatDate(itinerary.endDate)}
             </span>
+            <span className="meta-price">{itinerary.price} RON</span>
           </div>
         </div>
-
-        {/* PRICE */}
-        <div className="price-badge">{itinerary.price} RON</div>
 
         {/* JOIN BUTTON – turist */}
         {canParticipateThis && (
