@@ -36,4 +36,13 @@ public class UserProfileController {
         UserProfileDto dto = profileService.getGuideProfile(id);
         return ResponseEntity.ok(dto);
     }
+
+    // ===============================
+    // 🌍 PROFIL PUBLIC TURIST
+    // ===============================
+    @GetMapping("/tourists/{id}")
+    public ResponseEntity<UserProfileDto> getTouristProfile(@PathVariable Long id) {
+        UserProfileDto dto = profileService.getTouristProfile(id);
+        return ResponseEntity.ok(dto);
+    }
 }

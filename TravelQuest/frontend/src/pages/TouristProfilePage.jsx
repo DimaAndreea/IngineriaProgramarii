@@ -6,7 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import { useGamification } from "../context/GamificationContext";
 import { filterItineraries } from "../services/itineraryService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
-import { getMyProfile } from "../services/userService";
+import { getMyProfile, getTouristProfile } from "../services/userService";
+import { getGamificationSummaryByUserId } from "../services/gamificationService";
 
 import { addFunds, getWalletBalance } from "../services/walletService";
 
@@ -144,6 +145,20 @@ function CalendarIcon({ size = 16 }) {
   );
 }
 
+function ArrowIcon({ size = 16 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true" className="tp-mini-icon">
+      <path
+        d="M5 12h14M12 5l7 7-7 7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function TouristProfilePage() {
   const navigate = useNavigate();
   const params = useParams();
@@ -187,6 +202,10 @@ export default function TouristProfilePage() {
   const [walletAmount, setWalletAmount] = useState("");
   const [walletErr, setWalletErr] = useState("");
 
+  const [publicGami, setPublicGami] = useState(null);
+  const [publicGamiLoading, setPublicGamiLoading] = useState(false);
+  const [publicGamiErr, setPublicGamiErr] = useState("");
+
   useEffect(() => {
     let alive = true;
 
@@ -224,6 +243,10 @@ export default function TouristProfilePage() {
           const bal = await getWalletBalance();
           if (!alive) return;
           setWalletBalance(bal);
+        } else if (isPublicMode) {
+          const prof = await getTouristProfile(publicTouristId).catch(() => null);
+          if (!alive) return;
+          setProfile(prof || null);
         } else {
           setProfile(null);
         }
@@ -261,6 +284,34 @@ export default function TouristProfilePage() {
     return () => { alive = false; };
   }, [isOwnerMode, userId, username]);
 
+  useEffect(() => {
+    if (!isPublicMode) return;
+
+    let alive = true;
+
+    async function loadPublicGami() {
+      try {
+        setPublicGamiLoading(true);
+        setPublicGamiErr("");
+        const data = await getGamificationSummaryByUserId(publicTouristId);
+        if (!alive) return;
+        setPublicGami(data || null);
+      } catch (e) {
+        if (!alive) return;
+        setPublicGamiErr(e?.message || "Failed to load gamification");
+        setPublicGami(null);
+      } finally {
+        if (!alive) return;
+        setPublicGamiLoading(false);
+      }
+    }
+
+    loadPublicGami();
+    return () => {
+      alive = false;
+    };
+  }, [isPublicMode, publicTouristId]);
+
   async function handleAddFunds() {
     setWalletErr("");
     try {
@@ -273,8 +324,11 @@ export default function TouristProfilePage() {
     }
   }
 
-  const email = isOwnerMode ? profile?.email || "—" : "—";
-  const phone = isOwnerMode ? profile?.phone || profile?.phoneNumber || "—" : "—";
+  const email = (isOwnerMode ? profile?.email : (profile?.email || touristFromState?.email)) || "—";
+  const phone =
+    (isOwnerMode
+      ? profile?.phone || profile?.phoneNumber
+      : (profile?.phoneNumber || profile?.phone || touristFromState?.phone || touristFromState?.phoneNumber)) || "—";
 
   const withStatus = useMemo(() => {
     const nowTs = Date.now();
@@ -342,13 +396,17 @@ export default function TouristProfilePage() {
 
   // ✅ adaptare DTO nou -> ce vrea GamificationCard-ul tău
   const gamiForCard = useMemo(() => {
-    if (!gami) return null;
+    const data = isOwnerMode ? gami : publicGami;
+    if (!data) return null;
     return {
-      ...gami,
-      currentXp: gami?.currentXp ?? gami?.xp ?? 0,
-      xpForNextLevel: gami?.xpForNextLevel ?? gami?.nextLevelMinXp ?? null,
+      ...data,
+      currentXp: data?.currentXp ?? data?.xp ?? 0,
+      xpForNextLevel: data?.xpForNextLevel ?? data?.nextLevelMinXp ?? null,
     };
-  }, [gami]);
+  }, [gami, publicGami, isOwnerMode]);
+
+  const gamiLoading_ = isOwnerMode ? gamiLoading : publicGamiLoading;
+  const gamiErr_ = isOwnerMode ? gamiErr : publicGamiErr;
 
   return (
     <div className="tourist-profile-page">
@@ -364,28 +422,17 @@ export default function TouristProfilePage() {
               <h1 className="tourist-name">{displayName}</h1>
               <span className="tourist-role">Tourist</span>
 
-              {isPublicMode && displayLevel != null && (
-                <div className="tp-contact" style={{ marginTop: 6 }}>
-                  <div className="tp-contact-item">
-                    <span className="tp-contact-label">Level</span>
-                    <span className="tp-contact-value">{displayLevel}</span>
-                  </div>
+              <div className="tp-contact">
+                <div className="tp-contact-item">
+                  <img src="/mail.png" alt="Email" className="tp-contact-icon" />
+                  <span className="tp-contact-value">{email}</span>
                 </div>
-              )}
-
-              {isOwnerMode && (
-                <div className="tp-contact">
-                  <div className="tp-contact-item">
-                    <span className="tp-contact-label">Email</span>
-                    <span className="tp-contact-value">{email}</span>
-                  </div>
-                  <span className="tp-contact-dot">•</span>
-                  <div className="tp-contact-item">
-                    <span className="tp-contact-label">Phone</span>
-                    <span className="tp-contact-value">{phone}</span>
-                  </div>
+                <span className="tp-contact-dot">•</span>
+                <div className="tp-contact-item">
+                  <img src="/phone.png" alt="Phone" className="tp-contact-icon" />
+                  <span className="tp-contact-value">{phone}</span>
                 </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -398,106 +445,104 @@ export default function TouristProfilePage() {
           </div>
         </div>
 
-        {/* Gamification (owner only) */}
-        {isOwnerMode && (
-          <div className="tourist-header-gamification">
-            <GamificationCard
-              summary={gamiForCard}
-              loading={gamiLoading}
-              error={gamiErr}
-              isMock={false}
-            />
-          </div>
-        )}
+        {/* Gamification */}
+        <div className="tourist-header-gamification">
+          <GamificationCard
+            summary={gamiForCard}
+            loading={gamiLoading_}
+            error={gamiErr_}
+            showLabel={isOwnerMode}
+            isMock={false}
+          />
+        </div>
       </div>
 
-      {/* WALLET (owner only) */}
+      {/* WALLET & BADGES (2 COLUMNS) */}
       {isOwnerMode && (
-        <div className="tourist-card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <div>
-              <h2 className="itins-title" style={{ marginBottom: 4 }}>My Wallet</h2>
-              <div className="tourist-muted">Manage your travel funds</div>
+        <div className="tourist-wallet-badges-grid">
+          {/* WALLET (LEFT) */}
+          <div className="tourist-card wallet-card">
+            <div className="wallet-header">
+              <h2 className="itins-title">My Wallet</h2>
+              <img src="/wallet.png" alt="Wallet" className="wallet-icon" />
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ textAlign: "right" }}>
-                <div className="badge-kicker">Current Balance</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: "#16a34a" }}>
-                  {Number(walletBalance || 0).toFixed(2)} RON
-                </div>
+            <div className="wallet-balance-section">
+              <div className="badge-kicker">Current Balance</div>
+              <div className="wallet-amount">
+                {Number(walletBalance || 0).toFixed(2)} RON
               </div>
-
-              <button
-                className="tourist-blue-btn"
-                onClick={() => {
-                  setWalletErr("");
-                  setWalletAmount("");
-                  setWalletOpen(true);
-                }}
-              >
-                Add funds
-              </button>
             </div>
+
+            <button
+              className="wallet-add-btn"
+              onClick={() => {
+                setWalletErr("");
+                setWalletAmount("");
+                setWalletOpen(true);
+              }}
+            >
+              + Add funds
+            </button>
           </div>
 
-          {/* ADD FUNDS MODAL */}
-          {walletOpen && (
-            <div className="add-funds-overlay" onClick={() => setWalletOpen(false)}>
-              <div className="add-funds-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="add-funds-header">
-                  <h2>Add Funds to Wallet</h2>
-                  <button
-                    className="add-funds-close"
-                    onClick={() => setWalletOpen(false)}
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="add-funds-body">
-                  <label>Amount (RON):</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="999999"
-                    value={walletAmount}
-                    onChange={(e) => setWalletAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="add-funds-input"
-                  />
-                </div>
-
-                {walletErr && <div className="tourist-banner">{walletErr}</div>}
-
-                <div className="add-funds-footer">
-                  <button
-                    className="add-funds-btn cancel"
-                    onClick={() => {
-                      setWalletOpen(false);
-                      setWalletAmount("");
-                      setWalletErr("");
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="add-funds-btn primary"
-                    onClick={handleAddFunds}
-                  >
-                    Add Funds
-                  </button>
-                </div>
-              </div>
+          {/* BADGES (RIGHT) */}
+          {showBadgesSection && (
+            <div className="tourist-card">
+              <MyBadgesSection onSelectedChange={setSelectedBadge} />
             </div>
           )}
         </div>
       )}
 
-      {/* BADGES (owner only) */}
-      {showBadgesSection && (
-        <div className="tourist-card">
-          <MyBadgesSection onSelectedChange={setSelectedBadge} />
+      {/* ADD FUNDS MODAL */}
+      {walletOpen && (
+        <div className="add-funds-overlay" onClick={() => setWalletOpen(false)}>
+          <div className="add-funds-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="add-funds-header">
+              <h2>Add Funds to Wallet</h2>
+              <button
+                className="add-funds-close"
+                onClick={() => setWalletOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="add-funds-body">
+              <label>Amount (RON):</label>
+              <input
+                type="number"
+                min="1"
+                max="999999"
+                value={walletAmount}
+                onChange={(e) => setWalletAmount(e.target.value)}
+                placeholder="0.00"
+                className="add-funds-input"
+              />
+            </div>
+
+            {walletErr && <div className="tourist-banner">{walletErr}</div>}
+
+            <div className="add-funds-footer">
+              <button
+                className="add-funds-btn cancel"
+                onClick={() => {
+                  setWalletOpen(false);
+                  setWalletAmount("");
+                  setWalletErr("");
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                className="add-funds-btn primary"
+                onClick={handleAddFunds}
+              >
+                Add Funds
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -558,41 +603,51 @@ export default function TouristProfilePage() {
 
               return (
                 <article key={it.id} className="itinerary-row">
-                  <div className="itinerary-left">
-                    <div className="itinerary-row-top">
-                      <div className="itinerary-title-wrap">
-                        <h3 className="itinerary-title" title={title}>
-                          {title}
-                        </h3>
-                        <span className={`pill ${pillClass}`}>{it.__status}</span>
+                  <div className="itinerary-image">
+                    <img 
+                      src={
+                        it.imageBase64
+                          ? it.imageBase64.startsWith("data:") 
+                            ? it.imageBase64 
+                            : `data:image/jpeg;base64,${it.imageBase64}`
+                          : "/placeholder-itinerary.jpg"
+                      }
+                      alt={title} 
+                    />
+                  </div>
+
+                  <div className="itinerary-content">
+                    <div className="itinerary-top">
+                      <h3 className="itinerary-title" title={title}>
+                        {title}
+                      </h3>
+                    </div>
+
+                    <div className="itinerary-middle">
+                      <div className="tp-meta-line">
+                        <PinIcon />
+                        <span>{locText}</span>
                       </div>
                     </div>
 
-                    <div className="itinerary-meta">
-                      <div className="tp-meta-line">
-                        <PinIcon />
-                        <span>
-                          <b>Location:</b> {locText}
-                        </span>
-                      </div>
-
+                    <div className="itinerary-bottom-row">
                       <div className="tp-meta-line">
                         <CalendarIcon />
                         <span>
-                          {formatDate(it.startDate)} → {formatDate(it.endDate)}
+                          {formatDate(it.startDate)} <ArrowIcon size={14} /> {formatDate(it.endDate)}
                         </span>
                       </div>
+                      
+                      <button
+                        className="tourist-blue-btn"
+                        onClick={() => navigate(`/itineraries/${it.id}`)}
+                      >
+                        View
+                      </button>
                     </div>
                   </div>
-
-                  <div className="itinerary-actions-right">
-                    <button
-                      className="tourist-blue-btn"
-                      onClick={() => navigate(`/itineraries/${it.id}`)}
-                    >
-                      View
-                    </button>
-                  </div>
+                  
+                  <span className={`pill ${pillClass}`}>{it.__status}</span>
                 </article>
               );
             })}

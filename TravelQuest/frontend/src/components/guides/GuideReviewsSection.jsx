@@ -5,10 +5,10 @@ import "./GuideReviewsSection.css";
 const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-        year: "numeric",
+    return date.toLocaleDateString("en-GB", {
+        day: "numeric",
         month: "short",
-        day: "numeric"
+        year: "numeric"
     });
 };
 
@@ -75,14 +75,16 @@ export default function GuideReviewsSection({ guideId }) {
         : 0;
 
     return (
-        <section className="guide-reviews-section">
+        <section id="guide-reviews" className="guide-reviews-section">
             <h2 className="reviews-title">Reviews & Feedback</h2>
 
             <div className="reviews-stats">
                 <div className="reviews-stat-item">
                     <span className="stat-label">Average Rating</span>
                     <span className="stat-value">
-                        {averageRating} ⭐ ({reviews.length} reviews)
+                        {averageRating}
+                        <span className="review-stars" aria-hidden="true">★</span>
+                        <span className="review-count">({reviews.length} reviews)</span>
                     </span>
                 </div>
             </div>
@@ -92,12 +94,20 @@ export default function GuideReviewsSection({ guideId }) {
                     <div key={review.id} className="review-card">
                         <div className="review-header">
                             <div className="review-info">
-                                <span className="review-from">
-                                    {review.fromUsername}
-                                </span>
-                                <span className="review-rating">
-                                    {"⭐".repeat(review.rating)}
-                                </span>
+                                <div className="review-left">
+                                    <span className="review-avatar" aria-hidden="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="8" r="4" fill="currentColor" opacity="0.6" />
+                                            <path d="M4 20c1.6-4 5-6 8-6s6.4 2 8 6" fill="currentColor" opacity="0.35" />
+                                        </svg>
+                                    </span>
+                                    <span className="review-from">
+                                        {review.fromUsername}
+                                    </span>
+                                    <span className="review-rating">
+                                        <span className="review-stars" aria-hidden="true">{"★".repeat(review.rating)}</span>
+                                    </span>
+                                </div>
                                 <span className="review-date">
                                     {formatDate(review.createdAt)}
                                 </span>
@@ -106,7 +116,7 @@ export default function GuideReviewsSection({ guideId }) {
 
                         <div className="review-itinerary">
                             <span className="review-itinerary-label">
-                                {review.itineraryTitle}
+                                from itinerary: {review.itineraryTitle}
                             </span>
                         </div>
 

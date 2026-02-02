@@ -36,3 +36,11 @@ async function request(url, options = {}) {
 export function getMyProfile() {
   return request(`${API_BASE_URL}/api/profile/me`);
 }
+
+export function getGuideProfile(id) {
+  return request(`${API_BASE_URL}/api/profile/guides/${id}`);
+}
+
+export function getTouristProfile(id) {
+  return request(`${API_BASE_URL}/api/profile/tourists/${id}`);
+}

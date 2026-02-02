@@ -14,7 +14,8 @@ import {
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import "./GuideProfilePage.css";
 
-import { getMyProfile } from "../services/userService";
+import { getGuideProfile, getMyProfile } from "../services/userService";
+import { getGamificationSummaryByUserId } from "../services/gamificationService";
 import MyBadgesSection from "../components/badges/MyBadgesSection";
 import GuideReviewsSection from "../components/guides/GuideReviewsSection";
 
@@ -157,19 +158,14 @@ export default function GuideProfilePage() {
   const [ratingInfo, setRatingInfo] = useState(null);
   const [ratingLoading, setRatingLoading] = useState(false);
 
+  const [publicGami, setPublicGami] = useState(null);
+  const [publicGamiLoading, setPublicGamiLoading] = useState(false);
+  const [publicGamiErr, setPublicGamiErr] = useState("");
+
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
 
   const [selectedBadge, setSelectedBadge] = useState(null);
-
-  async function loadProfile() {
-    try {
-      const data = await getMyProfile();
-      setProfile(data || null);
-    } catch {
-      setProfile(null);
-    }
-  }
 
   async function refreshItineraries() {
     if (!isOwner) return;
@@ -189,7 +185,9 @@ export default function GuideProfilePage() {
           const data = await getMyItineraries(userId);
           if (!alive) return;
           setItineraries(Array.isArray(data) ? data : []);
-          loadProfile();
+          const prof = await getMyProfile().catch(() => null);
+          if (!alive) return;
+          setProfile(prof || null);
           return;
         }
 
@@ -204,7 +202,9 @@ export default function GuideProfilePage() {
           });
 
           setItineraries(mine);
-          setProfile(null);
+          const prof = await getGuideProfile(viewedGuideId).catch(() => null);
+          if (!alive) return;
+          setProfile(prof || null);
           return;
         }
 
@@ -253,8 +253,40 @@ export default function GuideProfilePage() {
     };
   }, [viewedGuideId, userId]);
 
-  const email = isOwner ? profile?.email || "—" : "—";
-  const phone = isOwner ? profile?.phone || profile?.phoneNumber || "—" : "—";
+  useEffect(() => {
+    if (!isPublicView) return;
+
+    let alive = true;
+
+    async function loadPublicGami() {
+      try {
+        setPublicGamiLoading(true);
+        setPublicGamiErr("");
+        const data = await getGamificationSummaryByUserId(viewedGuideId);
+        if (!alive) return;
+        setPublicGami(data || null);
+      } catch (e) {
+        if (!alive) return;
+        setPublicGamiErr(e?.message || "Failed to load gamification");
+        setPublicGami(null);
+      } finally {
+        if (!alive) return;
+        setPublicGamiLoading(false);
+      }
+    }
+
+    loadPublicGami();
+    return () => {
+      alive = false;
+    };
+  }, [isPublicView, viewedGuideId]);
+
+  const publicCreator = itineraries?.[0]?.creator || {};
+  const email = (isOwner ? profile?.email : (profile?.email || publicCreator?.email)) || "—";
+  const phone =
+    (isOwner
+      ? profile?.phone || profile?.phoneNumber
+      : (profile?.phoneNumber || profile?.phone || publicCreator?.phone || publicCreator?.phoneNumber)) || "—";
 
   const getFirstLocation = (it) =>
     Array.isArray(it?.locations) && it.locations.length > 0 ? it.locations[0] : null;
@@ -379,13 +411,17 @@ export default function GuideProfilePage() {
 
   // ✅ adaptare DTO nou -> ce vrea GamificationCard-ul tău
   const gamiForCard = useMemo(() => {
-    if (!gami) return null;
+    const data = isOwner ? gami : publicGami;
+    if (!data) return null;
     return {
-      ...gami,
-      currentXp: gami?.currentXp ?? gami?.xp ?? 0,
-      xpForNextLevel: gami?.xpForNextLevel ?? gami?.nextLevelMinXp ?? null,
+      ...data,
+      currentXp: data?.currentXp ?? data?.xp ?? 0,
+      xpForNextLevel: data?.xpForNextLevel ?? data?.nextLevelMinXp ?? null,
     };
-  }, [gami]);
+  }, [gami, publicGami, isOwner]);
+
+  const gamiLoading_ = isOwner ? gamiLoading : publicGamiLoading;
+  const gamiErr_ = isOwner ? gamiErr : publicGamiErr;
 
   return (
     <div className="gp-page">
@@ -409,30 +445,29 @@ export default function GuideProfilePage() {
                 ) : ratingInfo && ratingInfo.totalReviews > 0 ? (
                   <>
                     <span className="gp-rating-value">
-                      {Number(ratingInfo.averageRating).toFixed(1)} ⭐
+                      {Number(ratingInfo.averageRating).toFixed(1)}
                     </span>
-                    <span className="gp-rating-count">
+                    <span className="gp-rating-star" aria-hidden="true">★</span>
+                    <a className="gp-rating-count" href="#guide-reviews">
                       ({ratingInfo.totalReviews} reviews)
-                    </span>
+                    </a>
                   </>
                 ) : (
                   <span className="gp-rating-text">No reviews yet</span>
                 )}
               </div>
 
-              {isOwner && (
-                <div className="gp-contact">
-                  <div className="gp-contact-item">
-                    <span className="gp-contact-label">Email</span>
-                    <span className="gp-contact-value">{email}</span>
-                  </div>
-                  <span className="gp-contact-dot">•</span>
-                  <div className="gp-contact-item">
-                    <span className="gp-contact-label">Phone</span>
-                    <span className="gp-contact-value">{phone}</span>
-                  </div>
+              <div className="gp-contact">
+                <div className="gp-contact-item">
+                  <img src="/mail.png" alt="Email" className="gp-contact-icon" />
+                  <span className="gp-contact-value">{email}</span>
                 </div>
-              )}
+                <span className="gp-contact-dot">•</span>
+                <div className="gp-contact-item">
+                  <img src="/phone.png" alt="Phone" className="gp-contact-icon" />
+                  <span className="gp-contact-value">{phone}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -454,17 +489,16 @@ export default function GuideProfilePage() {
           </div>
         </div>
 
-        {/* Gamification (owner only) */}
-        {isOwner && (
-          <div className="gp-header-gamification">
-            <GamificationCard
-              summary={gamiForCard}
-              loading={gamiLoading}
-              error={gamiErr}
-              isMock={false}
-            />
-          </div>
-        )}
+        {/* Gamification */}
+        <div className="gp-header-gamification">
+          <GamificationCard
+            summary={gamiForCard}
+            loading={gamiLoading_}
+            error={gamiErr_}
+            showLabel={isOwner}
+            isMock={false}
+          />
+        </div>
       </section>
 
       {isOwner && (
@@ -544,54 +578,66 @@ export default function GuideProfilePage() {
 
               const canShowOwnerActions = !isPublicView;
 
+              const imageUrl = it.imageBase64
+                ? it.imageBase64.startsWith("data:")
+                  ? it.imageBase64
+                  : `data:image/jpeg;base64,${it.imageBase64}`
+                : "https://via.placeholder.com/180x140?text=Itinerary";
+
               return (
                 <article key={it.id} className="gp-itin-row">
+                  <div className="gp-itin-image">
+                    <img src={imageUrl} alt={title} />
+                  </div>
+
                   <div className="gp-itin-left">
                     <div className="gp-itin-row-top">
                       <div className="gp-itin-title-wrap">
                         <h3 className="gp-itin-title" title={title}>
                           {title}
                         </h3>
-                        <span className={`gp-status-badge ${statusClass(it.status)}`}>
-                          {statusLabel(it.status)}
-                        </span>
                       </div>
+                      
+                      {canShowOwnerActions && perms.showEditDelete && (
+                        <div className="gp-itin-actions-inline">
+                          {perms.canEdit && (
+                            <button className="gp-btn" onClick={() => handleEditOpen(it)}>
+                              Edit
+                            </button>
+                          )}
+                          {perms.canDelete && (
+                            <button className="gp-btn gp-btn-danger" onClick={() => handleDelete(it.id)}>
+                              Delete
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <div className="gp-itin-meta">
                       <div className="gp-meta-line">
                         <PinIcon />
-                        <span>
-                          <b>Location:</b> {location}
-                        </span>
+                        <span><b>{location}</b></span>
                       </div>
+                    </div>
 
+                    <div className="gp-itin-bottom-row">
                       <div className="gp-meta-line">
                         <CalendarIcon />
                         <span>
                           {formatDate(it.startDate)} → {formatDate(it.endDate)}
                         </span>
                       </div>
+                      
+                      <button className="gp-btn gp-btn-primary" onClick={() => navigate(`/itineraries/${it.id}`)}>
+                        View
+                      </button>
                     </div>
                   </div>
 
-                  <div className="gp-itin-actions-right">
-                    <button className="gp-btn gp-btn-primary" onClick={() => navigate(`/itineraries/${it.id}`)}>
-                      View
-                    </button>
-
-                    {canShowOwnerActions && perms.showEditDelete && perms.canEdit && (
-                      <button className="gp-btn" onClick={() => handleEditOpen(it)}>
-                        Edit
-                      </button>
-                    )}
-
-                    {canShowOwnerActions && perms.showEditDelete && perms.canDelete && (
-                      <button className="gp-btn gp-btn-danger" onClick={() => handleDelete(it.id)}>
-                        Delete
-                      </button>
-                    )}
-                  </div>
+                  <span className={`gp-status-badge ${statusClass(it.status)}`}>
+                    {statusLabel(it.status)}
+                  </span>
                 </article>
               );
             })}
