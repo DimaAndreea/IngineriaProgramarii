@@ -1,3 +1,19 @@
+/* Forțează dropdown-urile din MissionCreateForm să fie negre, indiferent de .ms-input */
+.mission-create-form select.ms-input,
+.mission-create-form select.ms-input option {
+  color: #111 !important;
+  background: #fff !important;
+}
+/* Dropdown select fix for create mission */
+.mission-create-form select,
+.mission-create-form select option {
+  color: #111 !important;
+  background: #fff;
+}
+.mission-create-form select:focus,
+.mission-create-form select:hover {
+  color: #111 !important;
+}
 /* Color Variables */
 :root {
   --purple-darkest: #0b1230;
@@ -363,6 +379,7 @@
 
 .ms-input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .ms-input::placeholder,
@@ -504,4 +521,47 @@
   .ms-row {
     grid-template-columns: 1fr;
   }
+}
+
+/* Modern role badge (no pill bg, with border, keep size/position) */
+.mr-role-badge {
+  background: none !important;
+  border: 1.5px solid #90d5ff !important; /* pastel purple */
+  color: #90d5ff !important; /* pastel purple */
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 999px; /* pill style */
+  padding: 6px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 0 8px 1.5px #dab1da33, 0 0 0.5px 0.5px #fff8; /* subtle glow, pastel purple */
+  min-width: 0;
+  min-height: 0;
+  line-height: 1.2;
+  text-shadow: 0 0 4px #dab1da66, 0 0 1px #fff8;
+}
+
+.mr-role-badge-absolute {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+
+.mr-role-badge-float-right {
+  margin-left: auto;
+}
+
+.mr-mission-xp, .mr-mission-reward, .mr-mission-voucher, .mr-mission-xp span, .mr-mission-reward span, .mr-mission-voucher span {
+  color: #74eca8 !important;
+}
+
+.mr-reward-label-horizontal,
+.mr-reward-title-horizontal,
+.mr-reward-xp-horizontal span,
+.mr-reward-label,
+.mr-reward-title,
+.mr-reward-xp span {
+  color: #74eca8 !important;
 }

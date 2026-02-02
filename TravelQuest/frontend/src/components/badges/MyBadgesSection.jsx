@@ -96,8 +96,6 @@ export default function MyBadgesSection({ onSelectedChange, defaultOpen = true }
       await refreshBadges({ notifyParent: true });
       setErr("");
 
-      // UX: dacă userul a selectat ceva, poți să colapsezi automat
-      setOpen(false);
     } catch (e) {
       alert(e?.message || "Failed to update selected badge");
     }

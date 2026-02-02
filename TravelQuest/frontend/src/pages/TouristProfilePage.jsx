@@ -438,11 +438,58 @@ export default function TouristProfilePage() {
           </div>
 
           <div className="tourist-header-right">
-            {selectedBadgeName ? <PrettyBadgeIcon /> : null}
-            <div>
-              <div className="badge-kicker">Visible badge</div>
-              <div className="badge-name">{selectedBadgeName || "None selected"}</div>
-            </div>
+            {selectedBadgeName ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, paddingRight: 32 }}>
+                {(() => {
+                  let badgeId = null;
+                  if (isOwnerMode && selectedBadge) badgeId = selectedBadge.id;
+                  else if (!isOwnerMode && Array.isArray(profile?.badges)) {
+                    // Pentru public: caută badge-ul selectat direct din badges
+                    const selected = profile.badges.find(b => b.selected);
+                    if (selected) badgeId = selected.id;
+                  } else if (!isOwnerMode && profile?.selectedBadge?.id) {
+                    badgeId = profile.selectedBadge.id;
+                  }
+                  // Try to find the badge object for visitors for correct PNG mapping
+                  let badgeObj = null;
+                  if (!isOwnerMode && profile?.badges && badgeId) {
+                    badgeObj = profile.badges.find(b => b.id === badgeId);
+                  }
+                  const pngId = badgeObj ? badgeObj.id : badgeId;
+                  if (pngId) {
+                    return (
+                      <img
+                        src={`/${((pngId - 1) % 4) + 1}.png`}
+                        alt="badge icon"
+                        className="badge-icon-img"
+                        style={{ width: 80, height: 80 }}
+                      />
+                    );
+                  } else {
+                    // DEBUG vizual pentru public: vezi ce primești
+                    return (
+                      <div style={{textAlign:'center'}}>
+                        <PrettyBadgeIcon size={80} />
+                        <div style={{color:'#e11d48',fontSize:13,marginTop:8}}>
+                          <b>Badge public lipsă PNG</b><br/>
+                          selectedBadge: {typeof profile?.selectedBadge !== 'undefined' ? JSON.stringify(profile.selectedBadge) : 'undefined'}<br/>
+                          badges: {Array.isArray(profile?.badges) ? profile.badges.length : 'none'}<br/>
+                          <details style={{marginTop:4}}>
+                            <summary style={{cursor:'pointer'}}>Vezi badges JSON</summary>
+                            <pre style={{fontSize:11,maxWidth:320,overflowX:'auto',background:'#fff',color:'#222',padding:6,borderRadius:4}}>{JSON.stringify(profile?.badges,null,2)}</pre>
+                          </details>
+                        </div>
+                      </div>
+                    );
+                  }
+                })()}
+                <div className="badge-name" style={{ marginTop: 10 }}>{selectedBadgeName}</div>
+              </div>
+            ) : (
+              <div>
+                <div className="badge-name">None selected</div>
+              </div>
+            )}
           </div>
         </div>
 

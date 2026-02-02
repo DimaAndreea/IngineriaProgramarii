@@ -7,7 +7,6 @@
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, rgba(11, 18, 48, 0.5) 0%, rgba(35, 35, 90, 0.5) 100%);
-}
 
 .mr-container {
   width: 90%;
@@ -134,11 +133,11 @@
 
 .mr-info-modal {
   position: relative;
-  width: min(560px, calc(100% - 32px));
+  width: min(700px, calc(100% - 16px));
   background: rgba(20, 27, 69, 0.95);
   border: 1px solid rgba(162, 152, 239, 0.4);
   border-radius: 18px;
-  padding: 24px 24px 20px;
+  padding: 36px 36px 28px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
   color: rgba(255, 255, 255, 0.95);
 }
@@ -165,14 +164,14 @@
 
 .mr-info-title {
   margin: 0 0 8px;
-  font-size: 18px;
+  font-size: 26px;
   font-weight: 900;
 }
 
 .mr-info-text {
   margin: 0 0 12px;
   color: rgba(255, 255, 255, 0.75);
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
 }
 
@@ -182,7 +181,7 @@
   display: grid;
   gap: 8px;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.45;
 }
 
@@ -441,20 +440,41 @@
 
 /* Role Badge */
 .mr-role-badge {
-  font-weight: 800;
-  font-size: 11px;
-  padding: 6px 12px;
-  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+  padding: 7px 18px;
+  border-radius: 16px;
   white-space: nowrap;
-  background: rgba(154, 214, 92, 0.22);
-  border: 1px solid rgba(154, 214, 92, 0.45);
-  color: #9ad65c;
+  background: linear-gradient(90deg, #a18cd1 0%, #fbc2eb 100%);
+  border: none;
+  color: #232946;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  text-shadow: 0 0 6px rgba(154, 214, 92, 0.6);
+  gap: 8px;
+  box-shadow: 0 2px 12px 0 rgba(161,140,209,0.10), 0 1.5px 4px 0 rgba(251,194,235,0.10);
+  transition: background 0.2s, color 0.2s;
+  z-index: 2;
+}
+.mr-role-badge-absolute {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  margin: 0;
+}
+.mr-role-badge[data-role="TOURIST"] {
+  background: linear-gradient(90deg, #9ad65c 0%, #b6e388 100%);
+  color: #1a3a1a;
+}
+.mr-role-badge[data-role="GUIDE"] {
+  background: linear-gradient(90deg, #7ed6df 0%, #e0eafc 100%);
+  color: #1b2a3a;
+}
+.mr-role-badge[data-role="ADMIN"] {
+  background: linear-gradient(90deg, #f7971e 0%, #ffd200 100%);
+  color: #4a2c00;
+}
 }
 
 /* Rewards */
@@ -523,13 +543,17 @@
 .mr-reward-card {
   flex-shrink: 0;
   width: 300px;
-  border: 1px solid rgba(162, 152, 239, 0.3);
+  border: 1px solid rgba(168, 183, 201, 0.35);
   border-radius: 20px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(20px);
+  padding: 28px 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(98, 82, 164, 0.6) 0%,
+    rgba(76, 92, 142, 0.5) 100%
+  );
+  backdrop-filter: blur(22px);
   transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
 }

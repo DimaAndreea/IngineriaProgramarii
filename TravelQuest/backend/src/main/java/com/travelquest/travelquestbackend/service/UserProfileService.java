@@ -2,17 +2,23 @@ package com.travelquest.travelquestbackend.service;
 
 import com.travelquest.travelquestbackend.dto.UserProfileDto;
 import com.travelquest.travelquestbackend.model.User;
+
 import com.travelquest.travelquestbackend.model.UserRole;
 import com.travelquest.travelquestbackend.repository.UserRepository;
+import com.travelquest.travelquestbackend.service.BadgeProfileService;
+import com.travelquest.travelquestbackend.dto.MyBadgeDto;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserProfileService {
 
     private final UserRepository userRepository;
+    private final BadgeProfileService badgeProfileService;
 
-    public UserProfileService(UserRepository userRepository) {
+    public UserProfileService(UserRepository userRepository, BadgeProfileService badgeProfileService) {
         this.userRepository = userRepository;
+        this.badgeProfileService = badgeProfileService;
     }
 
     public UserProfileDto getMyProfile(User loggedUser) {
@@ -61,12 +67,14 @@ public class UserProfileService {
     }
 
     private UserProfileDto mapToDto(User user) {
+        List<MyBadgeDto> badges = badgeProfileService.getMyBadges(user.getId());
         return new UserProfileDto(
                 user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getPhoneNumber(),
-                user.getRole()
+                user.getRole(),
+                badges
         );
     }
 }
