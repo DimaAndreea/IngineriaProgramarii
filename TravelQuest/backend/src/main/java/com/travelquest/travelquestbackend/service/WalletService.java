@@ -19,19 +19,22 @@ public class WalletService {
     private final ItineraryParticipantRepository itineraryParticipantRepository;
     private final ItineraryRepository itineraryRepository;
     private final UserRepository userRepository;
+    private final PointsService pointsService;
 
     public WalletService(WalletRepository walletRepository,
                          WalletTransactionRepository walletTransactionRepository,
                          ItineraryPurchaseRepository itineraryPurchaseRepository,
                          ItineraryParticipantRepository itineraryParticipantRepository,
                          ItineraryRepository itineraryRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         PointsService pointsService) {
         this.walletRepository = walletRepository;
         this.walletTransactionRepository = walletTransactionRepository;
         this.itineraryPurchaseRepository = itineraryPurchaseRepository;
         this.itineraryParticipantRepository = itineraryParticipantRepository;
         this.itineraryRepository = itineraryRepository;
         this.userRepository = userRepository;
+        this.pointsService = pointsService;
     }
 
     @Transactional
@@ -119,6 +122,12 @@ public class WalletService {
                 p.setTourist(tourist);
                 p.setJoinedAt(ZonedDateTime.now());
                 itineraryParticipantRepository.save(p);
+                
+                // Award XP to guide when tourist joins
+                User guide = itinerary.getCreator();
+                if (guide != null && guide.getRole() == UserRole.GUIDE) {
+                    pointsService.addPointsForItineraryJoinedGuide(guide.getId(), itinerary.getId());
+                }
             }
             BigDecimal bal = getBalance(touristId);
             return new BuyResponse("Payment already completed. You are enrolled.", bal);
@@ -182,6 +191,12 @@ public class WalletService {
             participant.setTourist(tourist);
             participant.setJoinedAt(ZonedDateTime.now());
             itineraryParticipantRepository.save(participant);
+            
+            // Award XP to guide when tourist joins
+            User guide = itinerary.getCreator();
+            if (guide != null && guide.getRole() == UserRole.GUIDE) {
+                pointsService.addPointsForItineraryJoinedGuide(guide.getId(), itinerary.getId());
+            }
         }
 
         return new BuyResponse("Payment successful! ✅", wallet.getBalanceRon());

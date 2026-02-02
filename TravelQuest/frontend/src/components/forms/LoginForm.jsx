@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Loader from "../common/Loader";
 import "./LoginForm.css";
 import { useAuth } from "../../context/AuthContext";
 
@@ -140,7 +141,7 @@ export default function LoginForm() {
             {errors.password && <p className="error">{errors.password}</p>}
 
             <button className="login-btn" disabled={loading}>
-                {loading ? "Loading..." : "LOG IN"}
+                {loading ? <Loader label="" size={16} /> : "LOG IN"}
             </button>
 
             <p className="login-link">

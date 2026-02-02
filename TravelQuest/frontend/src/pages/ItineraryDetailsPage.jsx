@@ -9,6 +9,7 @@ import {
 } from "../services/itineraryService";
 import { getWalletBalance, purchaseItinerary, addFunds } from "../services/walletService";
 import { useAuth } from "../context/AuthContext";
+import Loader from "../components/common/Loader";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import PaymentModal from "../components/common/PaymentModal";
 import "./ItineraryDetailsPage.css";
@@ -156,7 +157,7 @@ export default function ItineraryDetailsPage() {
     }
   }
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) return <Loader label="Loading itinerary..." />;
   if (!itinerary) return <div className="error">Itinerary not found.</div>;
 
   const formatDate = (value) => {

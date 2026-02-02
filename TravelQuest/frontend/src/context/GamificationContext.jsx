@@ -15,6 +15,7 @@ import { useAuth } from "./AuthContext";
 const GamificationContext = createContext(null);
 
 const STORAGE_LAST_LEVEL_KEY = "gami_last_level_v1";
+const STORAGE_SHOWN_LEVEL_KEY = "gami_shown_level_v1";
 
 function readLastLevel() {
   try {
@@ -28,6 +29,21 @@ function readLastLevel() {
 function writeLastLevel(level) {
   try {
     localStorage.setItem(STORAGE_LAST_LEVEL_KEY, String(level));
+  } catch {}
+}
+
+function readShownLevel() {
+  try {
+    const n = Number(localStorage.getItem(STORAGE_SHOWN_LEVEL_KEY));
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeShownLevel(level) {
+  try {
+    localStorage.setItem(STORAGE_SHOWN_LEVEL_KEY, String(level));
   } catch {}
 }
 
@@ -96,8 +112,7 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
   const debounceRef = useRef(null);
   const lastFetchAtRef = useRef(0);
 
-  const lastLevelRef = useRef(readLastLevel());
-
+  const lastLevelRef = useRef(readLastLevel());  const shownLevelRef = useRef(readShownLevel());
   // păstrăm ultima versiune “egală” ca să nu setăm state dacă nu s-a schimbat nimic
   const lastKeyRef = useRef("");
 
@@ -134,8 +149,16 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
 
         if (Number.isFinite(next)) {
           if (Number.isFinite(prev) && next > prev) {
-            setLevelUpTo(next);
-            setLevelUpOpen(true);
+            // Level-up detected! Check if we've already shown notification for this level
+            const shownLevel = Number(shownLevelRef.current);
+            
+            // Only show notification if we haven't already shown it for this level
+            if (next !== shownLevel) {
+              setLevelUpTo(next);
+              setLevelUpOpen(true);
+              writeShownLevel(next);
+              shownLevelRef.current = next;
+            }
           }
           lastLevelRef.current = next;
           writeLastLevel(next);
