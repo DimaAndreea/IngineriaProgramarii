@@ -6,17 +6,45 @@ export default function MissionListTourist({
   submissionsByMission = {},
   onMakeSubmission,
 }) {
-  const getStatusLabel = (status) => {
+  const getStatusIcon = (status) => {
     const normalizedStatus = String(status).toUpperCase();
-    if (!normalizedStatus) return "No submission yet";
+    
+    if (normalizedStatus === "APPROVED") {
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      );
+    }
+    if (normalizedStatus === "REJECTED") {
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      );
+    }
+    if (normalizedStatus === "PENDING") {
+      return (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+          <path d="M12 6V12L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+      );
+    }
+    return null;
+  };
+
+  const getStatusLabel = (status) => {
+    if (status === null || status === undefined || status === "") return "";
+    const normalizedStatus = String(status).toUpperCase();
     if (normalizedStatus === "APPROVED") return "Approved";
     if (normalizedStatus === "REJECTED") return "Rejected";
-    return "Pending review";
+    return "Pending";
   };
 
   const getStatusClass = (status) => {
+    if (status === null || status === undefined || status === "") return "";
     const normalizedStatus = String(status).toUpperCase();
-    if (!normalizedStatus) return "no-submission";
     if (normalizedStatus === "APPROVED") return "approved";
     if (normalizedStatus === "REJECTED") return "rejected";
     return "pending";
@@ -38,12 +66,26 @@ export default function MissionListTourist({
 
         return (
           <div key={missionId} className="tourist-mission-card">
-            <div className="tourist-mission-header">
-              <h3 className="tourist-mission-text">{missionLabel}</h3>
-
-              <span className={`tourist-submission-badge ${getStatusClass(status)}`}>
+            {alreadySubmitted && (
+              <span className={`tourist-submission-stamp ${getStatusClass(status)}`}>
+                {getStatusIcon(status)}
                 {getStatusLabel(status)}
               </span>
+            )}
+
+            <div className="tourist-mission-header">
+              <div className="tourist-mission-title-section">
+                <h3 className="tourist-mission-text">{missionLabel}</h3>
+              </div>
+
+              <button
+                className="make-submission-btn"
+                onClick={() => onMakeSubmission(mission)}
+                disabled={alreadySubmitted}
+                title={alreadySubmitted ? "You already submitted a photo." : ""}
+              >
+                {alreadySubmitted ? "Already submitted" : "Make submission"}
+              </button>
             </div>
 
             {latestSubmission?.image && (
@@ -55,17 +97,6 @@ export default function MissionListTourist({
                 />
               </div>
             )}
-
-            <div className="tourist-mission-actions">
-              <button
-                className="make-submission-btn"
-                onClick={() => onMakeSubmission(mission)}
-                disabled={alreadySubmitted}
-                title={alreadySubmitted ? "You already submitted a photo." : ""}
-              >
-                {alreadySubmitted ? "Already submitted" : "Make submission"}
-              </button>
-            </div>
           </div>
         );
       })}

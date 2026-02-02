@@ -10,9 +10,12 @@ export default function ProgressBar({ stages = [], currentStage = 0 }) {
     return `Step ${index + 1}`;
   };
 
+  const progressPercentage = stages.length > 1 ? (currentStage / (stages.length - 1)) * 100 : 0;
+
   return (
     <div className="progress-wrapper">
       <div className="progress-line"></div>
+      <div className="progress-line-fill" style={{ width: `${progressPercentage}%` }}></div>
 
       <div className="steps">
         {stages.map((stage, index) => (

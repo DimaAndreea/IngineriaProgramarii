@@ -16,12 +16,45 @@ function Confetti({ active }) {
   const reduce = usePrefersReducedMotion();
   if (!active || reduce) return null;
 
-  const pieces = Array.from({ length: 28 });
+  const pieces = Array.from({ length: 180 }).map((_, i) => {
+    // Random start position across entire viewport
+    const startX = Math.random() * 100; // 0-100vw
+    const startY = Math.random() * 100; // 0-100vh (full height)
+    
+    // Random end position (fall down and spread sideways)
+    const endX = (Math.random() - 0.5) * 240; // -120px to +120px horizontal drift
+    const endY = Math.random() * 400 + 300; // 300-700px downward
+    
+    // Random rotation
+    const rotation = Math.random() * 720; // 0-720 degrees
+    
+    return {
+      startX,
+      startY,
+      endX,
+      endY,
+      rotation,
+      delay: Math.random() * 300, // staggered random delays
+      duration: 2400 + Math.random() * 1400, // 2.4-3.8 seconds
+    };
+  });
 
   return (
     <div className="lvc-confetti" aria-hidden="true">
-      {pieces.map((_, i) => (
-        <span key={i} className="lvc-confetti-piece" style={{ "--i": i }} />
+      {pieces.map((piece, i) => (
+        <span 
+          key={i} 
+          className="lvc-confetti-piece" 
+          style={{ 
+            "--startX": `${piece.startX}vw`,
+            "--startY": `${piece.startY}vh`,
+            "--endX": `${piece.endX}px`,
+            "--endY": `${piece.endY}px`,
+            "--rotation": `${piece.rotation}deg`,
+            "--delay": `${piece.delay}ms`,
+            "--duration": `${piece.duration}ms`,
+          }} 
+        />
       ))}
     </div>
   );
@@ -64,13 +97,9 @@ export default function LevelUpCelebration({
       <Confetti active={open} />
 
       <div className="lvc-modal">
-        <div className="lvc-badge" aria-hidden="true">
-          ✨
-        </div>
-
         <h3 className="lvc-title">Congratulations!</h3>
         <p className="lvc-text">
-          You've leveled up to <b>{newLevel}</b>!
+          You've leveled up to <b>Level {newLevel}</b>!
         </p>
 
         <button className="lvc-close" onClick={onClose} type="button">

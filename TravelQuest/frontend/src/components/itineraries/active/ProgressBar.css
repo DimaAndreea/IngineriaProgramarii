@@ -7,12 +7,24 @@
 .progress-line {
     position: absolute;
     top: 23px;
-    left: 0;
-    right: 0;
-    margin: 0 21px; 
+    left: 21px;
+    right: 21px;
     height: 3px;
-    background: #e2e2e2;
+    background: rgba(162, 152, 239, 0.2);
     z-index: 0;
+}
+
+.progress-line-fill {
+    position: absolute;
+    top: 23px;
+    left: 21px;
+    height: 3px;
+    background: linear-gradient(90deg, #7a5aa7 0%, rgba(162, 152, 239, 0.8) 100%);
+    box-shadow: 0 0 8px rgba(122, 90, 167, 0.6);
+    z-index: 1;
+    transition: width 0.5s ease;
+    border-radius: 2px;
+    max-width: calc(100% - 42px);
 }
 
 .steps {
@@ -25,23 +37,31 @@
 .step-circle {
     width: 42px;
     height: 42px;
-    background: #dcdcdc;
+    background: rgba(162, 152, 239, 0.15);
+    border: 2px solid rgba(162, 152, 239, 0.3);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
+    color: rgba(162, 152, 239, 0.7);
+    transition: all 0.3s ease;
 }
 
 .step-circle.active {
-    background: #4b7cff;
+    background: #7a5aa7;
     color: white;
+    border-color: rgba(122, 90, 167, 0.7);
+    box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45);
+    font-weight: 900;
 }
 
 .step-circle.done {
-    background: #9eb7ff;
+    background: rgba(162, 152, 239, 0.5);
     color: white;
+    border-color: rgba(162, 152, 239, 0.6);
+    box-shadow: 0 4px 12px rgba(162, 152, 239, 0.3);
 }
 
 .step-label {
@@ -49,6 +69,13 @@
     display: block;
     margin-top: 8px;
     font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 700;
+}
+
+.step-circle.active + .step-label {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 900;
 }
 
 .step-item {

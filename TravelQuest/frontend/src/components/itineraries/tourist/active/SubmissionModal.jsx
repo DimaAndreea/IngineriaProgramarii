@@ -58,6 +58,11 @@ export default function SubmissionModal({ mission, onClose, onSubmit }) {
 
         <form onSubmit={handleSubmit} className="submission-form">
           <label className="file-input-label">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 16V4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <path d="M8 8L12 4L16 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 16V20H20V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             <span>Choose image</span>
             <input type="file" accept="image/*" onChange={handleFileChange} />
           </label>

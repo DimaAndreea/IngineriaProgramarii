@@ -260,8 +260,11 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
       refreshing,
       error: err,
       refresh: () => refresh({ silent: false }), // manual “non-silent”
-      requestRefresh, // debounced / silent
-    };
+      requestRefresh, // debounced / silent      // TEST: trigger manual level up pentru vizualizare
+      triggerTestLevelUp: (level) => {
+        setLevelUpTo(level);
+        setLevelUpOpen(true);
+      },    };
   }, [summary, initialLoading, refreshing, err]);
 
   return (

@@ -1,19 +1,31 @@
 .missions-container {
     margin-top: 40px;
+    max-width: 1500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .section-title {
     font-size: 26px;
     margin-bottom: 20px;
-    font-weight: 600;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .mission-item {
-    background: #fff;
-    padding: 18px;
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    padding: 20px;
+    border-radius: 16px;
     margin-bottom: 18px;
-    border: 1px solid #eee;
+    border: 1px solid rgba(162, 152, 239, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.mission-item:hover {
+    border-color: rgba(162, 152, 239, 0.5);
+    box-shadow: 0 12px 40px rgba(125, 111, 230, 0.2);
 }
 
 .mission-header {
@@ -24,81 +36,149 @@
 
 .mission-text {
     font-size: 17px;
-    font-weight: 500;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .toggle-submissions-btn {
-    background: #4b7cff;
+    background: #7a5aa7;
     color: white;
-    padding: 7px 16px;
-    border: none;
-    border-radius: 6px;
+    padding: 8px 18px;
+    border: 1px solid rgba(122, 90, 167, 0.7);
+    border-radius: 999px;
     cursor: pointer;
-    transition: .2s;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .toggle-submissions-btn:hover {
-    background: #3a66dd;
+    background: #8b6ab8;
+    border-color: rgba(122, 90, 167, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(122, 90, 167, 0.6);
 }
 
 .submissions-panel {
     margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
+    padding-top: 15px;
+    border-top: 1px solid rgba(162, 152, 239, 0.2);
 }
 
 .submission-row {
     display: flex;
     align-items: center;
-    padding: 8px 0;
+    padding: 10px 12px;
     gap: 12px;
+    border-radius: 10px;
+    background: rgba(162, 152, 239, 0.1);
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.submission-row:hover {
+    background: rgba(162, 152, 239, 0.15);
 }
 
 .submission-avatar {
     width: 32px;
     height: 32px;
     border-radius: 50%;
+    background: linear-gradient(135deg, rgba(98, 82, 164, 0.3) 0%, rgba(76, 92, 142, 0.25) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(162, 152, 239, 0.9);
 }
 
 .submission-name {
     flex: 1;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .submission-view-btn {
-    background: #eee;
-    border: none;
-    padding: 6px 14px;
-    border-radius: 6px;
+    background: rgba(162, 152, 239, 0.3);
+    border: 1.5px solid rgba(162, 152, 239, 0.5);
+    padding: 8px 20px;
+    border-radius: 999px;
     cursor: pointer;
-    transition: .2s;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.95);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 16px rgba(162, 152, 239, 0.3);
 }
 
 .submission-view-btn:hover {
-    background: #ddd;
+    background: rgba(162, 152, 239, 0.45);
+    border-color: rgba(162, 152, 239, 0.7);
+    color: white;
+    box-shadow: 0 6px 20px rgba(162, 152, 239, 0.5);
+    transform: translateY(-1px);
 }
 
 .submission-status {
-    margin-left: auto;
-    margin-right: 12px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    font-size: 13px;
-    background: #f3f4f6;
-    color: #4b5563;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    padding: 8px 14px;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 900;
+    background: rgba(162, 152, 239, 0.2);
+    color: rgba(162, 152, 239, 0.95);
+    border: 2.5px solid rgba(162, 152, 239, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(162, 152, 239, 0.2);
 }
 
 .submission-status.approved {
-    background: #e6f6ec;
-    color: #15803d;
+    background: rgba(34, 197, 94, 0.2);
+    color: #4ade80;
+    border: 2.5px solid rgba(34, 197, 94, 0.6);
+    text-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
 }
 
 .submission-status.rejected {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.2);
+    color: #ff6b6b;
+    border: 2.5px solid rgba(239, 68, 68, 0.6);
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
 }
 
 .submission-status.pending {
-    background: #e5e7eb;
-    color: #4b5563;
+    background: rgba(212, 169, 86, 0.2);
+    color: #d4a956;
+    border: 2.5px solid rgba(212, 169, 86, 0.6);
+    text-shadow: 0 0 8px rgba(212, 169, 86, 0.5);
+    box-shadow: 0 4px 16px rgba(212, 169, 86, 0.3);
+}
+}
+
+
+.submission-status.pending {
+    background: rgba(180, 151, 59, 0.2);
+    color: #d4a956;
+    border: 1.5px solid rgba(180, 151, 59, 0.4);
+    text-shadow: 0 0 8px rgba(180, 151, 59, 0.5);
+    box-shadow: 0 4px 12px rgba(180, 151, 59, 0.2);
 }

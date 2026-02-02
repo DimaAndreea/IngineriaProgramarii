@@ -1,9 +1,11 @@
 import { useAuth } from "../context/AuthContext";
+import { useGamification } from "../context/GamificationContext";
 import { useNavigate } from "react-router-dom";
 import "./HomePage.css";
 
 export default function HomePage() {
     const { role } = useAuth();
+    const { triggerTestLevelUp } = useGamification();
     const navigate = useNavigate();
 
     function handleCreateClick() {
@@ -32,6 +34,15 @@ export default function HomePage() {
                     Create Itinerary
                 </button>
             )}
+
+            {/* TEST BUTTON - Remove later */}
+            <button
+                className="create-itinerary-btn"
+                onClick={() => triggerTestLevelUp?.(5)}
+                style={{ marginTop: "20px", background: "#7a5aa7" }}
+            >
+                🎉 Test Level Up Notification
+            </button>
         </div>
     );
 }

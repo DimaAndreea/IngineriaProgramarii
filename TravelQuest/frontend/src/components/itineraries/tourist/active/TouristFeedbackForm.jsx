@@ -52,14 +52,18 @@ export default function TouristFeedbackForm({
               Guide: <GuideLink className="guide-link" />
             </span>
             <span className="feedback-stars">
-              {"⭐".repeat(existingFeedback.rating)}
+              {"★".repeat(existingFeedback.rating)}
+              {"☆".repeat(5 - existingFeedback.rating)}
             </span>
           </div>
           
           <p className="feedback-text">{existingFeedback.comment}</p>
           
           <p className="feedback-notice">
-            ✓ You have already submitted feedback for this itinerary.
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: "inline-block", marginRight: "6px", verticalAlign: "middle" }}>
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Thank you for your feedback!
           </p>
         </div>
       </div>
@@ -89,7 +93,7 @@ export default function TouristFeedbackForm({
                   onMouseEnter={() => !isSubmitting && setHoveredStar(star)}
                   onMouseLeave={() => !isSubmitting && setHoveredStar(0)}
                 >
-                  ⭐
+                  {star <= (hoveredStar || rating) ? "★" : "☆"}
                 </span>
               ))}
             </div>
