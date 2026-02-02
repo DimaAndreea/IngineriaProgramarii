@@ -12,7 +12,7 @@ public class ItineraryCategoryConverter implements AttributeConverter<ItineraryC
     }
 
     @Override
-    public ItineraryCategory convertToEntityAttribute(String dbValue) {
-        return dbValue != null ? ItineraryCategory.valueOf(dbValue) : null;
+    public ItineraryCategory convertToEntityAttribute(String dbData) {
+        return dbData != null ? ItineraryCategory.valueOf(dbData) : null;
     }
 }

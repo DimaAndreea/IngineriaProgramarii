@@ -55,11 +55,12 @@ public class MissionService {
             dto.setRole(mission.getRole());
             dto.setType(mission.getType());
             dto.setTarget(mission.getTargetValue());
-            dto.setStartAt(mission.getStartAt());
-            dto.setEndAt(mission.getEndAt());
 
             // Reward
             dto.setReward(mapRewardToDto(mission.getReward()));
+            // Setează datele de start și end
+            dto.setStartAt(mission.getStartAt());
+            dto.setEndAt(mission.getEndAt());
 
             // User-specific data
             if (userId != null) {
@@ -174,10 +175,10 @@ public class MissionService {
         RewardDto dto = new RewardDto();
         dto.setId(reward.getId());
         dto.setTitle(reward.getTitle());
-        dto.setDescription(reward.getDescription());
-        dto.setXpReward(reward.getXpReward());
         dto.setFromMissionTitle(reward.getMission() != null ? reward.getMission().getTitle() : null);
         dto.setClaimedAt(null); // claimedAt depinde de participarea utilizatorului
+        dto.setDescription(reward.getDescription());
+        dto.setXpReward(reward.getXpReward());
         return dto;
     }
 
@@ -190,12 +191,6 @@ public class MissionService {
         private String description;
         private String role;
         private String type;
-
-        @JsonProperty("start_at")
-        private LocalDateTime startAt;
-
-        @JsonProperty("end_at")
-        private LocalDateTime endAt;
         
         @JsonProperty("target_value")
         private int target;
@@ -207,6 +202,10 @@ public class MissionService {
         private String myStatus;
         
         private LocalDateTime claimedAt; // LocalDateTime compatibil cu backend
+        @JsonProperty("start_at")
+        private LocalDateTime startAt;
+        @JsonProperty("end_at")
+        private LocalDateTime endAt;
 
         private RewardDto reward;
 
@@ -221,10 +220,6 @@ public class MissionService {
         public void setRole(String role) { this.role = role; }
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
-        public LocalDateTime getStartAt() { return startAt; }
-        public void setStartAt(LocalDateTime startAt) { this.startAt = startAt; }
-        public LocalDateTime getEndAt() { return endAt; }
-        public void setEndAt(LocalDateTime endAt) { this.endAt = endAt; }
         public int getTarget() { return target; }
         public void setTarget(int target) { this.target = target; }
         public int getMyProgress() { return myProgress; }
@@ -233,6 +228,10 @@ public class MissionService {
         public void setMyStatus(String myStatus) { this.myStatus = myStatus; }
         public LocalDateTime getClaimedAt() { return claimedAt; }
         public void setClaimedAt(LocalDateTime claimedAt) { this.claimedAt = claimedAt; }
+        public LocalDateTime getStartAt() { return startAt; }
+        public void setStartAt(LocalDateTime startAt) { this.startAt = startAt; }
+        public LocalDateTime getEndAt() { return endAt; }
+        public void setEndAt(LocalDateTime endAt) { this.endAt = endAt; }
         public RewardDto getReward() { return reward; }
         public void setReward(RewardDto reward) { this.reward = reward; }
     }
@@ -261,13 +260,11 @@ public class MissionService {
         // TOURIST types
         types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_COUNT", 
             "Join itineraries", null));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_JOIN_ITINERARY_CATEGORY_COUNT",
             "Join itineraries of specific category", "category"));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_COUNT",
             "Get approved submissions", null));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_CATEGORY_COUNT", 
-            "Get approved submissions in category", "category"));
-        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT", 
+        types.add(createTypeMetadata("TOURIST", "TOURIST_APPROVED_SUBMISSIONS_SAME_ITINERARY_COUNT",
             "Get approved submissions in same itinerary", null));
         
         // GUIDE types

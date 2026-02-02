@@ -109,17 +109,24 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
           </div>
 
           <div className="mr-reward-horizontal">
-            <div className="mr-reward-content">
-              <span className="mr-reward-label-horizontal">Reward</span>
-              <div className="mr-reward-title-horizontal">
-                {getRewardLabel(mission)}
-              </div>
-              {mission?.reward?.xp_reward && (
-                <div className="mr-reward-xp-horizontal">
-                  <IconXP size={14} color="#9ad65c" />
-                  <span>{mission.reward.xp_reward} XP</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
+              <div className="mr-reward-content" style={{ flex: 1 }}>
+                <span className="mr-reward-label-horizontal">Reward</span>
+                <div className="mr-reward-title-horizontal">
+                  <span className="mr-reward-title-horizontal">{getRewardLabel(mission)}</span>
                 </div>
-              )}
+                {mission?.reward?.xp_reward && (
+                  <div className="mr-reward-xp-horizontal">
+                    <IconXP size={14} color="#9ad65c" />
+                    <span className="mr-reward-xp-horizontal">{mission.reward.xp_reward} XP</span>
+                  </div>
+                )}
+              </div>
+              <img
+                src="/coupon.png"
+                alt="Reward ticket"
+                style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover" }}
+              />
             </div>
           </div>
 
@@ -140,13 +147,13 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
 
   // Admin: vertical layout (existing)
   return (
-    <div className="mr-mission-card">
+    <div className="mr-mission-card" style={{ position: 'relative' }}>
       <div className="mr-mission-main">
         <div className="mr-mission-top">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <div className="mr-mission-title">{mission?.title || "Mission"}</div>
+          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', width: '100%' }}>
+            <div className="mr-mission-title" style={{ flex: '1 1 auto' }}>{mission?.title || "Mission"}</div>
             {mission?.role && (
-              <div className="mr-role-badge">
+              <div className="mr-role-badge" data-role={mission.role} style={{ marginLeft: 'auto' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="12" cy="8" r="4" />
                   <path d="M4 20c2.5-4 13.5-4 16 0" />
