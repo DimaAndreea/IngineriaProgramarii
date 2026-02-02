@@ -192,8 +192,8 @@
 }
 
 .payment-btn {
-  padding: 12px 24px;
-  border-radius: 8px;
+  padding: 12px 28px;
+  border-radius: 999px;
   font-size: 15px;
   font-weight: 600;
   border: none;
@@ -215,6 +215,7 @@
   background: rgba(162, 152, 239, 0.25);
   color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 12px rgba(162, 152, 239, 0.25);
+  transform: translateY(-2px);
 }
 
 .payment-btn-add-funds {
@@ -225,7 +226,7 @@
 
 .payment-btn-add-funds:hover:not(:disabled) {
   background: rgba(125, 111, 214, 0.65);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(125, 111, 214, 0.5);
 }
 
@@ -237,7 +238,7 @@
 
 .payment-btn-buy:hover:not(:disabled) {
   background: rgba(77, 217, 123, 0.8);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(77, 217, 123, 0.6);
 }
 

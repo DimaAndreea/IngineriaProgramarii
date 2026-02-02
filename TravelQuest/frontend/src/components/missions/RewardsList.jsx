@@ -1,5 +1,7 @@
+import Loader from "../common/Loader";
+
 export default function RewardsList({ rewards, loading }) {
-  if (loading) return <p className="mr-muted">Loading...</p>;
+  if (loading) return <Loader label="Loading rewards..." />;
   if (!rewards?.length) return <p className="mr-muted">No claimed rewards yet.</p>;
 
   return (

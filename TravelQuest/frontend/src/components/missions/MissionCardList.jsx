@@ -1,4 +1,5 @@
 import MissionMiniCard from "./MissionMiniCard";
+import Loader from "../common/Loader";
 
 export default function MissionCardList({
   missions,
@@ -8,7 +9,7 @@ export default function MissionCardList({
   onClaim,
   isAdmin = false,
 }) {
-  if (loading) return <p className="mr-muted">Loading...</p>;
+  if (loading) return <Loader label="Loading missions..." />;
   if (!missions?.length) return <p className="mr-muted">No missions available.</p>;
 
   return (

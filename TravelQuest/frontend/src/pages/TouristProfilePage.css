@@ -779,6 +779,7 @@
 }
 
 .add-funds-input[type="number"] {
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 

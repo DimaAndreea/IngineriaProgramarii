@@ -11,6 +11,7 @@ import {
   getGuideRating,
 } from "../services/itineraryService";
 
+import Loader from "../components/common/Loader";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
 import "./GuideProfilePage.css";
 
@@ -516,7 +517,7 @@ export default function GuideProfilePage() {
 
             <div className="gp-section-sub">
               {loading ? (
-                "Loading..."
+                <Loader label="" size={20} />
               ) : itineraryStats.mode === "owner" ? (
                 <>
                   <b>{itineraryStats.total}</b> total <span className="gp-dot">•</span>{" "}

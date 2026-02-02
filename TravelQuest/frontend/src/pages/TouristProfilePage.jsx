@@ -12,6 +12,7 @@ import { getGamificationSummaryByUserId } from "../services/gamificationService"
 import { addFunds, getWalletBalance } from "../services/walletService";
 
 import GamificationCard from "../components/gamification/GamificationCard";
+import Loader from "../components/common/Loader";
 
 /* ---------------- helpers ---------------- */
 
@@ -583,7 +584,7 @@ export default function TouristProfilePage() {
         {err && <div className="tourist-banner">{err}</div>}
 
         {loading ? (
-          <p className="tourist-muted">Loading…</p>
+          <Loader label="Loading itineraries..." />
         ) : filteredList.length === 0 ? (
           <p className="tourist-empty">No itineraries to show.</p>
         ) : (

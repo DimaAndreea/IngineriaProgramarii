@@ -231,6 +231,15 @@
   box-shadow: 0 6px 16px rgba(122, 90, 167, 0.45) !important;
 }
 
+.soft-btn.primary:disabled,
+.soft-btn.primary.disabled {
+  background: rgba(148, 148, 148, 0.35) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
 /* ACTIONS — ghid */
 .actions-guide {
   margin-top: 16px;

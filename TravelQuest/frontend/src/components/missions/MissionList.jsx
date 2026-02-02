@@ -1,4 +1,5 @@
 import MissionCard from "./MissionCard";
+import Loader from "../common/Loader";
 import "./missions.css";
 
 export default function MissionList({
@@ -8,7 +9,7 @@ export default function MissionList({
   canParticipate,
   onJoin,
 }) {
-  if (loading) return <p className="ms-state">Loading missions...</p>;
+  if (loading) return <Loader label="Loading missions..." />;
   if (error) return <p className="ms-state ms-error">{error}</p>;
   if (!missions || missions.length === 0) return <p className="ms-state">No missions available.</p>;
 

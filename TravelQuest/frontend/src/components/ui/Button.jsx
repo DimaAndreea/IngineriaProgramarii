@@ -1,3 +1,5 @@
+import Loader from "../common/Loader";
+
 export default function Button({ children, loading, ...props }) {
   return (
       <button
@@ -9,7 +11,7 @@ export default function Button({ children, loading, ...props }) {
         disabled:bg-gray-400 disabled:cursor-not-allowed
       "
       >
-        {loading ? "Loading..." : children}
+        {loading ? <Loader size={18} label="" className="tq-loader-inline" /> : children}
       </button>
   );
 }

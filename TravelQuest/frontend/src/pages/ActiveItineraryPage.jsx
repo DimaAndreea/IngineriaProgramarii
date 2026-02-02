@@ -3,6 +3,7 @@ import "./ActiveItineraryPage.css";
 
 import ProgressBar from "../components/itineraries/active/ProgressBar";
 import ItineraryHeader from "../components/itineraries/active/ItineraryHeader";
+import Loader from "../components/common/Loader";
 import ParticipantList from "../components/itineraries/active/ParticipantList";
 import MissionList from "../components/itineraries/active/MissionList";
 import FeedbackList from "../components/itineraries/active/FeedbackList";
@@ -188,7 +189,7 @@ export default function ActiveItineraryPage() {
     return (
       <div className="active-itinerary-page">
         <h1 className="page-title">Active itinerary</h1>
-        <p>Loading active itinerary...</p>
+        <Loader label="Loading active itinerary..." />
       </div>
     );
   }

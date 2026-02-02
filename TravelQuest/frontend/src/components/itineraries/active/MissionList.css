@@ -172,8 +172,6 @@
     text-shadow: 0 0 8px rgba(212, 169, 86, 0.5);
     box-shadow: 0 4px 16px rgba(212, 169, 86, 0.3);
 }
-}
-
 
 .submission-status.pending {
     background: rgba(180, 151, 59, 0.2);
