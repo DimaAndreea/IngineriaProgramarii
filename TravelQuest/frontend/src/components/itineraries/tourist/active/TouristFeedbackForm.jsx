@@ -41,6 +41,16 @@ export default function TouristFeedbackForm({
       <span className={className}>{guideLabel}</span>
     );
 
+  const GuideAvatar = ({ size = 32 }) => (
+    <span style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: 8 }}>
+      <svg width={size} height={size} viewBox="0 0 64 64" fill="none" aria-hidden="true">
+        <circle cx="32" cy="32" r="32" fill="#E5E7EB" />
+        <circle cx="32" cy="26" r="10" fill="#9CA3AF" />
+        <path d="M16 52c2-8 28-8 32 0" fill="#9CA3AF" />
+      </svg>
+    </span>
+  );
+
   if (hasFeedback && existingFeedback) {
     return (
       <div className="tourist-feedback-wrapper">
@@ -49,6 +59,7 @@ export default function TouristFeedbackForm({
         <div className="feedback-submitted-card">
           <div className="feedback-submitted-header">
             <span className="feedback-guide-name">
+              <GuideAvatar size={28} />
               Guide: <GuideLink className="guide-link" />
             </span>
             <span className="feedback-stars">
@@ -78,6 +89,7 @@ export default function TouristFeedbackForm({
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">
+              <GuideAvatar size={28} />
               Guide: <GuideLink className="guide-link" />
             </label>
           </div>

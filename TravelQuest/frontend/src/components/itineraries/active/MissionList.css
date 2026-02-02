@@ -1,6 +1,6 @@
 .missions-container {
     margin-top: 40px;
-    max-width: 1500px;
+    max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -179,4 +179,13 @@
     border: 1.5px solid rgba(180, 151, 59, 0.4);
     text-shadow: 0 0 8px rgba(180, 151, 59, 0.5);
     box-shadow: 0 4px 12px rgba(180, 151, 59, 0.2);
+}
+
+.empty-submissions {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: center;
+  margin: 24px 0 12px 0;
+  opacity: 0.85;
 }
