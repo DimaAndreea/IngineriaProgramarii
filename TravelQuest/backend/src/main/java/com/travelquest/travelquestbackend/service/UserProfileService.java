@@ -44,6 +44,21 @@ public class UserProfileService {
         return mapToDto(guide);
     }
 
+    public UserProfileDto getTouristProfile(Long touristId) {
+        User tourist = userRepository.findById(touristId)
+                .orElseThrow(() -> new RuntimeException("Tourist not found"));
+
+        System.out.println("getTouristProfile called for touristId: " + touristId);
+        System.out.println("Username: " + tourist.getUsername());
+        System.out.println("Email: " + tourist.getEmail());
+        System.out.println("Phone: " + tourist.getPhoneNumber());
+
+        if (tourist.getRole() != UserRole.TOURIST) {
+            throw new RuntimeException("User is not a tourist");
+        }
+
+        return mapToDto(tourist);
+    }
 
     private UserProfileDto mapToDto(User user) {
         return new UserProfileDto(

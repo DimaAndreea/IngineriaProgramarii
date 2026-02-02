@@ -22,6 +22,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  color: white;
 }
 
 .gami-mock-tag{
@@ -36,12 +37,18 @@
 
 .gami-level{
   margin-top: 2px;
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 900;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.gami-level span{
-  font-size: 26px;
+.gami-level-text-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .gami-points{
@@ -83,7 +90,7 @@
 
 .gami-bar-fill {
   height: 100%;
-  background: #2563eb;
+  background: #9ad65c;
   border-radius: 999px;
   transition: width 0.4s ease;
 }
@@ -97,8 +104,8 @@
 
   font-size: 12px;
   font-weight: 900;
-  color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  color: #1a0f2e;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.25), 0 0 6px rgba(154, 214, 92, 0.45);
 
   pointer-events: none;
   white-space: nowrap;

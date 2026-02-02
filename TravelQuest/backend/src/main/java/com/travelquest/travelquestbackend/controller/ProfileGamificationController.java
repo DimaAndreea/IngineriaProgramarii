@@ -46,4 +46,9 @@ public class ProfileGamificationController {
         }
         return ResponseEntity.ok(profileGamificationService.getSummary(user.getId()));
     }
+
+    @GetMapping("/summary/{userId}")
+    public ResponseEntity<GamificationSummaryDto> getSummaryByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(profileGamificationService.getSummary(userId));
+    }
 }

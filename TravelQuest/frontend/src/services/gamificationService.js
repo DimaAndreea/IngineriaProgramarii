@@ -25,3 +25,7 @@ async function request(url, options = {}) {
 export async function getGamificationSummary() {
   return request(`${API_BASE_URL}/api/profile/gamification/summary`);
 }
+
+export async function getGamificationSummaryByUserId(userId) {
+  return request(`${API_BASE_URL}/api/profile/gamification/summary/${userId}`);
+}

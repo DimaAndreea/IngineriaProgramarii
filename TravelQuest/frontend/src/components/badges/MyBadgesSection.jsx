@@ -30,7 +30,7 @@ function Chevron({ open }) {
   );
 }
 
-export default function MyBadgesSection({ onSelectedChange, defaultOpen = false }) {
+export default function MyBadgesSection({ onSelectedChange, defaultOpen = true }) {
   const { userId } = useAuth();
 
   const [badges, setBadges] = useState([]);
@@ -120,53 +120,37 @@ export default function MyBadgesSection({ onSelectedChange, defaultOpen = false 
 
   return (
     <div className="badges-shell">
-      {/* HEADER (click => dropdown) */}
-      <button
-        type="button"
-        className="badges-header"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-      >
-        <div className="badges-header-left">
-          <div className="badges-title-row">
-            <h3 className="badges-title">My Badges</h3>
-            {selectedBadge ? (
-              <span className="badges-pill">
-                Visible: <b>{selectedBadge.name}</b>
-              </span>
-            ) : (
-              <span className="badges-pill muted">No visible badge</span>
-            )}
-          </div>
-
-        </div>
-
-        <div className="badges-header-right">
-          {import.meta.env.DEV && (
-            <span
-              className="badges-dev-btn"
-              role="button"
-              tabIndex={0}
-              onClick={(e) => {
+      {/* HEADER */}
+      <div className="badges-header-new">
+        <h3 className="badges-title">My Badges</h3>
+        {import.meta.env.DEV && (
+          <span
+            className="badges-dev-btn"
+            role="button"
+            tabIndex={0}
+            onClick={(e) => {
+              e.preventDefault();
+              handleDevUnlock();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                e.stopPropagation(); // să nu deschidă/închidă dropdown-ul
                 handleDevUnlock();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleDevUnlock();
-                }
-              }}
-            >
-              Unlock eligible
-            </span>
-          )}
+              }
+            }}
+          >
+            Unlock eligible
+          </span>
+        )}
+      </div>
 
-          <Chevron open={open} />
+      {selectedBadge && (
+        <div className="badges-selected-info">
+          <span className="badges-pill">
+            Visible: <b>{selectedBadge.name}</b>
+          </span>
         </div>
-      </button>
+      )}
 
       {/* BODY (collapsible) */}
       <div className={`badges-collapsible ${open ? "open" : ""}`}>

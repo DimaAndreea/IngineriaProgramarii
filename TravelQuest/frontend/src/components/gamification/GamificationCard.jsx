@@ -8,6 +8,7 @@ export default function GamificationCard({
   error,
   isMock,
   variant = "card",
+  showLabel = true,
 }) {
   const level =
     summary?.level ??
@@ -63,12 +64,19 @@ export default function GamificationCard({
     <div className={`gami-card ${variant === "embedded" ? "gami-embedded" : ""}`}>
       <div className="gami-top">
         <div>
-          <div className="gami-kicker">
-            Your level {isMock ? <span className="gami-mock-tag">MOCK</span> : null}
-          </div>
+          {showLabel ? (
+            <div className="gami-kicker">
+              Your level {isMock ? <span className="gami-mock-tag">MOCK</span> : null}
+            </div>
+          ) : null}
 
           <div className="gami-level">
-            LVL <span>{level ?? (loading ? "…" : "—")}</span>
+            <img 
+              src="/level-up.png" 
+              alt="Level" 
+              className="gami-level-text-icon"
+            />
+            <span>{level ?? (loading ? "…" : "—")}</span>
           </div>
         </div>
       </div>

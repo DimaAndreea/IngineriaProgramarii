@@ -15,9 +15,24 @@ export default function UserMenu() {
   // Get gamification data for non-admin users
   const isNonAdmin = role && role !== "admin";
   const lvl = summary?.level ?? summary?.lvl ?? summary?.currentLevel ?? summary?.levelNumber ?? null;
-  const xp = summary?.xp ?? summary?.currentXp ?? 0;
-  const maxXp = summary?.maxXp ?? summary?.xpToNextLevel ?? 100;
-  const xpProgress = maxXp > 0 ? (xp / maxXp) * 100 : 0;
+  const xp = Number(summary?.xp ?? summary?.currentXp ?? 0) || 0;
+  const nextLevelMinXp = summary?.nextLevelMinXp ?? summary?.xpForNextLevel ?? null;
+  
+  // Calculate progress percentage (same as GamificationCard)
+  const xpProgress = (() => {
+    const p = summary?.progress;
+    if (typeof p === "number" && Number.isFinite(p)) {
+      return Math.max(0, Math.min(100, p * 100));
+    }
+    
+    const nextN = Number(nextLevelMinXp);
+    if (!nextLevelMinXp || !Number.isFinite(nextN) || nextN <= 0) {
+      return 100;
+    }
+    
+    const pct = (xp / nextN) * 100;
+    return Math.max(0, Math.min(100, pct));
+  })();
 
   useEffect(() => {
     const handler = (e) => {
