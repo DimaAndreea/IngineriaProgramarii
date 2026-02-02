@@ -35,6 +35,7 @@ export default function MissionsPage() {
   const [rewards, setRewards] = useState([]); // optional endpoint
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [showCreateInfo, setShowCreateInfo] = useState(false);
   const [missionFilter, setMissionFilter] = useState("ALL"); // Filter state
   const [rewardsScrollPos, setRewardsScrollPos] = useState(0);
 
@@ -196,8 +197,16 @@ export default function MissionsPage() {
           <div className="mr-admin-layout">
           <div className="mr-admin-left">
             <section className="mr-card mr-card-form">
-              <div className="mr-card-header">
+              <div className="mr-card-header mr-card-header-info">
                 <h3 className="mr-section-title">Create a mission</h3>
+                <button
+                  type="button"
+                  className="mr-info-btn"
+                  onClick={() => setShowCreateInfo(true)}
+                  aria-label="Mission info"
+                >
+                  <img src="/info.png" alt="Info" />
+                </button>
               </div>
               <hr className="mr-divider" />
               <MissionCreateForm onCreate={handleCreate} />
@@ -305,6 +314,31 @@ export default function MissionsPage() {
             </div>
           </section>
         </>
+      )}
+      {showCreateInfo && (
+        <div className="mr-info-overlay" onClick={() => setShowCreateInfo(false)}>
+          <div className="mr-info-modal" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="mr-info-close"
+              onClick={() => setShowCreateInfo(false)}
+              aria-label="Close info"
+            >
+              ×
+            </button>
+            <h4 className="mr-info-title">About missions</h4>
+            <p className="mr-info-text">
+              These are missions that tourists or guides can join to earn rewards. Each mission
+              defines a role, an objective type, a target, and a time window.
+            </p>
+            <ul className="mr-info-list">
+              <li>Set the role and objective type to control eligibility.</li>
+              <li>Target value is required and must be greater than 0.</li>
+              <li>End date is required; start date is optional.</li>
+              <li>Rewards include XP and real-life benefits, like discounts or special access.</li>
+            </ul>
+          </div>
+        </div>
       )}
       </div>
     </div>
