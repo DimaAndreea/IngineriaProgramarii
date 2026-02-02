@@ -321,6 +321,16 @@
   color: rgba(255, 255, 255, 0.95);
 }
 
+.ms-label-title {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ms-required {
+  color: #ff8a80;
+  margin-left: 4px;
+}
+
 .ms-input,
 .ms-textarea {
   width: 100%;

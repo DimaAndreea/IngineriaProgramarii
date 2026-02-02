@@ -288,7 +288,9 @@ export default function MissionCreateForm({ onCreate }) {
       ) : null}
 
       <label className="ms-label">
-        Role
+        <span className="ms-label-title">
+          Role <span className="ms-required">*</span>
+        </span>
         <select
           className="ms-input"
           name="role"
@@ -305,7 +307,9 @@ export default function MissionCreateForm({ onCreate }) {
       </label>
 
       <label className="ms-label">
-        Objective type
+        <span className="ms-label-title">
+          Objective type <span className="ms-required">*</span>
+        </span>
         <select
           className="ms-input"
           name="type"
@@ -323,7 +327,9 @@ export default function MissionCreateForm({ onCreate }) {
 
       {needsCategory && (
         <label className="ms-label">
-          Category
+          <span className="ms-label-title">
+            Category <span className="ms-required">*</span>
+          </span>
           <select
             className="ms-input"
             name="category"
@@ -343,7 +349,9 @@ export default function MissionCreateForm({ onCreate }) {
 
       <div className="ms-row">
         <label className="ms-label">
-          Target value
+          <span className="ms-label-title">
+            Target value <span className="ms-required">*</span>
+          </span>
           <input
             className="ms-input"
             type="number"
@@ -356,7 +364,7 @@ export default function MissionCreateForm({ onCreate }) {
         </label>
 
         <label className="ms-label">
-          XP reward
+          XP 
           <input
             className="ms-input"
             type="number"
@@ -406,7 +414,7 @@ export default function MissionCreateForm({ onCreate }) {
           placeholder="Optional"
           disabled={disabled || submitting}
         />
-        <div className="ms-help">Optional. Leave empty to use an auto title.</div>
+        <div className="ms-help">Leave empty to use an auto title.</div>
       </label>
 
       <div className="ms-divider" />
@@ -425,7 +433,7 @@ export default function MissionCreateForm({ onCreate }) {
       </label>
 
       <label className="ms-label">
-        Real reward description (optional)
+        Reward description 
         <textarea
           className="ms-input ms-textarea"
           name="real_reward_description"

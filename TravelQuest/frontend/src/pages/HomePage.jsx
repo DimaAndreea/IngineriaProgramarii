@@ -83,39 +83,28 @@ export default function HomePage() {
                             </div>
                             <h3>Create Itinerary</h3>
                             <p>Design your own itineraries and share them with travelers</p>
-                            <button className="feature-btn guide-btn" onClick={() => handleNavigate("/itineraries/create")}>
+                            <button className="feature-btn guide-btn" onClick={() => handleNavigate("/itineraries?create=1")}> 
                                 Create Now
                             </button>
                         </div>
                     )}
 
-                    {/* MANAGE - For guides */}
+
+                    {/* MISSIONS - For guides */}
                     {role === "guide" && (
                         <div className="feature-card">
-                            <div className="feature-icon manage">
-                                <CreateIcon />
+                            <div className="feature-icon missions">
+                                <BadgesIcon />
                             </div>
-                            <h3>My Itineraries</h3>
-                            <p>Manage and track your created itineraries</p>
-                            <button className="feature-btn secondary" onClick={() => handleNavigate("/guide-profile")}>
-                                View Dashboard
+                            <h3>Active Missions</h3>
+                            <p>Join missions on your itineraries to earn rewards</p>
+                            <button className="feature-btn secondary" onClick={() => handleNavigate("/missions")}> 
+                                View Missions
                             </button>
                         </div>
                     )}
 
-                    {/* BADGES - For tourists */}
-                    {role === "tourist" && (
-                        <div className="feature-card">
-                            <div className="feature-icon badges">
-                                <BadgesIcon />
-                            </div>
-                            <h3>Collect Badges</h3>
-                            <p>Complete missions and earn exclusive badges</p>
-                            <button className="feature-btn secondary" onClick={() => handleNavigate("/my-badges")}>
-                                View Badges
-                            </button>
-                        </div>
-                    )}
+
 
                     {/* MISSIONS - For tourists */}
                     {role === "tourist" && (
@@ -145,21 +134,7 @@ export default function HomePage() {
                         </div>
                     )}
 
-                    {/* PROFILE - For tourists and guides only */}
-                    {role !== "admin" && (
-                        <div className="feature-card">
-                            <div className="feature-icon profile">
-                                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                </svg>
-                            </div>
-                            <h3>My Profile</h3>
-                            <p>View and manage your account settings</p>
-                            <button className="feature-btn secondary" onClick={() => handleNavigate(role === "guide" ? "/guide-profile" : "/tourist-profile")}>
-                                View Profile
-                            </button>
-                        </div>
-                    )}
+
                 </div>
             </div>
         </div>
