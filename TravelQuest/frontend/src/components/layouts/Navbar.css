@@ -170,6 +170,104 @@
     color: var(--white);
 }
 
+/* user avatar with stats (for tourists and guides) */
+.user-avatar-with-stats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 50px;
+    padding: 8px 14px 8px 12px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.95);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.user-avatar-with-stats:hover {
+    color: var(--white);
+}
+
+.user-avatar-with-stats:hover .user-progress-fill {
+    box-shadow: 0 0 8px rgba(122, 90, 167, 0.8);
+}
+
+.user-avatar-with-stats .profile-icon {
+    flex-shrink: 0;
+}
+
+.user-stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 120px;
+}
+
+.user-stats-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.user-stat-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-stat-xp {
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(213, 209, 255, 0.85);
+}
+
+.user-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(11, 18, 48, 0.5);
+    border-radius: 999px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.user-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #7a5aa7 0%, rgba(162, 152, 239, 0.9) 100%);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 6px rgba(122, 90, 167, 0.6);
+}
+
+.user-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-stat-pill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(162, 152, 239, 0.25);
+    border: 1px solid rgba(162, 152, 239, 0.35);
+    color: rgba(213, 209, 255, 0.95);
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.user-stat-pill b {
+    color: var(--white);
+    font-weight: 900;
+}
+
 .arrow-icon {
     transition: transform 0.2s ease;
     pointer-events: none;
@@ -297,8 +395,8 @@
     .logo { font-size: 18px; }
 }
 
-/* GAMIFICATION HUD */
-.nav-gami {
+/* GAMIFICATION HUD - Deprecated, now integrated into user menu */
+/* .nav-gami {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -330,4 +428,4 @@
 .nav-gami-pill b {
   color: var(--white);
   font-weight: 800;
-}
+} */

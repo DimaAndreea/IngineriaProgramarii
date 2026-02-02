@@ -1,14 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useGamification } from "../../context/GamificationContext";
 import "./Navbar.css";
 
 export default function UserMenu() {
-  const { role, logout } = useAuth(); // ✅ role e direct în context
+  const { role, logout } = useAuth();
+  const { summary, loading } = useGamification();
   const navigate = useNavigate();
 
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
+
+  // Get gamification data for non-admin users
+  const isNonAdmin = role && role !== "admin";
+  const lvl = summary?.level ?? summary?.lvl ?? summary?.currentLevel ?? summary?.levelNumber ?? null;
+  const xp = summary?.xp ?? summary?.currentXp ?? 0;
+  const maxXp = summary?.maxXp ?? summary?.xpToNextLevel ?? 100;
+  const xpProgress = maxXp > 0 ? (xp / maxXp) * 100 : 0;
 
   useEffect(() => {
     const handler = (e) => {
@@ -44,19 +53,31 @@ export default function UserMenu() {
     <div className="user-menu-container" ref={ref}>
       <button
         type="button"
-        className="user-avatar"
+        className={isNonAdmin ? "user-avatar-with-stats" : "user-avatar"}
         onClick={() => setOpen((v) => !v)}
       >
         <svg
           className="profile-icon"
-          width="20"
-          height="20"
+          width="24"
+          height="24"
           viewBox="0 0 24 24"
           fill="currentColor"
           aria-hidden="true"
         >
           <path d="M12 12c2.7 0 4.9-2.2 4.9-4.9S14.7 2.2 12 2.2 7.1 4.4 7.1 7.1 9.3 12 12 12zm0 2.2c-3.2 0-9.8 1.6-9.8 4.9V22h19.6v-2.9c0-3.3-6.6-4.9-9.8-4.9z" />
         </svg>
+
+        {isNonAdmin && (
+          <div className="user-stats-container">
+            <div className="user-stats-top">
+              <span className="user-stat-label">LVL {loading ? "…" : lvl ?? "—"}</span>
+              <span className="user-stat-xp">{loading ? "…" : xp} XP</span>
+            </div>
+            <div className="user-progress-bar">
+              <div className="user-progress-fill" style={{ width: `${xpProgress}%` }}></div>
+            </div>
+          </div>
+        )}
 
         <svg
           className={`arrow-icon ${open ? "rotate" : ""}`}

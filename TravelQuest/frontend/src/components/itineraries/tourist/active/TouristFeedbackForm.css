@@ -4,18 +4,21 @@
 }
 
 .feedback-title {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 900;
   margin-bottom: 20px;
   text-align: center;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* FORM CARD */
 .feedback-form-card {
-  background: white;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(162, 152, 239, 0.3);
 }
 
 .form-group {
@@ -24,40 +27,43 @@
 
 .form-label {
   display: block;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 8px;
   font-size: 16px;
-  color: #333;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 /* STAR RATING */
 .star-rating {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   margin-bottom: 8px;
+  letter-spacing: 6px;
 }
 
 .star {
-  font-size: 32px;
+  font-size: 24px;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
-  opacity: 0.3;
+  transition: transform 0.2s, text-shadow 0.2s;
   user-select: none;
+  color: var(--accent-green, #9ad65c);
+  text-shadow: 0 0 4px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1;
 }
 
 .star.filled {
-  opacity: 1;
-  transform: scale(1.1);
+  text-shadow: 0 0 8px rgba(154, 214, 92, 0.8), 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .star:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
+  text-shadow: 0 0 12px rgba(154, 214, 92, 1), 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .rating-text {
   display: block;
   font-size: 14px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
 }
 
@@ -65,53 +71,62 @@
 .feedback-textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(162, 152, 239, 0.3);
   border-radius: 8px;
   font-size: 15px;
   font-family: inherit;
   resize: vertical;
   transition: border-color 0.2s;
+  background: rgba(162, 152, 239, 0.05);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .feedback-textarea:focus {
   outline: none;
-  border-color: #4b7cff;
-  box-shadow: 0 0 0 3px rgba(75, 124, 255, 0.1);
+  border-color: rgba(162, 152, 239, 0.6);
+  box-shadow: 0 0 0 3px rgba(162, 152, 239, 0.15);
+  background: rgba(162, 152, 239, 0.1);
 }
 
 /* SUBMIT BUTTON */
 .submit-feedback-btn {
   width: 100%;
   padding: 14px;
-  background: #4b7cff;
+  background: #7a5aa7;
   color: white;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid rgba(122, 90, 167, 0.7);
+  border-radius: 999px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45);
 }
 
-.submit-feedback-btn:hover {
-  background: #3c6ae6;
+.submit-feedback-btn:hover:not(:disabled) {
+  background: #8b6ab8;
+  border-color: rgba(122, 90, 167, 0.85);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(122, 90, 167, 0.6);
 }
 
-.submit-feedback-btn:active {
-  transform: scale(0.98);
+.submit-feedback-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .submit-feedback-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 /* SUBMITTED FEEDBACK VIEW */
 .feedback-submitted-card {
-  background: #f8f9fa;
-  border: 2px solid #16a34a;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(34, 197, 94, 0.5);
+  border-radius: 16px;
   padding: 25px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
 .feedback-submitted-header {
@@ -124,34 +139,41 @@
 .feedback-guide-name {
   font-weight: 600;
   font-size: 16px;
-  color: #333;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .guide-link {
-  color: #4b7cff;
+  color: rgba(162, 152, 239, 0.9);
   text-decoration: none;
   font-weight: 600;
+  transition: color 0.2s ease;
 }
 
 .guide-link:hover {
+  color: rgba(162, 152, 239, 0.95);
   text-decoration: underline;
 }
 
 .feedback-stars {
-  font-size: 20px;
+  font-size: 24px;
+  color: var(--accent-green, #9ad65c);
+  text-shadow: 0 0 4px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+  letter-spacing: 4px;
 }
 
 .feedback-text {
-  background: white;
+  background: rgba(162, 152, 239, 0.1);
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 15px;
   line-height: 1.6;
-  color: #333;
+  color: rgba(255, 255, 255, 0.85);
+  border-left: 3px solid rgba(162, 152, 239, 0.4);
 }
 
 .feedback-notice {
-  color: #16a34a;
+  color: #9ad65c;
   font-weight: 600;
   font-size: 14px;
   margin: 0;

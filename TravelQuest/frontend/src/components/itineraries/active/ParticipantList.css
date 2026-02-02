@@ -1,15 +1,18 @@
 .participants-card {
-    background: white;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(162, 152, 239, 0.3);
     padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     margin: 40px auto;
 }
 
 .participants-title {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 950;
     margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .participants-list {
@@ -22,40 +25,65 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 12px 14px;
-    border-radius: 10px;
+    padding: 16px 18px;
+    border-radius: 12px;
     transition: 0.25s ease;
+    background: linear-gradient(
+        135deg,
+        rgba(98, 82, 164, 0.4) 0%,
+        rgba(76, 92, 142, 0.35) 100%
+    );
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(168, 183, 201, 0.3);
 }
 
 .participant-item:hover {
-    background: #f6f8ff;
+    background: linear-gradient(
+        135deg,
+        rgba(98, 82, 164, 0.6) 0%,
+        rgba(76, 92, 142, 0.5) 100%
+    );
+    border-color: rgba(168, 183, 201, 0.5);
+    box-shadow: 0 6px 20px rgba(125, 111, 230, 0.2);
 }
 
 .participant-avatar {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
-    object-fit: cover;
+    border: 2px solid rgba(162, 152, 239, 0.4);
+    background: linear-gradient(135deg, rgba(98, 82, 164, 0.3) 0%, rgba(76, 92, 142, 0.25) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(162, 152, 239, 0.9);
+    flex-shrink: 0;
 }
 
 .participant-info {
     display: flex;
     flex-direction: column;
+    gap: 4px;
 }
 
 .participant-name {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .participant-role {
-    font-size: 13px;
-    color: #777;
+    font-size: 12px;
+    color: rgba(162, 152, 239, 0.8);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .participant-level {
     font-size: 13px;
-    color: #4b7cff;   
-    font-weight: 600;
+    color: #9ad65c;
+    font-weight: 800;
     margin-top: 2px;
+    text-shadow: 0 0 6px rgba(154, 214, 92, 0.6);
 }

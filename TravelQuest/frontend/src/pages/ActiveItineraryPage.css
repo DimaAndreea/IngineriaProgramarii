@@ -1,12 +1,45 @@
 .active-itinerary-page {
-    padding: 40px 60px;
+    padding: 40px 80px;
+    max-width: 1600px;
+    margin: 0 auto;
 }
 
-/* TITLE */
-.active-itinerary-page .page-title {
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 25px;
+/* ITINERARY HEADER */
+.itinerary-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.itinerary-title {
+    font-size: 46px !important;
+    font-weight: 800 !important;
+    margin-bottom: 16px !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    line-height: 1.1;
+}
+
+.itinerary-period {
+    display: flex;
+    margin-bottom: 60px !important;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.itinerary-period .calendar-icon {
+    color: rgba(162, 152, 239, 0.9);
+}
+
+.itinerary-period .arrow-icon {
+    color: rgba(162, 152, 239, 0.7);
+    margin: 0 4px;
+}
+
+.itinerary-period .period-date {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* NEXT/PREV BUTTONS */
@@ -18,29 +51,47 @@
 }
 
 .active-itinerary-page .nav-btn {
-    padding: 10px 22px;
-    border-radius: 8px;
-    border: none;
+    padding: 12px 24px;
+    border-radius: 999px;
     cursor: pointer;
-    font-size: 16px;
-    transition: 0.2s;
+    font-size: 15px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.active-itinerary-page .nav-btn svg {
+    flex-shrink: 0;
 }
 
 .active-itinerary-page .nav-btn.prev {
-    background: #f1f1f1;
+    background: rgba(162, 152, 239, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(162, 152, 239, 0.3);
 }
 
-.active-itinerary-page .nav-btn.prev:hover {
-    background: #e7e7e7;
+.active-itinerary-page .nav-btn.prev:hover:not(:disabled) {
+    background: rgba(162, 152, 239, 0.3);
+    border-color: rgba(162, 152, 239, 0.5);
+    transform: translateY(-2px);
 }
 
 .active-itinerary-page .nav-btn.next {
-    background: #4b7cff;
+    background: #7a5aa7;
     color: white;
+    border: 1px solid rgba(122, 90, 167, 0.7);
+    box-shadow: 0 6px 20px rgba(122, 90, 167, 0.45);
 }
 
-.active-itinerary-page .nav-btn.next:hover {
-    background: #3c6ae6;
+.active-itinerary-page .nav-btn.next:hover:not(:disabled) {
+    background: #8b6ab8;
+    border-color: rgba(122, 90, 167, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(122, 90, 167, 0.6);
 }
 
 .active-itinerary-page .nav-btn:disabled {

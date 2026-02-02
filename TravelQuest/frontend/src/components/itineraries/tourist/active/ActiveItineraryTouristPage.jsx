@@ -7,6 +7,7 @@ import { getItineraryById } from "../../../../services/itineraryService";
 import { uploadSubmission } from "../../../../services/submissionService";
 
 import ProgressBar from "../../active/ProgressBar";
+import ItineraryHeader from "../../active/ItineraryHeader";
 import MissionListTourist from "./MissionListTourist";
 import SubmissionModal from "./SubmissionModal";
 import TouristFeedbackForm from "./TouristFeedbackForm";
@@ -75,6 +76,13 @@ export default function ActiveItineraryTouristPage() {
           id: details?.creator?.id ?? null,
           name: details?.creator?.username ?? null,
         });
+
+        // Update itinerary cu date complete dacă nu le avem deja
+        setItinerary(prev => ({
+          ...prev,
+          startDate: prev?.startDate || details?.startDate,
+          endDate: prev?.endDate || details?.endDate,
+        }));
       } catch (err) {
         console.error("Failed to load itinerary details for guide:", err);
       }
@@ -246,7 +254,7 @@ export default function ActiveItineraryTouristPage() {
 
   return (
     <div className="active-itinerary-page">
-      <h1 className="page-title">{title || "Active itinerary"}</h1>
+      <ItineraryHeader title={title} startDate={itinerary?.startDate} endDate={itinerary?.endDate} />
 
       <ProgressBar stages={stageNames} currentStage={currentStageIndex} />
 
@@ -256,7 +264,10 @@ export default function ActiveItineraryTouristPage() {
           onClick={goPrev}
           disabled={currentStageIndex === 0}
         >
-          ← Previous
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Previous
         </button>
 
         <button
@@ -264,18 +275,16 @@ export default function ActiveItineraryTouristPage() {
           onClick={goNext}
           disabled={currentStageIndex === totalStages - 1}
         >
-          Next →
+          Next
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 12L10 8L6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
       </div>
 
-      {(submitError || submitSuccess) && (
+      {submitError && (
         <div style={{ marginTop: 10 }}>
-          {submitError && <p className="error-message">{submitError}</p>}
-          {submitSuccess && (
-            <p style={{ color: "#16a34a", fontWeight: 500 }}>
-              {submitSuccess}
-            </p>
-          )}
+          <p className="error-message">{submitError}</p>
         </div>
       )}
 
