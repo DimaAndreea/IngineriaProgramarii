@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import BadgeCard from "./BadgeCard";
+import Loader from "../common/Loader";
 import {
   getMyBadges,
   selectBadge,
@@ -158,7 +159,7 @@ export default function MyBadgesSection({ onSelectedChange, defaultOpen = true }
           {err && <div className="badge-banner">{err}</div>}
 
           {loading ? (
-            <p className="tourist-muted">Loading badges...</p>
+            <Loader label="Loading badges..." />
           ) : (
             <div className="badges-grid">
               {badges.map((b) => (

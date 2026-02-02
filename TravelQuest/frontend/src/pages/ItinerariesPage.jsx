@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import ItineraryCard from "../components/itineraries/ItineraryCard";
 import ItineraryForm from "../components/itineraries/ItineraryForm";
+import Loader from "../components/common/Loader";
 import FiltersSidebar from "../components/itineraries/FiltersSidebar";
 import PaymentModal from "../components/common/PaymentModal";
 
@@ -12,6 +13,8 @@ import {
   updateItinerary,
   deleteItinerary,
   filterItineraries,
+  getLocalEnrollments,
+  addLocalEnrollment,
 } from "../services/itineraryService";
 import { getWalletBalance, purchaseItinerary, addFunds } from "../services/walletService";
 
@@ -32,16 +35,17 @@ export default function ItinerariesPage() {
   const [itineraries, setItineraries] = useState([]);
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [selectedItineraryForPayment, setSelectedItineraryForPayment] = useState(null);
-    const [walletBalance, setWalletBalance] = useState(0);
-    const [joinMessage, setJoinMessage] = useState("");
-    const [joinError, setJoinError] = useState("");
-    const [showAddFundsModal, setShowAddFundsModal] = useState(false);
-    const [addFundsAmount, setAddFundsAmount] = useState("");
 
-    // dacă venim din profile cu state.openEdit, deschidem modalul direct
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedItineraryForPayment, setSelectedItineraryForPayment] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [joinMessage, setJoinMessage] = useState("");
+  const [joinError, setJoinError] = useState("");
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
+  const [addFundsAmount, setAddFundsAmount] = useState("");
+  const [joinedIds, setJoinedIds] = useState(() => getLocalEnrollments());
+
+  // dacă venim din profile cu state.openEdit, deschidem modalul direct
   useEffect(() => {
     const editIt = locationURL.state?.openEdit;
     if (editIt) {
@@ -53,7 +57,6 @@ export default function ItinerariesPage() {
     }
   }, [locationURL.state, navigate]);
 
-  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -89,6 +92,10 @@ export default function ItinerariesPage() {
   useEffect(() => {
     setFilters(prev => ({ ...prev, searchGlobal: globalSearch }));
   }, [globalSearch]);
+
+  useEffect(() => {
+    setJoinedIds(getLocalEnrollments());
+  }, [role, userId]);
 
   // ----------------------------------- LOAD FROM BACKEND (FILTER+SORT) -----------------------------------
   const loadItineraries = useCallback(
@@ -274,7 +281,7 @@ export default function ItinerariesPage() {
         {/* LOADING */}
         {loading && (
           <div className="loading-box">
-            <span>Loading itineraries...</span>
+            <Loader label="Loading itineraries..." />
           </div>
         )}
 
@@ -288,20 +295,28 @@ export default function ItinerariesPage() {
               </div>
             )}
 
-            {itineraries.map(it => (
-              <ItineraryCard
-                key={it.id}
-                itinerary={it}
-                canEdit={isGuide && it.creator.id === Number(userId)}
-                onEdit={() => {
-                  setSelected(it);
-                  setShowModal(true);
-                }}
-                onDelete={() => handleDelete(it.id)}
-                canParticipate={isTourist}
+            {itineraries.map(it => {
+              const itinId = it.id || it.itineraryId || it.itinerary_id;
+              const alreadyJoined = Array.isArray(it.participants)
+                ? it.participants.some(p => Number(p?.tourist?.id) === Number(userId))
+                : joinedIds.includes(Number(itinId));
+
+              return (
+                <ItineraryCard
+                  key={it.id}
+                  itinerary={it}
+                  canEdit={isGuide && it.creator.id === Number(userId)}
+                  onEdit={() => {
+                    setSelected(it);
+                    setShowModal(true);
+                  }}
+                  onDelete={() => handleDelete(it.id)}
+                  canParticipate={isTourist}
+                  alreadyJoined={alreadyJoined}
                   onJoin={() => handleJoinClick(it)}
-              />
-            ))}
+                />
+              );
+            })}
           </div>
         )}
 

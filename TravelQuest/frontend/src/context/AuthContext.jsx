@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../components/common/Loader";
 
 const AuthContext = createContext();
 
@@ -63,9 +64,11 @@ export function AuthProvider({ children }) {
 
   // Don't render children until we've verified the session
   if (isCheckingAuth) {
-    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-      <p>Loading...</p>
-    </div>;
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <Loader label="Loading session..." />
+      </div>
+    );
   }
 
   return (

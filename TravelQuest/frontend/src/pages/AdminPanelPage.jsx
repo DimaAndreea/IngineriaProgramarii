@@ -5,6 +5,7 @@ import {
   approveItinerary,
   rejectItinerary,
 } from "../services/itineraryService";
+import Loader from "../components/common/Loader";
 import "./AdminPanelPage.css";
 
 export default function AdminPanelPage() {
@@ -116,7 +117,13 @@ export default function AdminPanelPage() {
     setPending((prev) => prev.filter((it) => it.id !== id));
   }
 
-  if (loading) return <p className="admin-loading">Loading pending itineraries...</p>;
+  if (loading) {
+    return (
+      <div className="admin-loading">
+        <Loader label="Loading pending itineraries..." />
+      </div>
+    );
+  }
 
   return (
     <div className="admin-dashboard">

@@ -8,6 +8,7 @@ export default function ItineraryCard({
   onEdit,
   onDelete,
   canParticipate,
+  alreadyJoined = false,
   onJoin,
 }) {
   const navigate = useNavigate();
@@ -77,8 +78,9 @@ export default function ItineraryCard({
 
     const handleJoinClick = e => {
     e.stopPropagation();
-      if (onJoin) {
-        onJoin();
+    if (alreadyJoined) return;
+    if (onJoin) {
+      onJoin();
     }
   };
 
@@ -163,8 +165,12 @@ export default function ItineraryCard({
         {/* JOIN BUTTON – turist */}
         {canParticipateThis && (
           <div className="actions">
-            <button className="soft-btn primary" onClick={handleJoinClick}>
-              Join tour
+            <button
+              className={`soft-btn primary ${alreadyJoined ? "disabled" : ""}`}
+              onClick={handleJoinClick}
+              disabled={alreadyJoined}
+            >
+              {alreadyJoined ? "Already joined" : "Join tour"}
             </button>
           </div>
         )}

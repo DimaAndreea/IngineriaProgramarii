@@ -37,6 +37,10 @@ export function clearLocalEnrollments() {
   localStorage.removeItem(ENROLLMENTS_KEY);
 }
 
+export function addLocalEnrollment(itineraryId) {
+  addEnrollmentLocal(itineraryId);
+}
+
 /* =========================
    REQUEST HELPER
 ========================= */
