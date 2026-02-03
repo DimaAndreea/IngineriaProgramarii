@@ -125,8 +125,8 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
                 )}
               </div>
               <img
-                src="/coupon.png"
-                alt="Reward ticket"
+                src={mission?.role === 'GUIDE' ? "/spotlight.png" : "/coupon.png"}
+                alt={mission?.role === 'GUIDE' ? "Guide reward" : "Reward ticket"}
                 style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover" }}
               />
             </div>
@@ -236,10 +236,10 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
               )}
             </div>
             <img
-              src="/coupon.png"
-              alt="Reward ticket"
-              style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover" }}
-            />
+                src={mission?.role === 'GUIDE' ? "/spotlight.png" : "/coupon.png"}
+                alt={mission?.role === 'GUIDE' ? "Guide reward" : "Reward ticket"}
+                style={{ width: 80, height: 80, borderRadius: 8, objectFit: "cover" }}
+              />
           </div>
         </div>
       </div>

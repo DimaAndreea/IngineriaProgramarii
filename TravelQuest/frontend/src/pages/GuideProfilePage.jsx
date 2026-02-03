@@ -471,7 +471,7 @@ export default function GuideProfilePage() {
                   if (typeof exposure === 'number') {
                     return (
                       <span className="gami-exposure-badge gp-exposure-inline">
-                        <img src="/customer-loyalty.png" alt="Exposure" className="gp-exposure-icon-mini" />
+                        <img src="/spotlight.png" alt="Exposure" className="gp-exposure-icon-mini" />
                         {exposure} Exposure Points
                       </span>
                     );

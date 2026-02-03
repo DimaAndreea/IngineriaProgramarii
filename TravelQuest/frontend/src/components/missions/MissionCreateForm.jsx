@@ -350,8 +350,8 @@ export default function MissionCreateForm({ onCreate }) {
         </label>
       )}
 
-      <div className="ms-row">
-        <label className="ms-label">
+      <div className="ms-row" style={{ display: 'flex', gap: '16px' }}>
+        <label className="ms-label" style={{ flex: 1 }}>
           <span className="ms-label-title">
             Target value <span className="ms-required">*</span>
           </span>
@@ -365,9 +365,8 @@ export default function MissionCreateForm({ onCreate }) {
             disabled={disabled || submitting}
           />
         </label>
-
-        <label className="ms-label">
-          XP 
+        <label className="ms-label" style={{ flex: 1 }}>
+          XP
           <input
             className="ms-input"
             type="number"
@@ -378,18 +377,20 @@ export default function MissionCreateForm({ onCreate }) {
             disabled={disabled || submitting}
           />
         </label>
-        <label className="ms-label">
-          Travel Coins
-          <input
-            className="ms-input"
-            type="number"
-            name="travel_coins"
-            value={values.travel_coins}
-            onChange={onChange}
-            min={0}
-            disabled={disabled || submitting}
-          />
-        </label>
+        {values.role === "GUIDE" && (
+          <label className="ms-label" style={{ flex: 1 }}>
+            Exposure Points
+            <input
+              className="ms-input"
+              type="number"
+              name="travel_coins"
+              value={values.travel_coins}
+              onChange={onChange}
+              min={0}
+              disabled={disabled || submitting}
+            />
+          </label>
+        )}
       </div>
 
       <div className="ms-row">

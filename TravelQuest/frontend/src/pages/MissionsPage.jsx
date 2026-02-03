@@ -255,7 +255,16 @@ export default function MissionsPage() {
                 </svg>
               </button>
               <div className="mr-rewards-scroll">
-                <RewardsList rewards={rewardsToShow} loading={loading} />
+                <RewardsList
+                  rewards={rewardsToShow.map(r => {
+                    // Dacă reward-ul are deja rol, îl păstrăm
+                    if (r.role) return r;
+                    // Încearcă să extragi rolul din misiune dacă există
+                    const mission = missions.find(m => (m.mission_id ?? m.id) === r.mission_id || (m.mission_id ?? m.id) === r.id);
+                    return { ...r, role: mission?.role };
+                  })}
+                  loading={loading}
+                />
               </div>
             </div>
           </section>
