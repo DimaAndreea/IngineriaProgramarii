@@ -39,21 +39,27 @@ public class MissionDto {
     public static class RewardInMissionDto {
         @JsonProperty("real_reward_title")
         private String title;
-        
+
         @JsonProperty("xp_reward")
         private Integer xpReward;
-        
+
         @JsonProperty("real_reward_description")
         private String description;
 
+        @JsonProperty("travel_coins_reward")
+        private Integer travelCoinsReward;
+
         public String getTitle() { return title; }
         public void setTitle(String title) { this.title = title; }
-        
+
         public Integer getXpReward() { return xpReward; }
         public void setXpReward(Integer xpReward) { this.xpReward = xpReward; }
-        
+
         public String getDescription() { return description; }
         public void setDescription(String description) { this.description = description; }
+
+        public Integer getTravelCoinsReward() { return travelCoinsReward; }
+        public void setTravelCoinsReward(Integer travelCoinsReward) { this.travelCoinsReward = travelCoinsReward; }
     }
 
     // Getters & setters

@@ -441,6 +441,7 @@ export default function GuideProfilePage() {
               <div className="gp-role">Guide</div>
 
               <div className="gp-rating">
+
                 {ratingLoading ? (
                   <span className="gp-rating-text">Loading rating…</span>
                 ) : ratingInfo && ratingInfo.totalReviews > 0 ? (
@@ -456,6 +457,27 @@ export default function GuideProfilePage() {
                 ) : (
                   <span className="gp-rating-text">No reviews yet</span>
                 )}
+
+                {/* Separator punct între rating și exposure points */}
+                {(() => {
+                  const exposure = profile?.travelCoins ?? publicCreator?.travelCoins;
+                  if (typeof exposure === 'number') {
+                    return <span className="gp-contact-dot" style={{margin:'0 8px'}}>•</span>;
+                  }
+                  return null;
+                })()}
+                {(() => {
+                  const exposure = profile?.travelCoins ?? publicCreator?.travelCoins;
+                  if (typeof exposure === 'number') {
+                    return (
+                      <span className="gami-exposure-badge gp-exposure-inline">
+                        <img src="/spotlight.png" alt="Exposure" className="gp-exposure-icon-mini" />
+                        {exposure} Exposure Points
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
 
               <div className="gp-contact">
@@ -532,7 +554,7 @@ export default function GuideProfilePage() {
         {/* Gamification */}
         <div className="gp-header-gamification">
           <GamificationCard
-            summary={gamiForCard}
+            summary={{...gamiForCard, travelCoins: profile?.travelCoins ?? publicCreator?.travelCoins}}
             loading={gamiLoading_}
             error={gamiErr_}
             showLabel={isOwner}

@@ -9,7 +9,11 @@ export default function RewardsList({ rewards, loading }) {
       {rewards.map((r) => (
         <div key={r.id || `${r.title}-${r.claimed_at || ""}`} className="mr-reward-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 16 }}>
           <div className="mr-reward-icon">
-            <img src="/coupon.png" alt="Coupon" className="mr-ticket-img" />
+            <img
+              src={r.role === 'GUIDE' ? "/spotlight.png" : "/coupon.png"}
+              alt={r.role === 'GUIDE' ? "Guide reward" : "Coupon"}
+              className="mr-ticket-img"
+            />
           </div>
           <div className="mr-reward-title" style={{ textAlign: 'center', fontWeight: 900, fontSize: 16, marginTop: 8 }}>{r.title}</div>
           {r.real_reward_description && (
