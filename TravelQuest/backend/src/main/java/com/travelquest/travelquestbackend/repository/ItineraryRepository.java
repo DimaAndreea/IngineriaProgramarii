@@ -181,4 +181,14 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
             @Param("status") SubmissionStatus status,
             @Param("itineraryId") Long itineraryId
     );
+
+    @Query("""
+        SELECT i
+        FROM Itinerary i
+        JOIN i.creator c
+        WHERE i.status = :status
+        ORDER BY c.travelCoins DESC, i.id DESC
+    """)
+    List<Itinerary> findByStatusOrderByCreatorTravelCoinsDesc(@Param("status") ItineraryStatus status);
+
 }

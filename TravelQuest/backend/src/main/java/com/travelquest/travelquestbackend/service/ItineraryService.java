@@ -272,8 +272,9 @@ public class ItineraryService {
     // GET PUBLIC/PENDING/ALL ITINERARIES
     // =====================================================
     public List<Itinerary> getPublic() {
-    return itineraryRepository.findPublicOrderedByGuideTravelCoins();
+        return itineraryRepository.findByStatusOrderByCreatorTravelCoinsDesc(ItineraryStatus.APPROVED);
     }
+
 
     public List<Itinerary> getPending() {
         return itineraryRepository.findByStatus(ItineraryStatus.PENDING);
