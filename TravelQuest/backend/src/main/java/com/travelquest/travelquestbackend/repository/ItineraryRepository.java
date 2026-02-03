@@ -20,6 +20,18 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
 
     List<Itinerary> findByStatus(ItineraryStatus status);
 
+    /**
+     * Public itineraries ordered by guide "exposure" points (users.travel_coins).
+     * All itineraries from higher-scoring guides appear before those from lower-scoring guides.
+     */
+    @Query("""
+        SELECT i
+        FROM Itinerary i
+        WHERE i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+        ORDER BY i.creator.travelCoins DESC, i.id DESC
+    """)
+    List<Itinerary> findPublicOrderedByGuideTravelCoins();
+
     // ================================
     // Active itineraries for guide
     // ================================
@@ -92,7 +104,6 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
 
     // ---- TOURIST ----
 
-    // Total itineraries joined by user
     @Query("""
         SELECT COUNT(p)
         FROM Itinerary i
@@ -102,26 +113,24 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     """)
     int countUserJoinedItineraries(@Param("userId") Long userId);
 
-    // Total itineraries joined by user in a specific category
     @Query("""
-    SELECT COUNT(p)
-    FROM Itinerary i
-    JOIN i.participants p
-    WHERE p.tourist.id = :userId
-      AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
-      AND i.category = :category
-""")
-    int countUserJoinedItinerariesByCategory(@Param("userId") Long userId,
-                                             @Param("category") ItineraryCategory category);
-
+        SELECT COUNT(p)
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :userId
+          AND i.status = com.travelquest.travelquestbackend.model.ItineraryStatus.APPROVED
+          AND i.category = :category
+    """)
+    int countUserJoinedItinerariesByCategory(
+            @Param("userId") Long userId,
+            @Param("category") ItineraryCategory category
+    );
 
     // ---- GUIDE ----
 
-    // Total itineraries published by user
     @Query("SELECT COUNT(i) FROM Itinerary i WHERE i.creator.id = :userId")
     int countPublishedByUser(@Param("userId") Long userId);
 
-    // Total itineraries published by user in a specific category
     @Query(value = """
         SELECT COUNT(*)
         FROM itinerary
@@ -130,7 +139,6 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     """, nativeQuery = true)
     int countPublishedByUserAndCategory(@Param("userId") Long userId, @Param("category") String category);
 
-    // Total participants in itineraries published by guide in a category
     @Query(value = """
         SELECT COUNT(p.participant_id)
         FROM itinerary i
@@ -140,7 +148,6 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     """, nativeQuery = true)
     int countParticipantsInCategoryByUser(@Param("userId") Long userId, @Param("category") String category);
 
-    // Count participants in a specific itinerary
     @Query("""
         SELECT COUNT(p)
         FROM Itinerary i
@@ -149,33 +156,29 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     """)
     int countParticipantsInItinerary(@Param("itineraryId") Long itineraryId);
 
-    /// /new
     @Query("SELECT DISTINCT i.category FROM Itinerary i")
     List<String> findDistinctCategories();
 
-
-    /// test pentru tourist
     @Query("""
-    SELECT DISTINCT i
-    FROM Itinerary i
-    JOIN i.participants p
-    WHERE p.tourist.id = :userId
-""")
+        SELECT DISTINCT i
+        FROM Itinerary i
+        JOIN i.participants p
+        WHERE p.tourist.id = :userId
+    """)
     List<Itinerary> findAllJoinedItineraries(@Param("userId") Long userId);
 
     @Query("""
-    SELECT COUNT(os)
-    FROM ObjectiveSubmission os
-    JOIN os.objective o
-    JOIN o.location l
-    WHERE os.tourist.id = :userId
-      AND os.status = :status
-      AND l.itinerary.id = :itineraryId
-""")
+        SELECT COUNT(os)
+        FROM ObjectiveSubmission os
+        JOIN os.objective o
+        JOIN o.location l
+        WHERE os.tourist.id = :userId
+          AND os.status = :status
+          AND l.itinerary.id = :itineraryId
+    """)
     long countApprovedByUserAndItinerary(
             @Param("userId") Long userId,
             @Param("status") SubmissionStatus status,
             @Param("itineraryId") Long itineraryId
     );
-
 }

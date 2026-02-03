@@ -15,6 +15,12 @@ public class Reward {
     @Column(name = "xp_reward", nullable = false)
     private int xpReward;
 
+    /**
+     * EXPOSURE / FAME POINTS (stored in users.travel_coins)
+     */
+    @Column(name = "travel_coins_reward", nullable = false)
+    private int travelCoinsReward = 0;
+
     @Column(name = "real_reward_title")
     private String title;
 
@@ -45,6 +51,14 @@ public class Reward {
 
     public void setXpReward(int xpReward) {
         this.xpReward = xpReward;
+    }
+
+    public int getTravelCoinsReward() {
+        return travelCoinsReward;
+    }
+
+    public void setTravelCoinsReward(int travelCoinsReward) {
+        this.travelCoinsReward = travelCoinsReward;
     }
 
     public String getTitle() {

@@ -24,7 +24,6 @@ public class MissionParticipationService {
     private final UserRepository userRepository;
     private final PointsService pointsService;
 
-
     public MissionParticipationService(
             MissionRepository missionRepository,
             MissionParticipationRepository participationRepository,
@@ -90,31 +89,52 @@ public class MissionParticipationService {
 
         Mission mission = participation.getMission();
 
-        // Marcam ca CLAIMED și salvăm timpul în LocalDateTime
+        // Mark CLAIMED
         participation.setStatus(MissionParticipationStatus.CLAIMED);
         participation.setClaimedAt(LocalDateTime.now());
         participationRepository.save(participation);
 
-        // Aplicăm XP reward, dacă există
-        if (mission.getReward() != null) {
+        Reward reward = mission.getReward();
 
-            int xpReward = mission.getReward().getXpReward();
-
-            pointsService.addPoints(
-            user.getId(),
-            xpReward,
-            GamifiedActionType.MISSION_CLAIM,
-            null,          // itineraryId
-            null,          // objectiveId
-            mission.getId() // missionId
-            );
+        // =========================
+        // 1) XP reward (goes through PointsService -> recalculates level)
+        // =========================
+        if (reward != null) {
+            int xpReward = reward.getXpReward();
+            if (xpReward > 0) {
+                pointsService.addPoints(
+                        user.getId(),
+                        xpReward,
+                        GamifiedActionType.MISSION_CLAIM,
+                        null,           // itineraryId
+                        null,           // objectiveId
+                        mission.getId() // missionId
+                );
+            }
         }
 
-        // Mapare DTO → conversie LocalDateTime → ZonedDateTime
+        // =========================
+        // 2) Exposure/Fame points (stored in users.travel_coins) — GUIDE only
+        // =========================
+        if (reward != null) {
+            int coinsReward = reward.getTravelCoinsReward();
+            if (coinsReward > 0 && sessionUser.getRole() == UserRole.GUIDE) {
+                sessionUser.setTravelCoins(sessionUser.getTravelCoins() + coinsReward);
+                userRepository.save(sessionUser);
+            }
+        }
+
+        // =========================
+        // Response DTO
+        // =========================
         RewardDto rewardDto = new RewardDto();
-        rewardDto.setId(mission.getReward() != null ? mission.getReward().getId() : null);
-        rewardDto.setTitle(mission.getReward() != null ? mission.getReward().getTitle() : "Reward");
+        rewardDto.setId(reward != null ? reward.getId() : null);
+        rewardDto.setTitle(reward != null ? reward.getTitle() : "Reward");
         rewardDto.setFromMissionTitle(mission.getTitle());
+        rewardDto.setDescription(reward != null ? reward.getDescription() : null);
+        rewardDto.setXpReward(reward != null ? reward.getXpReward() : 0);
+        rewardDto.setTravelCoinsReward(reward != null ? reward.getTravelCoinsReward() : 0);
+
         rewardDto.setClaimedAt(
                 participation.getClaimedAt() != null
                         ? participation.getClaimedAt().atZone(ZoneId.systemDefault())
@@ -132,8 +152,7 @@ public class MissionParticipationService {
 
         List<MissionParticipation> participations = participationRepository
                 .findByUserAndStatusIn(user, List.of(
-                        ///MissionParticipationStatus.COMPLETED
-                      MissionParticipationStatus.CLAIMED
+                        MissionParticipationStatus.CLAIMED
                 ));
 
         return participations.stream().map(p -> {
@@ -143,6 +162,9 @@ public class MissionParticipationService {
             RewardDto dto = new RewardDto();
             dto.setId(reward != null ? reward.getId() : null);
             dto.setTitle(reward != null ? reward.getTitle() : "Reward");
+            dto.setDescription(reward != null ? reward.getDescription() : null);
+            dto.setXpReward(reward != null ? reward.getXpReward() : 0);
+            dto.setTravelCoinsReward(reward != null ? reward.getTravelCoinsReward() : 0);
             dto.setFromMissionTitle(mission.getTitle());
             dto.setClaimedAt(
                     p.getClaimedAt() != null
@@ -153,5 +175,4 @@ public class MissionParticipationService {
             return dto;
         }).collect(Collectors.toList());
     }
-
 }
