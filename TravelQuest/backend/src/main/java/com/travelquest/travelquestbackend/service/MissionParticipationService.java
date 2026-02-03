@@ -22,21 +22,17 @@ public class MissionParticipationService {
     private final MissionParticipationRepository participationRepository;
     private final UserPointsHistoryRepository pointsHistoryRepository;
     private final UserRepository userRepository;
-    private final PointsService pointsService;
-
 
     public MissionParticipationService(
             MissionRepository missionRepository,
             MissionParticipationRepository participationRepository,
             UserPointsHistoryRepository pointsHistoryRepository,
-            UserRepository userRepository,
-            PointsService pointsService
+            UserRepository userRepository
     ) {
         this.missionRepository = missionRepository;
         this.participationRepository = participationRepository;
         this.pointsHistoryRepository = pointsHistoryRepository;
         this.userRepository = userRepository;
-        this.pointsService = pointsService;
     }
 
     // ===============================
@@ -99,15 +95,15 @@ public class MissionParticipationService {
         if (mission.getReward() != null) {
 
             int xpReward = mission.getReward().getXpReward();
+            sessionUser.setXp(sessionUser.getXp() + xpReward);
+            userRepository.save(sessionUser);
 
-            pointsService.addPoints(
-            user.getId(),
-            xpReward,
-            GamifiedActionType.MISSION_CLAIM,
-            null,          // itineraryId
-            null,          // objectiveId
-            mission.getId() // missionId
-            );
+            UserPointsHistory history = new UserPointsHistory();
+            history.setUser(user);
+            history.setPointsDelta(mission.getReward().getXpReward());
+            history.setActionType(GamifiedActionType.OBJECTIVE_APPROVED);
+            history.setObjectiveId(mission.getId());
+            pointsHistoryRepository.save(history);
         }
 
         // Mapare DTO → conversie LocalDateTime → ZonedDateTime
@@ -149,7 +145,9 @@ public class MissionParticipationService {
                             ? p.getClaimedAt().atZone(ZoneId.systemDefault())
                             : null
             );
-
+            if (reward != null) {
+                dto.setDescription(reward.getDescription());
+            }
             return dto;
         }).collect(Collectors.toList());
     }
