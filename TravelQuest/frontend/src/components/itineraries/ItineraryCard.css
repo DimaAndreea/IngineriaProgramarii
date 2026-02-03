@@ -124,6 +124,27 @@
 .author {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.exposure-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #fffbe6;
+  color: #f7b731;
+  border: 1px solid #f7b731;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 2px 8px 2px 4px;
+  margin-left: 6px;
+  gap: 4px;
+}
+
+.exposure-badge svg {
+  margin-right: 2px;
 }
 
 /* META GRID (LOCATION + DATE) */

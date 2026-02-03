@@ -76,7 +76,8 @@ export default function MissionCreateForm({ onCreate }) {
     xp_reward: 0,
     real_reward_title: "",
     real_reward_description: "",
-  });
+        travel_coins: 0,
+      });
 
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState(null);
@@ -172,6 +173,7 @@ export default function MissionCreateForm({ onCreate }) {
 
       if (name === "target_value") next.target_value = Number(value);
       if (name === "xp_reward") next.xp_reward = Number(value);
+      if (name === "travel_coins") next.travel_coins = Number(value);
 
       // if start date becomes after end date, clear end date
       if (name === "start_at" && v.end_at && value && v.end_at < value) {
@@ -254,6 +256,7 @@ export default function MissionCreateForm({ onCreate }) {
         xp_reward: Number(values.xp_reward || 0) || 0,
         real_reward_title: values.real_reward_title?.trim() || null,
         real_reward_description: values.real_reward_description?.trim() || null,
+        travel_coins_reward: Number(values.travel_coins || 0) || 0,
       },
     };
 
@@ -372,6 +375,18 @@ export default function MissionCreateForm({ onCreate }) {
             name="xp_reward"
             value={values.xp_reward}
             onChange={onChange}
+            disabled={disabled || submitting}
+          />
+        </label>
+        <label className="ms-label">
+          Travel Coins
+          <input
+            className="ms-input"
+            type="number"
+            name="travel_coins"
+            value={values.travel_coins}
+            onChange={onChange}
+            min={0}
             disabled={disabled || submitting}
           />
         </label>

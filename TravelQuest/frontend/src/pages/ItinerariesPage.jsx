@@ -295,28 +295,38 @@ export default function ItinerariesPage() {
               </div>
             )}
 
-            {itineraries.map(it => {
-              const itinId = it.id || it.itineraryId || it.itinerary_id;
-              const alreadyJoined = Array.isArray(it.participants)
-                ? it.participants.some(p => Number(p?.tourist?.id) === Number(userId))
-                : joinedIds.includes(Number(itinId));
+            {[...itineraries]
+              .sort((a, b) => {
+                const coinsA = a.creator?.travelCoins ?? 0;
+                const coinsB = b.creator?.travelCoins ?? 0;
+                if (coinsA !== coinsB) return coinsB - coinsA;
+                // fallback: ordonează după id descrescător (cele mai noi primele)
+                const idA = a.id || a.itineraryId || a.itinerary_id || 0;
+                const idB = b.id || b.itineraryId || b.itinerary_id || 0;
+                return idB - idA;
+              })
+              .map(it => {
+                const itinId = it.id || it.itineraryId || it.itinerary_id;
+                const alreadyJoined = Array.isArray(it.participants)
+                  ? it.participants.some(p => Number(p?.tourist?.id) === Number(userId))
+                  : joinedIds.includes(Number(itinId));
 
-              return (
-                <ItineraryCard
-                  key={it.id}
-                  itinerary={it}
-                  canEdit={isGuide && it.creator.id === Number(userId)}
-                  onEdit={() => {
-                    setSelected(it);
-                    setShowModal(true);
-                  }}
-                  onDelete={() => handleDelete(it.id)}
-                  canParticipate={isTourist}
-                  alreadyJoined={alreadyJoined}
-                  onJoin={() => handleJoinClick(it)}
-                />
-              );
-            })}
+                return (
+                  <ItineraryCard
+                    key={it.id}
+                    itinerary={it}
+                    canEdit={isGuide && it.creator.id === Number(userId)}
+                    onEdit={() => {
+                      setSelected(it);
+                      setShowModal(true);
+                    }}
+                    onDelete={() => handleDelete(it.id)}
+                    canParticipate={isTourist}
+                    alreadyJoined={alreadyJoined}
+                    onJoin={() => handleJoinClick(it)}
+                  />
+                );
+              })}
           </div>
         )}
 

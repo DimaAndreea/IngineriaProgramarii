@@ -144,16 +144,20 @@ public class MissionService {
         if (dto.getReward() != null) {
             Reward reward = new Reward();
             reward.setTitle(dto.getReward().getTitle() != null ? dto.getReward().getTitle() : "Voucher");
-            
+
             // Setare XP reward din DTO
             Integer xpReward = dto.getReward().getXpReward() != null ? dto.getReward().getXpReward() : 0;
             reward.setXpReward(xpReward);
-            
+
+            // Setare travel coins reward din DTO
+            Integer travelCoinsReward = dto.getReward().getTravelCoinsReward() != null ? dto.getReward().getTravelCoinsReward() : 0;
+            reward.setTravelCoinsReward(travelCoinsReward);
+
             // Setare description dacă există
             if (dto.getReward().getDescription() != null) {
                 reward.setDescription(dto.getReward().getDescription());
             }
-            
+
             reward.setMission(mission);
             mission.setReward(reward);
             mission.setRewardPoints(xpReward);

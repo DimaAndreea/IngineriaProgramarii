@@ -8,7 +8,7 @@ public class RewardDto {
 
     private Long id;
     private String title;
-    
+
     @com.fasterxml.jackson.annotation.JsonProperty("real_reward_title")
     public String getRealRewardTitle() {
         return title;
@@ -27,6 +27,12 @@ public class RewardDto {
 
     @com.fasterxml.jackson.annotation.JsonProperty("xp_reward")
     private int xpReward;
+
+    /**
+     * Exposure / Fame points, stored in users.travel_coins
+     */
+    @com.fasterxml.jackson.annotation.JsonProperty("travel_coins_reward")
+    private int travelCoinsReward;
 
     // =========================
     // Constructors
@@ -90,4 +96,7 @@ public class RewardDto {
 
     public int getXpReward() { return xpReward; }
     public void setXpReward(int xpReward) { this.xpReward = xpReward; }
+
+    public int getTravelCoinsReward() { return travelCoinsReward; }
+    public void setTravelCoinsReward(int travelCoinsReward) { this.travelCoinsReward = travelCoinsReward; }
 }
