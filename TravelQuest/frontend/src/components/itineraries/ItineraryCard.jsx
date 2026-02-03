@@ -109,15 +109,7 @@ export default function ItineraryCard({
         {/* CATEGORY + AUTHOR ROW */}
         <div className="row-two-cols">
           <span className="category-pill">{formatCategory(itinerary.category)}</span>
-          <span className="author">
-            Guide: {itinerary.creator?.username}
-            {typeof itinerary.creator?.travelCoins === 'number' && (
-              <span className="exposure-badge" title="Exposure Points">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f7b731" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-                {itinerary.creator.travelCoins} EP
-              </span>
-            )}
-          </span>
+          <span className="author">Guide: {itinerary.creator?.username}</span>
         </div>
 
         {/* LOCATION + DATE */}

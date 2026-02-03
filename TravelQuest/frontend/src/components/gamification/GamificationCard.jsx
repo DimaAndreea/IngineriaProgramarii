@@ -60,17 +60,19 @@ export default function GamificationCard({
     return `${xp} / ${nextN}`;
   }, [xp, nextMin]);
 
+  // Exposure Points badge (dacă există prop summary.exposurePoints sau travelCoins)
+  const exposure = summary?.travelCoins ?? summary?.exposurePoints ?? null;
+
   return (
     <div className={`gami-card ${variant === "embedded" ? "gami-embedded" : ""}`}>
       <div className="gami-top">
-        <div>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
           {showLabel ? (
             <div className="gami-kicker">
-              Your level {isMock ? <span className="gami-mock-tag">MOCK</span> : null}
+              {isMock ? <span className="gami-mock-tag">MOCK</span> : null}
             </div>
           ) : null}
-
-          <div className="gami-level">
+          <div className="gami-level" style={{display:'flex',alignItems:'center',gap:12}}>
             <img 
               src="/level-up.png" 
               alt="Level" 

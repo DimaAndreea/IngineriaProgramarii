@@ -1,3 +1,71 @@
+.gp-exposure-icon-mini {
+  width: 14px !important;
+  height: 14px !important;
+  margin-right: 4px;
+  filter: brightness(0) saturate(100%) invert(71%) sepia(97%) saturate(469%) hue-rotate(77deg) brightness(97%) contrast(92%);
+  vertical-align: middle;
+}
+.gp-exposure-inline {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 10px 0 6px;
+  margin-left: 12px;
+  border: none;
+  background: transparent;
+  color: #22c55e;
+  vertical-align: middle;
+}
+.gp-exposure-inline img {
+  width: 14px !important;
+  height: 19px;
+  margin-right: 4px;
+  filter: brightness(0) saturate(100%) invert(71%) sepia(97%) saturate(469%) hue-rotate(77deg) brightness(97%) contrast(92%);
+  vertical-align: middle;
+}
+.gp-exposure-inline img {
+  width: 12px !important;
+  height: 24px;
+  margin-right: 6px;
+  filter: drop-shadow(0 0 2px #a084e8cc);
+}
+/* Exposure Points badge */
+
+.gami-exposure-badge {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 10px 0 6px;
+  margin-left: 12px;
+  background: transparent;
+  color: #22c55e;
+  vertical-align: middle;
+}
+.gami-exposure-badge img {
+  width: 12px !important;
+  height: 12px !important;
+  margin-right: 4px;
+  filter: brightness(0) saturate(100%) invert(71%) sepia(97%) saturate(469%) hue-rotate(77deg) brightness(97%) contrast(92%);
+  vertical-align: middle;
+}
+
+.gami-exposure-badge img {
+  width: 20px !important;
+  height: 20px !important;
+  margin-right: 12px;
+  vertical-align: middle;
+  filter: drop-shadow(0 0 4px #a084e8cc);
+}
+
+.gami-exposure-badge img {
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  vertical-align: middle;
+  filter: drop-shadow(0 0 2px #a084e8cc);
+}
 /* EMBEDDED variant: no extra shadow, blends into header */
 .gami-embedded{
   box-shadow: none;
