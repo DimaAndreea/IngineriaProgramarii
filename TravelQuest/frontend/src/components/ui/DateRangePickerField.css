@@ -66,7 +66,7 @@
   background: rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 
+  box-shadow:
     0 8px 32px rgba(16, 0, 43, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   padding: 14px;
@@ -110,10 +110,19 @@
   box-shadow: 0 0 0 4px rgba(162, 152, 239, 0.15);
 }
 
+/* =========================
+   React Day Picker container
+   ========================= */
+
 .drp-popover .rdp {
   --rdp-cell-size: 42px;
-  --rdp-accent-color: rgba(162, 152, 239, 0.5);
-  --rdp-background-color: rgba(162, 152, 239, 0.2);
+
+  /* Fallback variables (suprascriem tema default) */
+  --rdp-accent-color: rgba(162, 152, 239, 0.55) !important;
+  --rdp-background-color: rgba(162, 152, 239, 0.12) !important;
+  --rdp-accent-color-dark: rgba(162, 152, 239, 0.65) !important;
+  --rdp-accent-color-darker: rgba(162, 152, 239, 0.8) !important;
+
   color: rgba(255, 255, 255, 0.95);
 }
 
@@ -155,14 +164,54 @@
   cursor: not-allowed;
 }
 
-.drp-popover .rdp-day_selected,
-.drp-popover .rdp-day_today:not(.rdp-day_range_middle) {
-  background: rgba(162, 152, 239, 0.5) !important;
-  color: #ffffff !important;
-  font-weight: 950;
-  border-radius: 12px;
+/* =========================================================
+   IMPORTANT: Override "default" react-day-picker day button
+   (în funcție de versiune, butonul e .rdp-button sau .rdp-day_button)
+   ========================================================= */
+
+/* Reset general pt buton (ca să nu mai vină background/outline din default) */
+.drp-popover .rdp .rdp-button,
+.drp-popover .rdp .rdp-day_button {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px !important;
 }
 
+/* Hover */
+.drp-popover .rdp .rdp-button:hover,
+.drp-popover .rdp .rdp-day_button:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Focus ring (scapă de pix-blue) */
+.drp-popover .rdp .rdp-button:focus,
+.drp-popover .rdp .rdp-button:focus-visible,
+.drp-popover .rdp .rdp-day_button:focus,
+.drp-popover .rdp .rdp-day_button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 4px rgba(162, 152, 239, 0.22) !important;
+}
+
+/* =================================
+   Range / Selected styling (THE FIX)
+   ================================= */
+
+/* Zi selectată (single) + aria-selected/pressed (hard override) */
+.drp-popover .rdp .rdp-button[aria-selected="true"],
+.drp-popover .rdp .rdp-day_button[aria-selected="true"],
+.drp-popover .rdp .rdp-button[aria-pressed="true"],
+.drp-popover .rdp .rdp-day_button[aria-pressed="true"] {
+  background: rgba(162, 152, 239, 0.55) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  font-weight: 950 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* Capete range: start/end (pe container + pe buton) */
 .drp-popover .rdp-day_range_start,
 .drp-popover .rdp-day_range_end {
   background: rgba(162, 152, 239, 0.5) !important;
@@ -171,11 +220,51 @@
   border-radius: 12px;
 }
 
+.drp-popover .rdp .rdp-day_range_start .rdp-button,
+.drp-popover .rdp .rdp-day_range_end .rdp-button,
+.drp-popover .rdp .rdp-day_range_start .rdp-day_button,
+.drp-popover .rdp .rdp-day_range_end .rdp-day_button {
+  background: rgba(162, 152, 239, 0.55) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* Middle range (intervalul dintre start/end) */
 .drp-popover .rdp-day_range_middle {
   background: rgba(162, 152, 239, 0.2) !important;
   color: rgba(255, 255, 255, 0.95) !important;
   border-radius: 0;
 }
+
+.drp-popover .rdp .rdp-day_range_middle .rdp-button,
+.drp-popover .rdp .rdp-day_range_middle .rdp-day_button {
+  background: rgba(162, 152, 239, 0.18) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Today (evită conflicte cu middle) */
+.drp-popover .rdp-day_today:not(.rdp-day_range_middle) {
+  background: rgba(162, 152, 239, 0.5) !important;
+  color: #ffffff !important;
+  font-weight: 950;
+  border-radius: 12px;
+}
+
+/* (optional) dacă react-day-picker pune .rdp-day_selected pe container, păstrăm coerent */
+.drp-popover .rdp-day_selected {
+  background: rgba(162, 152, 239, 0.5) !important;
+  color: #ffffff !important;
+  font-weight: 950;
+  border-radius: 12px;
+}
+
+/* =========================
+   Actions buttons
+   ========================= */
 
 .drp-actions {
   display: flex;
@@ -196,7 +285,8 @@
   letter-spacing: 0.08em !important;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 0 5px rgba(162, 152, 239, 0.4), 0 0 5px rgba(125, 111, 214, 0.2) !important;
+  box-shadow: 0 0 5px rgba(162, 152, 239, 0.4),
+    0 0 5px rgba(125, 111, 214, 0.2) !important;
 }
 
 .drp-clear:hover {
@@ -257,4 +347,93 @@
   .drp-popover {
     width: 100%;
   }
+}
+
+/* =========================
+   Nav arrows (prev/next)
+   ========================= */
+
+.drp-popover .rdp-nav {
+  color: rgba(255, 255, 255, 0.85) !important; /* fallback pt currentColor */
+}
+
+.drp-popover .rdp-nav svg,
+.drp-popover .rdp-nav svg * {
+  stroke: rgba(255, 255, 255, 0.85) !important;
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Hover (optional - lavender) */
+.drp-popover .rdp-nav button:hover svg,
+.drp-popover .rdp-nav button:hover svg * {
+  stroke: rgba(190, 182, 255, 0.95) !important;
+  fill: rgba(190, 182, 255, 0.95) !important;
+}
+
+/* Focus ring (optional) */
+.drp-popover .rdp-nav button:focus,
+.drp-popover .rdp-nav button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================
+   RDP v9 RANGE OVERRIDES
+   (kills default range colors)
+   ============================ */
+
+/* 0) Extra: asigură-te că nu "scapă" nimic din default pe buton */
+.drp-popover .rdp .rdp-day_button {
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* 1) Focus ring pe zi (pix-blue) -> controlat de noi */
+.drp-popover .rdp .rdp-day_button:focus,
+.drp-popover .rdp .rdp-day_button:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 4px rgba(162, 152, 239, 0.22) !important;
+}
+
+/* 2) Selected (v9 folosește .rdp-selected pe "day") */
+.drp-popover .rdp .rdp-selected .rdp-day_button {
+  background: rgba(162, 152, 239, 0.55) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* 3) Range START/END (v9: .rdp-range_start / .rdp-range_end) */
+.drp-popover .rdp .rdp-range_start .rdp-day_button,
+.drp-popover .rdp .rdp-range_end .rdp-day_button {
+  background: rgba(162, 152, 239, 0.55) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+
+/* 4) Range MIDDLE (v9: .rdp-range_middle) */
+.drp-popover .rdp .rdp-range_middle .rdp-day_button {
+  background: rgba(162, 152, 239, 0.18) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 5) Compat: dacă ai cumva și clase vechi rdp-day_range_* (nu strică) */
+.drp-popover .rdp .rdp-day_range_start .rdp-day_button,
+.drp-popover .rdp .rdp-day_range_end .rdp-day_button {
+  background: rgba(162, 152, 239, 0.55) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  border-radius: 12px !important;
+}
+
+.drp-popover .rdp .rdp-day_range_middle .rdp-day_button {
+  background: rgba(162, 152, 239, 0.18) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  border-radius: 0 !important;
 }
