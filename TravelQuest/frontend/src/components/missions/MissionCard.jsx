@@ -36,6 +36,9 @@ export default function MissionCard({ mission, canParticipate, onJoin }) {
       <div className="ms-card2-reward">
         <span className="ms-card2-reward-label">Reward</span>
         <span className="ms-card2-reward-value">{reward}</span>
+        {mission?.reward?.real_reward_description && (
+          <span className="ms-card2-reward-desc">{mission.reward.real_reward_description}</span>
+        )}
         {mission?.reward?.xp_reward > 0 && (
           <span className="ms-card2-xp">
             <img src="/xp-icon.png" alt="XP" style={{ width: 18, height: 18, verticalAlign: 'middle', marginLeft: 8, marginRight: 2 }} />

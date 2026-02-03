@@ -109,7 +109,7 @@
 
 /* Weekday headers (Mo, Tu...) */
 .dp-popover .rdp-weekday {
-  color: rgba(162, 152, 239, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 900;
   font-size: 12px;
   text-transform: uppercase;
@@ -176,6 +176,7 @@
   margin-top: 12px;
 }
 
+
 .dp-clear,
 .dp-today {
   flex: 1;
@@ -197,13 +198,31 @@
   border-color: rgba(162, 152, 239, 0.5);
 }
 
+/* Clear button – ghost style */
+.dp-popover .dp-clear {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: none !important;
+}
+
+/* Hover state */
+.dp-popover .dp-clear:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-1px);
+}
+
+
 .dp-today {
-  background: rgba(162, 152, 239, 0.2);
-  border-color: rgba(162, 152, 239, 0.4);
+  background: rgba(190, 182, 255, 0.32);
+  border-color: rgba(190, 182, 255, 0.55);
+  color: rgba(255, 255, 255, 0.98);
 }
 
 .dp-today:hover {
-  background: rgba(162, 152, 239, 0.3);
+  background: rgba(190, 182, 255, 0.42);
+  border-color: rgba(190, 182, 255, 0.75);
 }
 
 /* ===== POSITIONING ===== */
@@ -226,3 +245,85 @@
   }
 }
 
+/* Ziua e un button: aici apare de obicei “cercul albastru” */
+.dp-popover .rdp-day_button {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus ring (ăsta e inelul albastru default) */
+.dp-popover .rdp-day_button:focus,
+.dp-popover .rdp-day_button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important; /* sau pune tu un ring custom */
+}
+
+/* Stilul pentru ziua selectată (în multe versiuni, clasa e pe container,
+   iar button-ul e în interior, de asta targetăm “selected + button”) */
+.dp-popover .rdp-day_selected .rdp-day_button,
+.dp-popover .rdp-day_selected:focus-visible .rdp-day_button {
+  background: linear-gradient(
+    135deg,
+    rgba(162, 152, 239, 0.8) 0%,
+    rgba(162, 152, 239, 0.7) 100%
+  ) !important;
+  color: rgba(255, 255, 255, 1) !important;
+  font-weight: 950 !important;
+  border-radius: 10px !important;
+
+  /* dacă vrei contur, pune-l tu explicit */
+  box-shadow: 0 0 0 2px rgba(162, 152, 239, 0.55) !important;
+}
+
+/* NAV: butoanele de next/prev */
+.dp-popover .rdp-nav_button {
+  color: rgba(255, 255, 255, 0.85) !important; /* currentColor */
+}
+
+/* NAV: icon-ul (SVG) — aici e albastrul “PIX” */
+.dp-popover .rdp-nav_button svg,
+.dp-popover .rdp-nav_button svg * {
+  stroke: rgba(255, 255, 255, 0.85) !important;
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Hover (optional) */
+.dp-popover .rdp-nav_button:hover svg,
+.dp-popover .rdp-nav_button:hover svg * {
+  stroke: rgba(190, 182, 255, 0.95) !important;
+  fill: rgba(190, 182, 255, 0.95) !important;
+}
+
+/* Focus ring — dacă apare */
+.dp-popover .rdp-nav_button:focus,
+.dp-popover .rdp-nav_button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* fallback: orice buton din header/nav */
+.dp-popover .rdp-nav .rdp-button svg,
+.dp-popover .rdp-nav .rdp-button svg * {
+  stroke: rgba(255, 255, 255, 0.85) !important;
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 1) Prinde orice SVG din zona de navigare a DayPicker-ului (prev/next) */
+.dp-popover .rdp-nav svg,
+.dp-popover .rdp-nav svg * {
+  stroke: rgba(255, 255, 255, 0.85) !important;
+  fill: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 2) Dacă icon-ul se bazează pe currentColor */
+.dp-popover .rdp-nav {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* 3) Hover (optional) */
+.dp-popover .rdp-nav button:hover svg,
+.dp-popover .rdp-nav button:hover svg * {
+  stroke: rgba(190, 182, 255, 0.95) !important;
+  fill: rgba(190, 182, 255, 0.95) !important;
+}

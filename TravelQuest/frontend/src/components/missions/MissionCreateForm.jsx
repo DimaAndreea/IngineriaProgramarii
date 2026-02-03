@@ -292,7 +292,7 @@ export default function MissionCreateForm({ onCreate }) {
           Role <span className="ms-required">*</span>
         </span>
         <select
-          className="ms-input"
+          className={msg?.type === "error" && msg.text?.toLowerCase().includes("role") ? "input error-input" : "input"}
           name="role"
           value={values.role}
           onChange={onChange}
@@ -311,7 +311,7 @@ export default function MissionCreateForm({ onCreate }) {
           Objective type <span className="ms-required">*</span>
         </span>
         <select
-          className="ms-input"
+          className={msg?.type === "error" && msg.text?.toLowerCase().includes("objective type") ? "input error-input" : "input"}
           name="type"
           value={values.type}
           onChange={onChange}
@@ -331,7 +331,7 @@ export default function MissionCreateForm({ onCreate }) {
             Category <span className="ms-required">*</span>
           </span>
           <select
-            className="ms-input"
+            className={msg?.type === "error" && msg.text?.toLowerCase().includes("category") ? "input error-input" : "input"}
             name="category"
             value={values.category}
             onChange={onChange}

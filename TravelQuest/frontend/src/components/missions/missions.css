@@ -1,3 +1,59 @@
+/* Strongest override for reward description color */
+.ms-card2-reward > .ms-card2-reward-desc,
+.ms-card2-reward .ms-card2-reward-desc,
+.ms-card2-reward-desc {
+  color: #74eca8 !important;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+  display: block;
+}
+/* Stilizare verde pentru secțiunea de reward din MissionCard (admin) */
+.ms-card2-reward-label,
+.ms-card2-reward-value,
+.ms-card2-xp,
+.ms-card2-xp b {
+  color: #74eca8 !important;
+}
+/* --- Dropdown styling copied from ItineraryForm.css for consistent look --- */
+
+
+select.input {
+  color: rgba(255, 255, 255, 0.95) !important;
+  background: rgba(162, 152, 239, 0.25) !important;
+  border: 1px solid rgba(162, 152, 239, 0.5) !important;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+select.input option {
+  color: rgba(30, 27, 69, 0.95) !important;
+  background: #f3f0ff !important;
+}
+
+
+select.input:focus,
+select.input:hover {
+  border-color: rgba(125, 111, 214, 0.7) !important;
+  /* background unchanged, keep as default */
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 3px rgba(162, 152, 239, 0.25);
+  outline: none;
+}
+
+.input:focus,
+.input:hover {
+  border-color: rgba(125, 111, 214, 0.7) !important;
+  background: rgba(162, 152, 239, 0.25) !important;
+  color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 0 0 3px rgba(162, 152, 239, 0.25);
+  outline: none;
+}
+
+.error-input {
+  border-color: rgba(239, 68, 68, 0.6) !important;
+  background: rgba(239, 68, 68, 0.05) !important;
+}
 /* Forțează dropdown-urile din MissionCreateForm să fie negre, indiferent de .ms-input */
 .mission-create-form select.ms-input,
 .mission-create-form select.ms-input option {
