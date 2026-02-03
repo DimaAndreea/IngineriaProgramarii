@@ -13,7 +13,7 @@ export default function RewardsList({ rewards, loading }) {
           </div>
           <div className="mr-reward-title" style={{ textAlign: 'center', fontWeight: 900, fontSize: 16, marginTop: 8 }}>{r.title}</div>
           {r.real_reward_description && (
-            <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: '#74eca8', textAlign: 'left', width: '100%' }}>
+            <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: '#9ad65c', textAlign: 'left', width: '100%' }}>
               <span style={{ color: '#b5b5b5', fontWeight: 600 }}>About:</span> {r.real_reward_description}
             </div>
           )}

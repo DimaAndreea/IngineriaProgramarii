@@ -1,3 +1,38 @@
+.active-itinerary-page.no-active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+.no-active-icon {
+    margin-top: 90px !important;
+    display: block;
+    margin: 0 auto 28px auto;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 16px rgba(122,90,167,0.16));
+}
+
+.no-active-title {
+    text-align: center;
+    font-size: 2.8rem;
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    margin-bottom: 18px;
+    color: #fff !important;
+    text-shadow: 0 2px 12px rgba(122,90,167,0.13);
+    margin-bottom: 120px !important;
+}
+.active-itinerary-page.no-active .error-message {
+    color: #fff !important;
+}
+
+.active-itinerary-page.no-active .no-active-desc {
+    color: #fff !important;
+}
 .active-itinerary-page {
     padding: 40px 80px;
     max-width: 1600px;
