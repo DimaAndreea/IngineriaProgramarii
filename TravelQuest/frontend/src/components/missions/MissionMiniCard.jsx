@@ -113,7 +113,7 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
                 </div>
                 {/* Show reward description if available and not default */}
                 {getRewardDescription(mission) && getRewardDescription(mission) !== "Special reward" && (
-                  <div style={{ marginTop: '4px', fontSize: '12px', fontWeight: '700', color: '#74eca8' }}>
+                  <div style={{ marginTop: '4px', fontSize: '12px', fontWeight: '700', color: '#9ad65c' }}>
                     {getRewardDescription(mission)}
                   </div>
                 )}
@@ -220,11 +220,11 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
               <span className="mr-reward-label">Reward</span>
-              <div style={{ marginTop: 8, fontSize: 14, fontWeight: 900, color: '#74eca8', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0,0,0,0.3)' }}>
+              <div style={{ marginTop: 8, fontSize: 14, fontWeight: 900, color: '#9ad65c', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0,0,0,0.3)' }}>
                 {getRewardLabel(mission)}
               </div>
               {getRewardDescription(mission) && getRewardDescription(mission) !== "Special reward" && (
-                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: '#74eca8' }}>
+                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: '#9ad65c' }}>
                   {getRewardDescription(mission)}
                 </div>
               )}

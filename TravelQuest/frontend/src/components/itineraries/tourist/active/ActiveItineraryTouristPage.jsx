@@ -186,27 +186,24 @@ export default function ActiveItineraryTouristPage() {
 
   if (loading)
     return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">Active itinerary</h1>
+      <div className="active-itinerary-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <p>Loading active itinerary...</p>
       </div>
     );
 
-  if (loadError)
+  if (loadError || !itinerary) {
     return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">Active itinerary</h1>
-        <p className="error-message">{loadError}</p>
+      <div className="active-itinerary-page no-active">
+        <img src="/sad.png" alt="Sad face" className="no-active-icon" />
+        <h1 className="page-title no-active-title">No Active Itinerary</h1>
+        <p className="error-message" style={{ color: '#fff', marginTop: 8 }}>{loadError || "No active itinerary available."}</p>
+        <div className="no-active-desc">
+          You currently have no active itinerary assigned for today.<br />
+          Please check back later or contact your administrator if you think this is a mistake.
+        </div>
       </div>
     );
-
-  if (!itinerary)
-    return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">Active itinerary</h1>
-        <p>No active itinerary available.</p>
-      </div>
-    );
+  }
 
   const { title, locations = [] } = itinerary;
   

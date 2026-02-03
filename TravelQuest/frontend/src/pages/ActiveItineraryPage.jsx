@@ -187,8 +187,7 @@ export default function ActiveItineraryPage() {
   // ---------------------- RENDER ----------------------
   if (loading) {
     return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">Active itinerary</h1>
+      <div className="active-itinerary-page" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <Loader label="Loading active itinerary..." />
       </div>
     );
@@ -196,9 +195,13 @@ export default function ActiveItineraryPage() {
 
   if (error) {
     return (
-      <div className="active-itinerary-page">
-        <h1 className="page-title">Active itinerary</h1>
+      <div className="active-itinerary-page no-active">
+        <img src="/sad.png" alt="Sad face" className="no-active-icon" />
+        <h1 className="page-title no-active-title">No Active Itinerary</h1>
         <p className="error-message">{error}</p>
+        <div className="no-active-desc">
+          You currently have no active itinerary assigned for today.
+        </div>
       </div>
     );
   }
