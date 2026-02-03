@@ -1,3 +1,20 @@
+/* Strongest override for reward description color */
+.ms-card2-reward > .ms-card2-reward-desc,
+.ms-card2-reward .ms-card2-reward-desc,
+.ms-card2-reward-desc {
+  color: #74eca8 !important;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+  display: block;
+}
+/* Stilizare verde pentru secțiunea de reward din MissionCard (admin) */
+.ms-card2-reward-label,
+.ms-card2-reward-value,
+.ms-card2-xp,
+.ms-card2-xp b {
+  color: #74eca8 !important;
+}
 /* --- Dropdown styling copied from ItineraryForm.css for consistent look --- */
 
 

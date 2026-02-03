@@ -266,7 +266,6 @@ export default function MissionsPage() {
                 <h3 className="mr-section-title">Missions</h3>
                 <IconTarget size={24} color="#9ad65c" />
               </div>
-              <p className="mr-section-hint">Only missions for your role are shown.</p>
             </div>
 
             {/* Filter buttons */}

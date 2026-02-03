@@ -12,6 +12,10 @@ export default function RewardsList({ rewards, loading }) {
             <img src="/coupon.png" alt="Coupon" className="mr-ticket-img" />
           </div>
           <div className="mr-reward-title">{r.title}</div>
+          {/* Show reward description if available */}
+          {r.real_reward_description && (
+            <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: '#74eca8' }}>{r.real_reward_description}</div>
+          )}
           {r.fromMissionTitle ? (
             <div className="mr-reward-sub">From: {r.fromMissionTitle}</div>
           ) : null}

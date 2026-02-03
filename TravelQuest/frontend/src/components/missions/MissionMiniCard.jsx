@@ -71,10 +71,8 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
             <img src="/claimed-no-bg.png" alt="Claimed" className="mr-claimed-stamp" />
           </div>
         )}
-        
         <div className="mr-mission-content-horizontal">
           <div className="mr-mission-title-horizontal">{mission?.title || "Mission"}</div>
-          
           <div className="mr-mission-dates-horizontal">
             {startDateLabel && (
               <>
@@ -93,7 +91,6 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
               <span>Ending on: {endDateLabel}</span>
             </div>
           </div>
-
           <div className={`mr-progress-wrap-horizontal ${state === "NOT_JOINED" ? "mr-progress-disabled" : ""}`}>
             <div className="mr-progress-top-horizontal">
               <span className="mr-progress-text-horizontal">
@@ -107,7 +104,6 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
               <div className="mr-progress-fill-horizontal" style={{ width: state === "NOT_JOINED" ? "0%" : `${pct}%` }} />
             </div>
           </div>
-
           <div className="mr-reward-horizontal">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
               <div className="mr-reward-content" style={{ flex: 1 }}>
@@ -115,10 +111,16 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
                 <div className="mr-reward-title-horizontal">
                   <span className="mr-reward-title-horizontal">{getRewardLabel(mission)}</span>
                 </div>
+                {/* Show reward description if available and not default */}
+                {getRewardDescription(mission) && getRewardDescription(mission) !== "Special reward" && (
+                  <div style={{ marginTop: '4px', fontSize: '12px', fontWeight: '700', color: '#74eca8' }}>
+                    {getRewardDescription(mission)}
+                  </div>
+                )}
                 {mission?.reward?.xp_reward && (
-                  <div className="mr-reward-xp-horizontal">
-                    <IconXP size={14} color="#9ad65c" />
-                    <span className="mr-reward-xp-horizontal">{mission.reward.xp_reward} XP</span>
+                  <div className="mr-reward-xp-horizontal" style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8 }}>
+                    <IconXP size={16} color="#9ad65c" />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#9ad65c', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0,0,0,0.3)' }}>{mission.reward.xp_reward} XP</span>
                   </div>
                 )}
               </div>
@@ -129,7 +131,6 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
               />
             </div>
           </div>
-
           {state === "NOT_JOINED" && canParticipate && (
             <button className="mr-btn mr-btn-primary mr-btn-join-horizontal" onClick={() => onJoin?.(id)}>
               Start Mission
@@ -219,18 +220,18 @@ function MissionMiniCardComponent({ mission, onJoin, onClaim, canParticipate, is
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
               <span className="mr-reward-label">Reward</span>
-              <div style={{ marginTop: '8px', fontSize: '14px', fontWeight: '900', color: '#9ad65c', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3)' }}>
+              <div style={{ marginTop: 8, fontSize: 14, fontWeight: 900, color: '#74eca8', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0,0,0,0.3)' }}>
                 {getRewardLabel(mission)}
               </div>
               {getRewardDescription(mission) && getRewardDescription(mission) !== "Special reward" && (
-                <div style={{ marginTop: '4px', fontSize: '12px', fontWeight: '700', color: 'rgba(17, 24, 39, 0.65)' }}>
+                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 700, color: '#74eca8' }}>
                   {getRewardDescription(mission)}
                 </div>
               )}
               {mission?.reward?.xp_reward && (
-                <div style={{ marginTop: '8px', fontSize: '13px', fontWeight: '800', color: '#9ad65c', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div className="mr-reward-xp-horizontal" style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8 }}>
                   <IconXP size={16} color="#9ad65c" />
-                  <span>{mission.reward.xp_reward} XP</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#9ad65c', textShadow: '0 0 6px rgba(154, 214, 92, 0.6), 0 1px 2px rgba(0,0,0,0.3)' }}>{mission.reward.xp_reward} XP</span>
                 </div>
               )}
             </div>
