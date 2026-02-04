@@ -495,7 +495,9 @@ export default function GuideProfilePage() {
           </div>
 
           <div className="gp-header-right">
-            {selectedBadgeName ? (
+            {selectedBadgeName && loading ? (
+              <Loader label="Loading badge..." size={56} />
+            ) : selectedBadgeName ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, paddingRight: 32 }}>
                 {/* Show PNG badge icon for owner or visitor */}
                 {(() => {

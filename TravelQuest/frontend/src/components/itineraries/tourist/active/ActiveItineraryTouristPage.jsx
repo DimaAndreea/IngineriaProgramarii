@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getActiveItineraryForTourist,
   submitFeedbackForGuide,
@@ -23,6 +24,7 @@ function normalizeErrorMessage(raw) {
 }
 
 export default function ActiveItineraryTouristPage() {
+  const navigate = useNavigate();
   const [itinerary, setItinerary] = useState(null);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [selectedMission, setSelectedMission] = useState(null);
@@ -249,9 +251,40 @@ export default function ActiveItineraryTouristPage() {
     itinerary?.guideFullName ??
     null;
 
+
   return (
     <div className="active-itinerary-page">
-      <ItineraryHeader title={title} startDate={itinerary?.startDate} endDate={itinerary?.endDate} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <ItineraryHeader
+          title={title}
+          startDate={itinerary?.startDate}
+          endDate={itinerary?.endDate}
+          detailsButton={
+            itinerary?.id && (
+              <button
+                className="go-details-btn"
+                style={{
+                  margin: '8px 0 0 0',
+                  padding: '7px 20px',
+                  borderRadius: '999px',
+                  background: 'transparent',
+                  color: '#ede7f6',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  cursor: 'pointer',
+                  textShadow: 'none',
+                  transition: 'color 0.2s',
+                }}
+                onClick={() => navigate(`/itineraries/${itinerary.id}`)}
+              >
+                View itinerary details
+              </button>
+            )
+          }
+        />
+      </div>
 
       <ProgressBar stages={stageNames} currentStage={currentStageIndex} />
 

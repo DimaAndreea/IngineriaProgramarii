@@ -1,10 +1,10 @@
 import React from "react";
 
-export default function ItineraryHeader({ title, startDate, endDate }) {
+export default function ItineraryHeader({ title, startDate, endDate, detailsButton }) {
   return (
     <div className="itinerary-header">
       <h1 className="itinerary-title">{title || "Active itinerary"}</h1>
-      
+      {detailsButton}
       {startDate && endDate && (
         <div className="itinerary-period">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="calendar-icon">

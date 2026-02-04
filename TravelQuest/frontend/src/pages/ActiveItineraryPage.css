@@ -50,12 +50,12 @@
     font-weight: 800 !important;
     margin-bottom: 16px !important;
     color: rgba(255, 255, 255, 0.95) !important;
-    line-height: 1.1;
+    line-height: 1.25;
 }
 
 .itinerary-period {
     display: flex;
-    margin-bottom: 60px !important;
+    margin-bottom: 16px !important;
     align-items: center;
     justify-content: center;
     gap: 12px;

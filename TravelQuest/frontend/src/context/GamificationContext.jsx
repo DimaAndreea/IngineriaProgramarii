@@ -14,36 +14,40 @@ import { useAuth } from "./AuthContext";
 
 const GamificationContext = createContext(null);
 
-const STORAGE_LAST_LEVEL_KEY = "gami_last_level_v1";
-const STORAGE_SHOWN_LEVEL_KEY = "gami_shown_level_v1";
+function getLevelKey(userId) {
+  return `gami_last_level_${userId}`;
+}
+function getShownKey(userId) {
+  return `gami_shown_level_${userId}`;
+}
 
-function readLastLevel() {
+function readLastLevel(userId) {
   try {
-    const n = Number(localStorage.getItem(STORAGE_LAST_LEVEL_KEY));
+    const n = Number(localStorage.getItem(getLevelKey(userId)));
     return Number.isFinite(n) ? n : null;
   } catch {
     return null;
   }
 }
 
-function writeLastLevel(level) {
+function writeLastLevel(userId, level) {
   try {
-    localStorage.setItem(STORAGE_LAST_LEVEL_KEY, String(level));
+    localStorage.setItem(getLevelKey(userId), String(level));
   } catch {}
 }
 
-function readShownLevel() {
+function readShownLevel(userId) {
   try {
-    const n = Number(localStorage.getItem(STORAGE_SHOWN_LEVEL_KEY));
+    const n = Number(localStorage.getItem(getShownKey(userId)));
     return Number.isFinite(n) ? n : null;
   } catch {
     return null;
   }
 }
 
-function writeShownLevel(level) {
+function writeShownLevel(userId, level) {
   try {
-    localStorage.setItem(STORAGE_SHOWN_LEVEL_KEY, String(level));
+    localStorage.setItem(getShownKey(userId), String(level));
   } catch {}
 }
 
@@ -87,7 +91,7 @@ function buildKey(norm) {
 }
 
 export function GamificationProvider({ children, pollMs = 5000 }) {
-  const { role } = useAuth();
+  const { role, userId } = useAuth();
 
   // doar userii logați (tourist/guide/admin) au sens să vadă HUD/celebration
   const isLoggedInRole =
@@ -112,7 +116,8 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
   const debounceRef = useRef(null);
   const lastFetchAtRef = useRef(0);
 
-  const lastLevelRef = useRef(readLastLevel());  const shownLevelRef = useRef(readShownLevel());
+  const lastLevelRef = useRef(readLastLevel(userId));
+  const shownLevelRef = useRef(readShownLevel(userId));
   // păstrăm ultima versiune “egală” ca să nu setăm state dacă nu s-a schimbat nimic
   const lastKeyRef = useRef("");
 
@@ -143,7 +148,7 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
 
       // detect level-up (doar când crește)
       const lvl = norm?.level;
-      if (lvl != null) {
+      if (lvl != null && userId) {
         const next = Number(lvl);
         const prev = Number(lastLevelRef.current);
 
@@ -151,17 +156,16 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
           if (Number.isFinite(prev) && next > prev) {
             // Level-up detected! Check if we've already shown notification for this level
             const shownLevel = Number(shownLevelRef.current);
-            
             // Only show notification if we haven't already shown it for this level
             if (next !== shownLevel) {
               setLevelUpTo(next);
               setLevelUpOpen(true);
-              writeShownLevel(next);
+              writeShownLevel(userId, next);
               shownLevelRef.current = next;
             }
           }
           lastLevelRef.current = next;
-          writeLastLevel(next);
+          writeLastLevel(userId, next);
         }
       }
 
@@ -188,13 +192,10 @@ export function GamificationProvider({ children, pollMs = 5000 }) {
   };
 
   // Debounced refresh (folosit de events)
+  // Instant refresh (fără debounce)
   const requestRefresh = () => {
     if (!isLoggedInRole) return;
-    if (debounceRef.current) window.clearTimeout(debounceRef.current);
-
-    debounceRef.current = window.setTimeout(() => {
-      refresh({ silent: true });
-    }, 250);
+    refresh({ silent: true });
   };
 
   // 1) polling fallback

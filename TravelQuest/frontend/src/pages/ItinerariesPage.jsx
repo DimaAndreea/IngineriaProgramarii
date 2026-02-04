@@ -296,6 +296,15 @@ export default function ItinerariesPage() {
             )}
 
             {[...itineraries]
+              // Pentru turisti: ascunde itinerariile care au inceput deja
+              .filter(it => {
+                if (!isTourist) return true;
+                if (!it.startDate) return true;
+                const today = new Date();
+                const start = new Date(it.startDate);
+                // Daca data curenta >= startDate, nu afisa
+                return today < start;
+              })
               .sort((a, b) => {
                 const coinsA = a.creator?.travelCoins ?? 0;
                 const coinsB = b.creator?.travelCoins ?? 0;

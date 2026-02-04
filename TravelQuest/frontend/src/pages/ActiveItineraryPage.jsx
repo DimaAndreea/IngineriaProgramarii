@@ -3,6 +3,7 @@ import "./ActiveItineraryPage.css";
 
 import ProgressBar from "../components/itineraries/active/ProgressBar";
 import ItineraryHeader from "../components/itineraries/active/ItineraryHeader";
+import { useNavigate } from "react-router-dom";
 import Loader from "../components/common/Loader";
 import ParticipantList from "../components/itineraries/active/ParticipantList";
 import MissionList from "../components/itineraries/active/MissionList";
@@ -16,6 +17,7 @@ import {
 } from "../services/itineraryService";
 
 export default function ActiveItineraryPage() {
+  const navigate = useNavigate();
   const [itineraryId, setItineraryId] = useState(null);
 
   const [title, setTitle] = useState("");
@@ -207,8 +209,39 @@ export default function ActiveItineraryPage() {
   }
 
   return (
+
     <div className="active-itinerary-page">
-      <ItineraryHeader title={title} startDate={startDate} endDate={endDate} />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <ItineraryHeader
+          title={title}
+          startDate={startDate}
+          endDate={endDate}
+          detailsButton={
+            itineraryId && (
+              <button
+                className="go-details-btn"
+                style={{
+                  margin: '8px 0 0 0',
+                  padding: '7px 20px',
+                  borderRadius: '999px',
+                  background: 'transparent',
+                  color: '#ede7f6',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  border: 'none',
+                  boxShadow: 'none',
+                  cursor: 'pointer',
+                  textShadow: 'none',
+                  transition: 'color 0.2s',
+                }}
+                onClick={() => navigate(`/itineraries/${itineraryId}`)}
+              >
+                View itinerary details
+              </button>
+            )
+          }
+        />
+      </div>
 
       <ProgressBar stages={stages} currentStage={currentStage} />
 

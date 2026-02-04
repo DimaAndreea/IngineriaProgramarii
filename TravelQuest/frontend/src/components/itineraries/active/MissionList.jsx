@@ -34,31 +34,42 @@ export default function MissionList({
           return oid === mid;
         });
 
+        // Verifică dacă există submisii pending pentru această misiune
+        const hasPending = missionSubmissions.some((s) => {
+          const st = s.status ? String(s.status).toUpperCase() : "PENDING";
+          return st === "PENDING";
+        });
+
         return (
           <div key={m.id} className="mission-item">
             <div className="mission-header">
               <p className="mission-text">{m.name ?? m.text}</p>
 
-              <button
-                className="toggle-submissions-btn"
-                onClick={() => toggleMission(m.id)}
-              >
-                {openMission === m.id ? (
-                  <>
-                    Hide Submissions
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 10L8 6L4 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    View Submissions
-                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  className="toggle-submissions-btn"
+                  onClick={() => toggleMission(m.id)}
+                >
+                  {openMission === m.id ? (
+                    <>
+                      Hide Submissions
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 10L8 6L4 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      View Submissions
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </>
+                  )}
+                </button>
+                {hasPending && (
+                  <span className="pending-dot" title="Pending submissions" />
                 )}
-              </button>
+              </div>
             </div>
 
             {openMission === m.id && (

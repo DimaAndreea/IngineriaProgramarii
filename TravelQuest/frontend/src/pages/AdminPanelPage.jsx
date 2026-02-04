@@ -160,27 +160,6 @@ export default function AdminPanelPage() {
                 {additionalStats && (
                   <div className="admin-insights-extra">
                     <div className="admin-insight-item">
-                      <p className="admin-insight-label">Top Guide</p>
-                      <p className="admin-insight-value">
-                        {additionalStats.topGuideId ? (
-                          <Link 
-                            to={`/guides/${additionalStats.topGuideId}`}
-                            className="admin-guide-link"
-                          >
-                            {additionalStats.topGuideName}
-                          </Link>
-                        ) : (
-                          additionalStats.topGuideName
-                        )}
-                        {additionalStats.topGuideCount > 0 && (
-                          <span className="admin-guide-count">
-                            <span className="admin-guide-star">★</span>
-                            {additionalStats.topGuideCount}
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="admin-insight-item">
                       <p className="admin-insight-label">Average Price</p>
                       <p className="admin-insight-value">{formatPrice(additionalStats.averagePrice)}</p>
                     </div>

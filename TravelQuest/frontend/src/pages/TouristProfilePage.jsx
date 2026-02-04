@@ -438,7 +438,9 @@ export default function TouristProfilePage() {
           </div>
 
           <div className="tourist-header-right">
-            {selectedBadgeName ? (
+            {selectedBadgeName && loading ? (
+              <Loader label="Se încarcă badge-ul..." size={56} />
+            ) : selectedBadgeName ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 24, paddingRight: 32 }}>
                 {(() => {
                   let badgeId = null;
